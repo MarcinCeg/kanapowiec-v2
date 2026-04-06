@@ -8,3 +8,7 @@ def index():
     if current_user.is_authenticated:
         return redirect(url_for("main.index"))
     return render_template("landing.html")
+
+@landing_bp.route("/health")
+def health():
+    return "OK", 200
