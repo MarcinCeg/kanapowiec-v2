@@ -49,7 +49,10 @@ def create_app(config=None):
 
     # Twórz tabele
     with app.app_context():
-        db.create_all()
+        try:
+            db.create_all()
+        except Exception as e:
+            print(f"Warning: db.create_all() failed: {e}")
 
     return app
 
