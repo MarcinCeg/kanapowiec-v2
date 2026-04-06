@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+{% block title %}AI Sommelier — Kanapowy Leniwiec{% endblock %}
+
+{% block content %}
+<main style="max-width:780px">
+
+<div style="text-align:center;padding:32px 24px 24px;background:var(--s);border-radius:var(--r12);border:1px solid var(--b);margin-bottom:20px">
+  <div style="font-size:40px;margin-bottom:10px">🤖</div>
+  <h1 style="font-size:22px;font-weight:700;color:var(--t);margin-bottom:6px">Serial Sommelier</h1>
+  <p style="font-size:13px;color:var(--m);max-width:440px;margin:0 auto;line-height:1.6">
+    Powiedz mi jaki masz dziś nastrój, a znajdę dla Ciebie idealny serial.
+    Przeanalizuję Twoją historię oglądania i dopasuje rekomendacje do Twojego gustu.
+  </p>
+</div>
+
+{# ── AGENT REKOMENDACJI ── #}
+<div style="background:var(--s);border:1px solid var(--b);border-radius:var(--r12);padding:20px;margin-bottom:16px">
+  <div style="font-size:13px;font-weight:600;color:var(--t);margin-bottom:4px">✨ Co chcesz dziś obejrzeć?</div>
+  <div style="font-size:11px;color:var(--m);margin-bottom:14px">Opisz swój nastrój, gatunek, lub powiedz "zaskoczyj mnie"</div>
+
+  <div style="display:flex;gap:8px;margin-bottom:10px">
+    <input type="text" id="nastrojInput"
+      placeholder='np. "jestem zmęczony, coś lekkiego" albo "thriller który nie da spać"'
+      style="flex:1;height:42px;padding:0 14px;border:1px solid var(--b);border-radius:var(--r8);font-size:13px;outline:none;color:var(--t);transition:border-color .15s"
+      onfocus="this.style.borderColor='#534AB7'" onblur="this.style.borderColor='var(--b)'"
+      onkeydown="if(event.key==='Enter')zapytajAgenta()">
+    <button onclick="zapytajAgenta()" id="agentBtn" class="btn btn-primary" style="height:42px;padding:0 20px;border-radius:var(--r8)">
+      Znajdź serial
+    </button>
+  </div>
+
+  {# SZYBKIE SUGESTIE #}
+  <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:16px">
+    {% for s in ['😴 Jestem zmęczony, coś lekkiego','🔪 Thriller który nie da spać','😂 Coś śmiesznego','🌍 Serial z innego kraju','⚡ Krótkie odcinki','💀 Coś mrocznego','🏠 Familijny na weekend','🤯 Coś zaskakującego'] %}
+    <button onclick="document.getElementById('nastrojInput').value='{{ s[2:] }}'" class="fpill">{{ s }}</button>
+    {% endfor %}
+  </div>
+
+  {# WYNIK AGENTA #}
+  <div id="agentResult" style="display:none">
+    <div style="border-top:1px solid var(--b);padding-top:16px">
+      <div style="font-size:11px;font-weight:600;color:var(--h);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Rekomendacje od Serial Sommelier</div>
+      <div id="agentText" style="font-size:13px;color:var(--t);line-height:1.7;white-space:pre-wrap"></div>
+    </div>
+  </div>
+
+  {# LOADING #}
+  <div id="agentLoading" style="display:none;text-align:center;padding:20px">
+    <div style="font-size:24px;animation:spin 1s linear infinite;display:inline-block">⟳</div>
+    <div style="font-size:12px;color:var(--m);margin-top:8px" id="loadingStep">Agent analizuje Twoje seriale…</div>
+  </div>
+</div>
+
+{# ── SZYBKIE REKOMENDACJE ── #}
+<div style="background:var(--s);border:1px solid var(--b);border-radius:var(--r12);padding:20px;margin-bottom:16px">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+    <div>
+      <div style="font-size:13px;font-weight:600;color:var(--t);margin-bottom:2px">⚡ Szybkie rekomendacje</div>
+      <div style="font-size:11px;color:var(--m)">Na podstawie Twojej historii — bez wpisywania</div>
+    </div>
+    <button onclick="pobierzSzybkie()" id="szybkieBtn" class="btn btn-sm">Generuj</button>
+  </div>
+  <div id="szybkieResult" style="display:none">
+    <div id="szybkieList" style="display:grid;grid-template-columns:1fr 1fr;gap:8px"></div>
+  </div>
+  <div id="szybkieLoading" style="display:none;text-align:center;padding:16px;font-size:12px;color:var(--m)">⟳ Generuję…</div>
+</div>
+
+{# ── PODSUMOWANIE TYGODNIA ── #}
+<div style="background:linear-gradient(135deg,#EEEDFE,#E1F5EE);border:1px solid #AFA9EC;border-radius:var(--r12);padding:20px">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+    <div>
+      <div style="font-size:13px;font-weight:600;color:#3C3489;margin-bottom:2px">📅 Podsumowanie tygodnia</div>
+      <div style="font-size:11px;color:#534AB7">AI napisze dla Ciebie krótkie podsumowanie</div>
+    </div>
+    <button onclick="pobierzPodsumowanie()" id="podsumBtn" class="btn btn-sm">Generuj</button>
+  </div>
+  <div id="podsumResult" style="display:none;font-size:13px;color:#3C3489;line-height:1.6;background:rgba(255,255,255,.5);border-radius:var(--r8);padding:12px"></div>
+  <div id="podsumLoading" style="display:none;text-align:center;padding:12px;font-size:12px;color:#534AB7">⟳ Piszę…</div>
+</div>
+
+</main>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const loadingSteps = [
+  "Agent analizuje Twoje seriale…",
+  "Przeszukuję TMDB w poszukiwaniu dopasowań…",
+  "Sprawdzam Twoją historię oglądania…",
+  "Dopasowuję do Twojego gustu…",
+  "Prawie gotowe…"
+];
+
+async function zapytajAgenta(){
+  const nastroj = document.getElementById('nastrojInput').value.trim();
+  if(!nastroj) return;
+  const btn = document.getElementById('agentBtn');
+  btn.disabled = true; btn.textContent = '⟳ Szukam…';
+  document.getElementById('agentResult').style.display = 'none';
+  document.getElementById('agentLoading').style.display = 'block';
+
+  let step = 0;
+  const interval = setInterval(()=>{
+    document.getElementById('loadingStep').textContent = loadingSteps[step++ % loadingSteps.length];
+  }, 1800);
+
+  try {
+    const r = await fetch('/api/ai/rekomenduj', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({nastroj})
+    });
+    const d = await r.json();
+    clearInterval(interval);
+    document.getElementById('agentLoading').style.display = 'none';
+    if(d.ok){
+      document.getElementById('agentText').textContent = d.wynik;
+      document.getElementById('agentResult').style.display = 'block';
+    } else {
+      alert('Błąd: ' + (d.error || 'nieznany'));
+    }
+  } catch(e) {
+    clearInterval(interval);
+    document.getElementById('agentLoading').style.display = 'none';
+    alert('Błąd połączenia z AI');
+  }
+  btn.disabled = false; btn.textContent = 'Znajdź serial';
+}
+
+async function pobierzSzybkie(){
+  const btn = document.getElementById('szybkieBtn');
+  btn.disabled = true;
+  document.getElementById('szybkieLoading').style.display = 'block';
+  document.getElementById('szybkieResult').style.display = 'none';
+  try {
+    const r = await fetch('/api/ai/szybkie');
+    const d = await r.json();
+    document.getElementById('szybkieLoading').style.display = 'none';
+    if(d.ok && d.rekomendacje.length){
+      document.getElementById('szybkieList').innerHTML = d.rekomendacje.map(rec=>`
+        <div style="background:var(--bg);border:1px solid var(--b);border-radius:var(--r8);padding:11px">
+          <div style="font-size:12px;font-weight:600;color:var(--t);margin-bottom:4px">🎬 ${rec.nazwa}</div>
+          <div style="font-size:11px;color:var(--m);line-height:1.5">${rec.powod}</div>
+        </div>
+      `).join('');
+      document.getElementById('szybkieResult').style.display = 'block';
+    }
+  } catch(e) {
+    document.getElementById('szybkieLoading').style.display = 'none';
+    alert('Błąd AI');
+  }
+  btn.disabled = false;
+}
+
+async function pobierzPodsumowanie(){
+  const btn = document.getElementById('podsumBtn');
+  btn.disabled = true;
+  document.getElementById('podsumLoading').style.display = 'block';
+  document.getElementById('podsumResult').style.display = 'none';
+  try {
+    const r = await fetch('/api/ai/podsumowanie');
+    const d = await r.json();
+    document.getElementById('podsumLoading').style.display = 'none';
+    if(d.ok){
+      document.getElementById('podsumResult').textContent = d.tekst;
+      document.getElementById('podsumResult').style.display = 'block';
+    }
+  } catch(e) {
+    document.getElementById('podsumLoading').style.display = 'none';
+    alert('Błąd AI');
+  }
+  btn.disabled = false;
+}
+</script>
+{% endblock %}

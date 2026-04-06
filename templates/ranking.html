@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}Ranking — Kanapowy Leniwiec{% endblock %}
+
+{% block content %}
+<main>
+
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:8px">
+  <div>
+    <h1 style="font-size:20px;font-weight:700;color:var(--t);margin-bottom:2px">Ranking widzów 🏆</h1>
+    <div style="font-size:12px;color:var(--m)">Top 100 Kanapowców w Polsce</div>
+  </div>
+  <div style="display:flex;gap:5px">
+    <a href="?period=week" class="btn btn-sm {{ 'btn-primary' if period=='week' else '' }}">Ten tydzień</a>
+    <a href="?period=month" class="btn btn-sm {{ 'btn-primary' if period=='month' else '' }}">Ten miesiąc</a>
+    <a href="?period=all" class="btn btn-sm {{ 'btn-primary' if period=='all' else '' }}">Wszech czasów</a>
+  </div>
+</div>
+
+{# ── MOJA POZYCJA (jeśli nie w top 10) ── #}
+{% if my_pos and my_pos > 10 %}
+<div style="background:#EEEDFE;border:1px solid #AFA9EC;border-radius:var(--r12);padding:14px 18px;margin-bottom:14px;display:flex;align-items:center;gap:12px">
+  <span style="font-size:18px;font-weight:700;color:#534AB7;min-width:36px">#{{ my_pos }}</span>
+  <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#534AB7,#1D9E75);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff">{{ current_user.initials }}</div>
+  <div style="flex:1">
+    <div style="font-size:13px;font-weight:600;color:#3C3489">{{ current_user.username }} <span style="font-size:10px;background:#534AB7;color:#fff;padding:1px 6px;border-radius:20px;margin-left:4px">TY</span></div>
+    <div style="font-size:11px;color:#534AB7">{{ current_user.active_title.ico }} {{ current_user.active_title.name }}</div>
+  </div>
+  {% if current_user.stats %}
+  <div style="text-align:right">
+    <div style="font-size:14px;font-weight:600;color:#3C3489">{{ current_user.stats.total_hours|round(1) }} h</div>
+    <div style="font-size:10px;color:#534AB7">{{ current_user.stats.total_episodes }} odcinków</div>
+  </div>
+  {% endif %}
+</div>
+{% endif %}
+
+{# ── LISTA RANKINGOWA ── #}
+<div style="background:var(--s);border:1px solid var(--b);border-radius:var(--r12);overflow:hidden">
+  {% for row in ranking %}
+  <div style="display:flex;align-items:center;gap:10px;padding:11px 18px;border-bottom:1px solid {{ '#f0f0f2' if not row.is_me else 'transparent' }};background:{{ '#EEEDFE' if row.is_me else 'transparent' }};transition:background .1s"
+       onmouseover="if(!{{ 'true' if row.is_me else 'false' }})this.style.background='var(--bg)'"
+       onmouseout="this.style.background='{{ '#EEEDFE' if row.is_me else 'transparent' }}'">
+
+    {# POZYCJA #}
+    <span style="font-size:14px;font-weight:700;width:28px;text-align:center;flex-shrink:0;color:{{ '#BA7517' if row.pos==1 else '#888780' if row.pos==2 else '#993C1D' if row.pos==3 else '#534AB7' if row.is_me else 'var(--h)' }}">
+      {{ '🥇' if row.pos==1 else '🥈' if row.pos==2 else '🥉' if row.pos==3 else '#'+row.pos|string }}
+    </span>
+
+    {# AVATAR #}
+    <div style="width:34px;height:34px;border-radius:50%;background:{{ 'linear-gradient(135deg,#534AB7,#1D9E75)' if row.is_me else row.user.avatar_color }};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0">
+      {{ row.user.initials }}
+    </div>
+
+    {# NICK + TYTUŁ #}
+    <div style="flex:1;min-width:0">
+      <div style="font-size:13px;font-weight:600;color:var(--t);display:flex;align-items:center;gap:5px">
+        {{ row.user.username }}
+        {% if row.is_me %}<span style="font-size:9px;background:#534AB7;color:#fff;padding:1px 5px;border-radius:20px">TY</span>{% endif %}
+        {% if row.user.is_pro %}<span style="font-size:8px;background:linear-gradient(135deg,#534AB7,#1D9E75);color:#fff;padding:1px 5px;border-radius:20px;font-weight:700">PRO</span>{% endif %}
+      </div>
+      <div style="font-size:11px;color:var(--m)">{{ row.title.ico }} {{ row.title.name }}</div>
+    </div>
+
+    {# STATSY #}
+    <div style="text-align:right;flex-shrink:0">
+      <div style="font-size:14px;font-weight:600;color:var(--t)">{{ row.stats.total_hours|round(1) if row.stats else '—' }} h</div>
+      <div style="font-size:10px;color:var(--m)">{{ row.stats.total_episodes if row.stats else '—' }} odcinków</div>
+    </div>
+
+  </div>
+  {% else %}
+  <div class="empty" style="padding:40px"><div class="empty-ico">🏆</div><p>Brak danych rankingowych</p></div>
+  {% endfor %}
+</div>
+
+{# ── MOTYWACJA ── #}
+{% if my_pos and my_pos > 1 %}
+{% set prev_row = ranking|selectattr('pos','eq', my_pos-1)|first %}
+{% if prev_row and prev_row.stats and current_user.stats %}
+{% set diff = (prev_row.stats.total_hours - current_user.stats.total_hours)|round(1) %}
+{% if diff > 0 %}
+<div style="background:var(--s);border:1px solid var(--b);border-radius:var(--r12);padding:14px 18px;margin-top:12px;text-align:center;font-size:13px;color:var(--m)">
+  Do pozycji <strong style="color:#534AB7">#{{ my_pos - 1 }}</strong> brakuje Ci <strong style="color:#534AB7">{{ diff }} godzin</strong> oglądania 🎯
+</div>
+{% endif %}
+{% endif %}
+{% endif %}
+
+{# ── DOSTĘPNE TYTUŁY ── #}
+<div style="margin-top:20px">
+  <div style="font-size:13px;font-weight:600;color:var(--t);margin-bottom:10px">Tytuły do zdobycia</div>
+  <div style="display:flex;flex-wrap:wrap;gap:6px">
+    {% from "models" import TITLES %}
+    {% for tid, name, desc, ico, ctype, cval in [
+      ('godziny500','Mistrz Kanapy','500h','🏆'),
+      ('popcorn500','Serial Maniak','500 odc','🎬'),
+      ('binge_sezon','Binge Sprinter','sezon w 1 dzień','⚡'),
+      ('seria7','Niezłomny','7 dni z rzędu','🔥'),
+      ('nocna','Nocna Zmiana','po 3:00','🌙'),
+      ('kraje10','Globtroter','10 krajów','🌍'),
+      ('seria30','Żyję na kanapie','30 dni','💪'),
+      ('ukonczyl25','Encyklopedia','25 seriali','📚'),
+    ] %}
+    <span style="padding:4px 10px;border-radius:20px;font-size:11px;font-weight:500;background:var(--bg);border:1px solid var(--b);color:var(--m)">
+      {{ ico }} {{ name }} <span style="color:var(--h)">— {{ desc }}</span>
+    </span>
+    {% endfor %}
+  </div>
+</div>
+
+</main>
+{% endblock %}

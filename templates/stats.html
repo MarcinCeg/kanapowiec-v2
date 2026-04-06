@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+{% block title %}Statystyki — Kanapowy Leniwiec{% endblock %}
+
+{% block content %}
+<main>
+
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:8px">
+  <div>
+    <h1 style="font-size:20px;font-weight:700;color:var(--t);margin-bottom:2px">Twoje statystyki</h1>
+    <div style="font-size:12px;color:var(--m)">{{ stats.updated_at.strftime('%d.%m.%Y %H:%M') if stats and stats.updated_at else 'Brak danych' }}</div>
+  </div>
+  <button class="btn" onclick="refreshStats()" id="refreshBtn">⟳ Przelicz od nowa</button>
+</div>
+
+{# ── METRYKI ── #}
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
+  <div style="background:#EEEDFE;border-radius:var(--r12);padding:16px">
+    <div style="font-size:10px;font-weight:600;color:#534AB7;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Godziny oglądania</div>
+    <div style="font-size:28px;font-weight:700;color:#3C3489;line-height:1;margin-bottom:3px">{{ stats.total_hours|round(1) if stats else 0 }}</div>
+    <div style="font-size:11px;color:#534AB7">≈ {{ (stats.total_hours/24)|round(1) if stats else 0 }} dni non-stop</div>
+  </div>
+  <div style="background:#E1F5EE;border-radius:var(--r12);padding:16px">
+    <div style="font-size:10px;font-weight:600;color:#0F6E56;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Ukończone seriale</div>
+    <div style="font-size:28px;font-weight:700;color:#085041;line-height:1;margin-bottom:3px">{{ stats.total_finished if stats else 0 }}</div>
+    <div style="font-size:11px;color:#0F6E56">{{ stats.watching_count if stats else 0 }} w trakcie</div>
+  </div>
+  <div style="background:#FAEEDA;border-radius:var(--r12);padding:16px">
+    <div style="font-size:10px;font-weight:600;color:#854F0B;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Odcinki obejrzane</div>
+    <div style="font-size:28px;font-weight:700;color:#633806;line-height:1;margin-bottom:3px">{{ stats.total_episodes if stats else 0 }}</div>
+    <div style="font-size:11px;color:#854F0B">śr. {{ ((stats.total_episodes or 0) / 30)|round(1) }} / dzień</div>
+  </div>
+  <div style="background:#FAECE7;border-radius:var(--r12);padding:16px">
+    <div style="font-size:10px;font-weight:600;color:#993C1D;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Lata na kanapie</div>
+    <div style="font-size:28px;font-weight:700;color:#712B13;line-height:1;margin-bottom:3px">{{ ((stats.total_hours or 0)/24/365)|round(2) }}</div>
+    <div style="font-size:11px;color:#993C1D">z {{ ((stats.total_hours or 0)/24)|round(1) }} dni</div>
+  </div>
+</div>
+
+{# ── TOP + GATUNKI ── #}
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+
+  <div style="background:var(--s);border:1px solid var(--b);border-radius:var(--r12);padding:18px">
+    <div style="font-size:13px;font-weight:600;color:var(--t);margin-bottom:14px">Top 10 — najwięcej czasu</div>
+    {% if top_by_time %}
+      {% for item in top_by_time %}
+      {% set s = item.serial %}
+      {% set max_h = top_by_time[0].serial.total_hours or 1 %}
+      <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--bg, #f6f6f7)">
+        <span style="width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0;background:{{ '#FAEEDA' if loop.index==1 else '#F1EFE8' if loop.index==2 else '#FAECE7' if loop.index==3 else 'var(--bg)' }};color:{{ '#633806' if loop.index==1 else '#444' if loop.index==2 else '#712B13' if loop.index==3 else 'var(--m)' }}">{{ loop.index }}</span>
+        <span style="flex:1;font-size:11px;color:var(--t);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.nazwa }}</span>
+        <div style="width:80px;height:5px;background:var(--b);border-radius:3px;overflow:hidden">
+          <div style="width:{{ (s.total_hours/max_h*100)|round|int }}%;height:100%;background:#534AB7;border-radius:3px"></div>
+        </div>
+        <span style="font-size:10px;color:var(--m);min-width:32px;text-align:right">{{ s.total_hours }} h</span>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty"><div class="empty-ico">📊</div><p>Dodaj seriale żeby zobaczyć statystyki</p></div>
+    {% endif %}
+  </div>
+
+  <div style="background:var(--s);border:1px solid var(--b);border-radius:var(--r12);padding:18px">
+    <div style="font-size:13px;font-weight:600;color:var(--t);margin-bottom:14px">Ulubione gatunki</div>
+    {% if genre_counts %}
+      {% set max_g = genre_counts.values()|list|max %}
+      {% set colors = ['#534AB7','#1D9E75','#D85A30','#BA7517','#D4537E','#378ADD','#E24B4A','#888780'] %}
+      {% for genre, cnt in genre_counts.items() %}
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:9px">
+        <span style="font-size:12px;color:var(--t);width:88px;flex-shrink:0">{{ genre }}</span>
+        <div style="flex:1;height:8px;background:var(--b);border-radius:4px;overflow:hidden">
+          <div style="width:{{ (cnt/max_g*100)|round|int }}%;height:100%;border-radius:4px;background:{{ colors[loop.index0 % 8] }}"></div>
+        </div>
+        <span style="font-size:11px;color:var(--m);width:28px;text-align:right">{{ cnt }}</span>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty"><div class="empty-ico">🎬</div><p>Brak danych o gatunkach</p></div>
+    {% endif %}
+  </div>
+
+</div>
+
+{# ── ZABAWNE PORÓWNANIA ── #}
+<div style="background:var(--s);border:1px solid var(--b);border-radius:var(--r12);padding:18px;margin-bottom:16px">
+  <div style="font-size:13px;font-weight:600;color:var(--t);margin-bottom:14px">Gdybyś ten czas spędził inaczej… 🤔</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+    {% for f in fun_facts %}
+    <div style="background:var(--s);border:1px solid var(--b);border-radius:var(--r12);padding:12px;display:flex;gap:10px;align-items:flex-start">
+      <span style="font-size:22px;flex-shrink:0;line-height:1">{{ f.ico }}</span>
+      <span style="font-size:12px;color:var(--m);line-height:1.5">{{ f.text }}</span>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+{# ── ODZNAKI ── #}
+{% if is_pro %}
+<div style="background:var(--s);border:1px solid var(--b);border-radius:var(--r12);padding:18px;margin-bottom:16px">
+  <div style="font-size:13px;font-weight:600;color:var(--t);margin-bottom:14px">Twoje odznaki 🏅</div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px">
+    {% for t in all_titles %}
+    <div style="border:{{ '2px solid #534AB7' if t.is_active else '1px solid var(--b)' }};border-radius:10px;padding:12px;cursor:pointer;background:{{ '#EEEDFE' if t.earned else 'var(--s)' }};opacity:{{ '1' if t.earned else '.5' }};transition:all .15s;position:relative"
+         onclick="{% if t.earned %}activateTitle('{{ t.id }}'){% endif %}">
+      <div style="font-size:22px;margin-bottom:5px">{{ t.ico }}</div>
+      <div style="font-size:11px;font-weight:600;color:var(--t);margin-bottom:2px">{{ t.name }}</div>
+      <div style="font-size:10px;color:var(--m)">{{ t.desc }}</div>
+      {% if not t.earned %}
+      <div style="position:absolute;top:7px;right:9px;font-size:11px;opacity:.3">🔒</div>
+      {% endif %}
+      {% if t.is_active %}
+      <div style="position:absolute;top:7px;right:9px;font-size:9px;background:#534AB7;color:#fff;padding:1px 5px;border-radius:20px">aktywny</div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% else %}
+<div style="background:#EEEDFE;border:1px solid #AFA9EC;border-radius:var(--r12);padding:16px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between">
+  <div>
+    <div style="font-size:13px;font-weight:600;color:#3C3489;margin-bottom:3px">🏅 Odznaki i tytuły — tylko Pro</div>
+    <div style="font-size:12px;color:#534AB7">Zbieraj śmieszne tytuły jak Mistrz Kanapy, Nocna Zmiana, Globtroter…</div>
+  </div>
+  <a href="/settings#upgrade" class="btn btn-primary btn-sm">Upgrade do Pro</a>
+</div>
+{% endif %}
+
+{# ── LISTA ALFABETYCZNA ── #}
+<div style="background:var(--s);border:1px solid var(--b);border-radius:var(--r12);padding:18px">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+    <div style="font-size:13px;font-weight:600;color:var(--t)">Moja kolekcja — {{ all_serials|length }} seriali</div>
+    {% if is_pro %}
+    <button class="btn btn-sm" onclick="exportData()">⬇ Eksport CSV</button>
+    {% endif %}
+  </div>
+  <input type="text" id="serialSearch" placeholder="Szukaj serialu…" oninput="filterSerials()"
+    style="width:100%;height:36px;padding:0 13px;border:1px solid var(--b);border-radius:var(--r8);font-size:13px;outline:none;color:var(--t);margin-bottom:14px;transition:border-color .15s"
+    onfocus="this.style.borderColor='#534AB7'" onblur="this.style.borderColor='var(--b)'">
+
+  <div id="serialsContainer">
+    {% set ns = namespace(cur='') %}
+    {% for item in all_serials %}
+      {% set s = item.serial %}
+      {% set letter = s.nazwa[0]|upper if s.nazwa else '#' %}
+      {% if letter != ns.cur %}
+        {% if ns.cur %}</div></div>{% endif %}
+        {% set ns.cur = letter %}
+        <div class="alpha-sec" data-letter="{{ letter }}" style="margin-bottom:16px">
+          <div style="font-size:11px;font-weight:600;color:var(--h);letter-spacing:1px;text-transform:uppercase;padding:4px 0;border-bottom:1px solid var(--b);margin-bottom:8px">{{ letter }}</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px">
+      {% endif %}
+      <div class="serial-item" data-name="{{ s.nazwa|lower }}"
+           style="background:var(--s);border:1px solid var(--b);border-radius:var(--r8);padding:9px 11px;display:flex;gap:9px;align-items:center;cursor:pointer;transition:all .15s"
+           onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='var(--s)'">
+        {% if s.cover %}
+        <img src="{{ s.cover }}" alt="{{ s.nazwa }}" style="width:34px;height:51px;border-radius:4px;object-fit:cover;flex-shrink:0;background:var(--bg)" onerror="this.outerHTML='<div style=width:34px;height:51px;border-radius:4px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0>🎬</div>'">
+        {% else %}
+        <div style="width:34px;height:51px;border-radius:4px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">🎬</div>
+        {% endif %}
+        <div style="flex:1;min-width:0">
+          <div style="font-size:11px;font-weight:600;line-height:1.3;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--t)">{{ s.nazwa }}</div>
+          <div style="font-size:10px;color:var(--m);line-height:1.4">
+            {% if s.seasons_count %}S{{ s.seasons_count }} · {% endif %}
+            {% if s.episodes_count %}{{ s.episodes_count }} odc · {% endif %}
+            {% if s.total_hours %}{{ s.total_hours }} h{% endif %}
+          </div>
+          {% if s.imdb_rating %}<div style="font-size:10px;color:var(--orange)">⭐ {{ s.imdb_rating }}</div>{% endif %}
+          <span style="display:inline-block;padding:1px 6px;border-radius:20px;font-size:9px;font-weight:600;margin-top:2px;background:{{ '#E1F5EE' if item.status=='obejrzane' else '#EEEDFE' }};color:{{ '#085041' if item.status=='obejrzane' else '#3C3489' }}">
+            {{ '✓ obejrzany' if item.status=='obejrzane' else '▶ oglądam' }}
+          </span>
+        </div>
+      </div>
+    {% endfor %}
+    {% if ns.cur %}</div></div>{% endif %}
+  </div>
+</div>
+
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function filterSerials(){
+  const q = document.getElementById('serialSearch').value.toLowerCase().trim();
+  document.querySelectorAll('.serial-item').forEach(el=>{
+    el.style.display = (!q || el.dataset.name.includes(q)) ? '' : 'none';
+  });
+  document.querySelectorAll('.alpha-sec').forEach(sec=>{
+    const vis = [...sec.querySelectorAll('.serial-item')].some(el=>el.style.display!=='none');
+    sec.style.display = vis ? '' : 'none';
+  });
+}
+
+async function refreshStats(){
+  const btn = document.getElementById('refreshBtn');
+  btn.disabled = true; btn.textContent = '⏳ Przeliczam…';
+  await fetch('/api/stats/refresh', {method:'POST'});
+  location.reload();
+}
+
+async function activateTitle(titleId){
+  await fetch(`/api/titles/${titleId}/activate`, {method:'POST'});
+  location.reload();
+}
+
+function exportData(){
+  window.location.href = '/api/export/csv';
+}
+</script>
+{% endblock %}

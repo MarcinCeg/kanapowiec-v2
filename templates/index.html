@@ -1,0 +1,471 @@
+{% extends "base.html" %}
+{% block title %}Tracker — Kanapowy Leniwiec{% endblock %}
+
+{% block content %}
+<main>
+
+{# ── PASEK LIMITÓW ── #}
+<div class="limit-strip">
+  {% set w_pct = (limits.watching.used / limits.watching.max * 100)|int if limits.watching.max else 0 %}
+  {% set k_pct = (limits.candidates.used / limits.candidates.max * 100)|int if limits.candidates.max else 0 %}
+  {% set o_pct = (limits.watched.used / limits.watched.max * 100)|int if limits.watched.max else 0 %}
+  <div class="limit-item">
+    Oglądam
+    <div class="lbar"><div class="lbar-fill {{ 'warn' if w_pct >= 80 else '' }} {{ 'full' if w_pct >= 100 else '' }}" style="width:{{ w_pct if limits.watching.max else 20 }}%"></div></div>
+    <span class="lval">{{ limits.watching.used }}{% if limits.watching.max %}/{{ limits.watching.max }}{% endif %}</span>
+  </div>
+  <div class="limit-item">
+    Obejrzane
+    <div class="lbar"><div class="lbar-fill {{ 'warn' if o_pct >= 80 else '' }} {{ 'full' if o_pct >= 100 else '' }}" style="width:{{ o_pct if limits.watched.max else 20 }}%"></div></div>
+    <span class="lval">{{ limits.watched.used }}{% if limits.watched.max %}/{{ limits.watched.max }}{% endif %}</span>
+  </div>
+  <div class="limit-item">
+    Kandydaci
+    <div class="lbar"><div class="lbar-fill {{ 'warn' if k_pct >= 80 else '' }} {{ 'full' if k_pct >= 100 else '' }}" style="width:{{ k_pct if limits.candidates.max else 20 }}%"></div></div>
+    <span class="lval">{{ limits.candidates.used }}{% if limits.candidates.max %}/{{ limits.candidates.max }}{% endif %}</span>
+  </div>
+  {% if not is_pro %}
+  <a href="/settings#upgrade" class="upgrade-hint">⬆️ Upgrade do Pro — 5 zł/mies</a>
+  {% endif %}
+</div>
+
+{# ── OGLĄDAM ── #}
+<div class="sec-div" style="border-left-color:#16a34a">
+  <div class="sec-div-l">
+    <div class="dot8" style="background:#16a34a"></div>
+    <span class="sec-div-title">Oglądam teraz</span>
+    <span class="sec-div-n" id="ogladamCount">{{ ogladam|length }}</span>
+  </div>
+  <div class="sec-div-r">
+    <span id="stepOdcinki" style="font-style:italic"></span>
+    <button class="btn btn-sm" id="refreshOdcinkiBtn" onclick="refreshOdcinki()">⟳ Odśwież odcinki</button>
+  </div>
+</div>
+
+<div class="wgrid" id="ogladamGrid">
+  {% for w in ogladam %}
+  {% set s = w.serial %}
+  <div class="wcard {{ 'new-today' if '🔥' in w.date_label else 'new-recent' if w.is_new_today else '' }}" data-platform="{{ w.platforma }}">
+    <div class="wimg">
+      {% if s.cover %}<img src="{{ s.cover }}" alt="{{ s.nazwa }}" onerror="this.parentElement.innerHTML='🎬'">{% else %}🎬{% endif %}
+      {% if w.platforma %}<span class="wplat" style="background:{{ pcolors.get(w.platforma,'#888') }}">{{ pnames.get(w.platforma,'') }}</span>{% endif %}
+      {% if '🔥' in w.date_label %}<span class="wnew">DZIŚ</span>{% elif w.is_new_today %}<span class="wnew" style="animation:none">NOWY</span>{% endif %}
+    </div>
+    <div class="wbody">
+      <div class="wname">{{ s.nazwa }}</div>
+      {% if w.last_title %}
+      <div class="wep {{ 'orange' if w.is_new_today and '🔥' not in w.date_label else 'gray' if not w.is_new_today else '' }}">
+        <div class="wep-num"><a href="{{ w.last_link }}" target="_blank" style="color:var(--blue);text-decoration:none;font-size:10px">{{ w.last_title[:48] }}</a></div>
+        {% if w.date_label %}<div class="wep-date {{ 'today' if '🔥' in w.date_label else 'recent' if w.is_new_today else '' }}">{{ w.date_label }}</div>{% endif %}
+      </div>
+      {% else %}
+      <div class="wep gray"><div class="wep-num" style="color:var(--h);font-weight:400">Kliknij ⟳ odśwież</div></div>
+      {% endif %}
+      {% if s.imdb_rating %}<div class="wimdb">⭐ {{ s.imdb_rating }} · <a href="{{ s.imdb_url }}" target="_blank">TMDB</a></div>{% endif %}
+    </div>
+    <button class="wdel" onclick="delOgladam({{ s.id }})">×</button>
+  </div>
+  {% else %}
+  <div id="ogladamEmpty" style="grid-column:1/-1">
+    <div class="empty"><div class="empty-ico">📺</div><p>Dodaj swój pierwszy serial poniżej</p></div>
+  </div>
+  {% endfor %}
+</div>
+
+{# ── KANDYDACI ── #}
+<div class="sec-div" style="border-left-color:#2563eb;margin-top:8px" id="sec-kandydaci">
+  <div class="sec-div-l">
+    <div class="dot8" style="background:#2563eb"></div>
+    <span class="sec-div-title">Kandydaci</span>
+    <span class="sec-div-n" id="kandydaciCount">{{ kandydaci|length }}</span>
+  </div>
+  <div class="sec-div-r">Kliknij ▶ żeby zacząć oglądać</div>
+</div>
+
+<div class="kgrid" id="kandydaciGrid">
+  {% for c in kandydaci %}
+  {% set s = c.serial %}
+  <div class="kcard" data-platform="{{ c.platform }}">
+    <div class="kimg">{% if s.cover %}<img src="{{ s.cover }}" alt="{{ s.nazwa }}" onerror="this.parentElement.innerHTML='🎬'">{% else %}🎬{% endif %}</div>
+    {% if c.platform %}<span class="kplat" style="background:{{ pcolors.get(c.platform,'#888') }}">{{ pnames.get(c.platform,'') }}</span>{% endif %}
+    <button class="kdel" onclick="delKandydat({{ s.id }})">×</button>
+    <div class="kbody">
+      <div class="kname">{{ s.nazwa }}</div>
+      {% if s.imdb_rating %}<div class="krating">⭐ {{ s.imdb_rating }} {% if s.imdb_url %}<a href="{{ s.imdb_url }}" target="_blank">TMDB</a>{% endif %}</div>{% endif %}
+      {% if s.imdb_desc %}<div class="kdesc">{{ s.imdb_desc }}</div>{% endif %}
+    </div>
+    <button class="kpromote" onclick="promoteKandydat({{ s.id }})">▶ Oglądam</button>
+  </div>
+  {% else %}
+  <div id="kandydaciEmpty" style="grid-column:1/-1">
+    <div class="empty"><div class="empty-ico">🚩</div><p>Kliknij 🚩 przy serialu w Odkryj poniżej</p></div>
+  </div>
+  {% endfor %}
+</div>
+
+{# ── ODKRYJ ── #}
+<div class="sec-div" style="border-left-color:var(--orange);margin-top:8px">
+  <div class="sec-div-l">
+    <div class="dot8" style="background:var(--orange)"></div>
+    <span class="sec-div-title">Odkryj — nowości</span>
+    <span class="sec-div-n">{{ nowosci|length }}</span>
+  </div>
+  <div class="sec-div-r">
+    <span id="stepNowosci" style="font-style:italic"></span>
+    <button class="btn btn-sm" id="refreshNowosciBtn" onclick="refreshNowosci()">⟳ Odśwież nowości</button>
+  </div>
+</div>
+
+<div style="margin-bottom:10px">
+  <div class="filt-row" style="margin-bottom:6px">
+    <span class="filt-label">Ocena</span>
+    <button class="fpill fpill-on" id="f6" onclick="filterRating(6,this)">6.0+</button>
+    <button class="fpill" id="f7" onclick="filterRating(7,this)">7.0+</button>
+    <button class="fpill" id="f8" onclick="filterRating(8,this)">8.0+</button>
+    <div class="filt-sep"></div>
+    <span class="filt-label">Gatunek</span>
+    <div id="genreFilters" style="display:flex;flex-wrap:wrap;gap:4px"></div>
+  </div>
+  <div class="filt-row">
+    <span class="filt-label">Kraj</span>
+    <div id="countryFilters" style="display:flex;flex-wrap:wrap;gap:4px"></div>
+  </div>
+</div>
+
+{# PLATFORMY #}
+<div style="margin-bottom:14px">
+  <div style="font-size:11px;color:var(--m);margin-bottom:7px;font-weight:500">Twoje platformy — zaznacz które masz:</div>
+  <div class="pgrid">
+    {% macro pl_logo(p) %}
+      {% if p=='netflix' %}<svg height="18" viewBox="0 0 82 18"><text x="0" y="15" font-family="Arial Black" font-size="16" font-weight="900" fill="#E50914">NETFLIX</text></svg>
+      {% elif p=='hbo' %}<svg height="18" viewBox="0 0 52 18"><text x="0" y="15" font-family="Georgia,serif" font-size="17" font-weight="bold" fill="#8B5CF6">HBO</text></svg>
+      {% elif p=='disney' %}<svg height="18" viewBox="0 0 74 18"><text x="0" y="14" font-family="Arial" font-size="14" font-weight="900" fill="#113CCF">Disney</text><text x="58" y="12" font-size="12" font-weight="900" fill="#113CCF">+</text></svg>
+      {% elif p=='prime' %}<svg height="18" viewBox="0 0 68 18"><text x="0" y="11" font-family="Arial" font-size="11" font-weight="700" fill="#00A8E1">prime video</text></svg>
+      {% elif p=='appletv' %}<svg height="18" viewBox="0 0 72 18"><text x="0" y="13" font-family="-apple-system" font-size="12" font-weight="500" fill="#555">Apple TV+</text></svg>
+      {% elif p=='skyshowtime' %}<svg height="18" viewBox="0 0 90 18"><text x="0" y="13" font-family="Arial" font-size="11" font-weight="800" fill="#0070C9">SKY</text><text x="26" y="13" font-family="Arial" font-size="11" fill="#333">Showtime</text></svg>
+      {% elif p=='canalplus' %}<svg height="18" viewBox="0 0 68 18"><rect width="68" height="18" rx="3" fill="#003366"/><text x="5" y="13" font-family="Arial" font-size="11" font-weight="700" fill="#fff">CANAL+</text></svg>
+      {% elif p=='player' %}<svg height="18" viewBox="0 0 68 18"><rect width="68" height="18" rx="3" fill="#E4002B"/><polygon points="8,4 8,14 15,9" fill="white"/><text x="20" y="13" font-family="Arial" font-size="11" font-weight="700" fill="white">player</text></svg>
+      {% elif p=='polsat' %}<svg height="18" viewBox="0 0 84 18"><rect width="84" height="18" rx="3" fill="#E31E24"/><text x="4" y="12" font-family="Arial Black" font-size="9" font-weight="900" fill="white">POLSAT BOX</text></svg>
+      {% elif p=='tvpvod' %}<svg height="18" viewBox="0 0 72 18"><rect width="72" height="18" rx="3" fill="#003F87"/><text x="4" y="13" font-family="Arial" font-size="11" font-weight="700" fill="white">TVP</text><text x="30" y="13" font-family="Arial" font-size="11" fill="#60a5fa">VOD</text></svg>
+      {% endif %}
+    {% endmacro %}
+    {% for p in platforms %}
+    <div class="ps {% if p in user_platforms %}on{% endif %}" style="--c:{{ pcolors[p] }}" onclick="togglePlatform('{{ p }}')" id="psb-{{ p }}">
+      <div class="pslogo">{{ pl_logo(p) }}</div>
+      <span class="psname">{{ pnames[p] }}</span>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+{# DODAJ SERIAL #}
+<div style="margin-bottom:14px">
+  <div style="font-size:11px;color:var(--m);margin-bottom:7px;font-weight:500">Dodaj serial do Oglądam:</div>
+  <div class="add-row">
+    <input class="add-inp" type="text" id="serialInput" placeholder="Wyszukaj serial..." oninput="showAC()" onkeydown="if(event.key==='Enter')addFromInput()" autocomplete="off">
+    <button class="btn" style="background:var(--t);color:#fff;border-color:var(--t)" onclick="addFromInput()">Dodaj</button>
+    <div class="ac" id="serialAC"></div>
+  </div>
+</div>
+
+{# NOWOŚCI GRID #}
+{% if nowosci %}
+<div class="ogrid">
+  {% for row in nowosci %}
+  {% set s = row.serial %}
+  <div class="ocard" data-platform="{{ row.platform }}" data-rating="{{ s.imdb_rating or 0 }}"
+       data-genres="{{ s.genres }}" data-countries="{{ s.countries }}">
+    <div class="oimg">
+      {% if s.cover %}<img src="{{ s.cover }}" alt="{{ s.nazwa }}" loading="lazy" onerror="this.parentElement.innerHTML='🎬'">{% else %}🎬{% endif %}
+    </div>
+    {% if row.platform %}<span class="oplat" style="background:{{ pcolors.get(row.platform,'#888') }}">{{ pnames.get(row.platform,'') }}</span>{% endif %}
+    <div class="obody">
+      <div class="oname">{{ s.nazwa[:45] }}</div>
+      {% if s.imdb_rating %}<div class="orating">⭐ {{ s.imdb_rating }} {% if s.imdb_url %}<a href="{{ s.imdb_url }}" target="_blank">TMDB</a>{% endif %}</div>{% endif %}
+      {% if s.genres_list or s.countries_list %}
+      <div class="otags">
+        {% for g in s.genres_list[:2] %}<span class="otag otag-genre">{{ g }}</span>{% endfor %}
+        {% for c in s.countries_list[:1] %}<span class="otag otag-country">{{ c }}</span>{% endfor %}
+      </div>
+      {% endif %}
+      {% if s.imdb_desc %}<div class="odesc">{{ s.imdb_desc[:120] }}</div>{% endif %}
+      {% if row.date_label %}<div class="odate-label">📅 {{ row.date_label }}</div>{% endif %}
+    </div>
+    <button class="flag-btn" onclick="flagSerial(this,{{ s.id }},'{{ s.nazwa|replace("'","\\'") }}','{{ row.platform }}')">🚩 Kandydat</button>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty"><div class="empty-ico">🔍</div><p>Zaznacz platformy powyżej i kliknij ⟳ Odśwież nowości</p></div>
+{% endif %}
+
+{# ── OBEJRZANE ── #}
+<div class="sec-div" style="border-left-color:var(--h);margin-top:8px">
+  <div class="sec-div-l">
+    <div class="dot8" style="background:var(--h)"></div>
+    <span class="sec-div-title">Obejrzane</span>
+    <span class="sec-div-n">{{ obejrzane|length }}</span>
+  </div>
+  <div class="sec-div-r">↩ żeby przywrócić do Oglądam</div>
+</div>
+
+{% if obejrzane %}
+<div class="obgrid">
+  {% for w in obejrzane %}
+  {% set s = w.serial %}
+  <div class="obcard">
+    <div class="obimg">{% if s.cover %}<img src="{{ s.cover }}" alt="{{ s.nazwa }}" onerror="this.parentElement.innerHTML='🎬'">{% else %}🎬{% endif %}</div>
+    <button class="ob-del" onclick="delObejrzane({{ s.id }})">×</button>
+    <div class="obbody">
+      <div class="obname">{{ s.nazwa }}</div>
+      {% if w.date_finished %}<div class="obdate">{{ w.date_finished }}</div>{% endif %}
+    </div>
+    <button class="ob-restore" onclick="restoreObejrzane({{ s.id }})">↩ Przywróć</button>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty" style="padding:20px"><div class="empty-ico" style="font-size:20px">✓</div><p>Tu pojawią się ukończone seriale</p></div>
+{% endif %}
+
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const pcolors = {{ pcolors|tojson }};
+const pnames  = {{ pnames|tojson }};
+const TMDB_KEY = '8265bd1679663a7ea12ac168da84d2e8';
+let selPlat = {{ user_platforms|tojson }};
+let curRating = 6;
+let activeGenres = new Set();
+let activeCountries = new Set();
+let activePlatFilter = null;
+
+// ── Platformy ──
+function togglePlatform(p){
+  const el = document.getElementById('psb-'+p);
+  if(selPlat.includes(p)){ selPlat = selPlat.filter(x=>x!==p); el.classList.remove('on'); }
+  else { selPlat.push(p); el.classList.add('on'); }
+  fetch('/api/platformy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({platformy:selPlat})});
+}
+
+// ── Filtry ──
+function applyFilter(){
+  document.querySelectorAll('[data-platform]').forEach(card=>{
+    const platOk = !activePlatFilter || card.dataset.platform===activePlatFilter;
+    const isO = card.classList.contains('ocard');
+    const ratingOk = !isO || parseFloat(card.dataset.rating||0)>=curRating;
+    const cg = (card.dataset.genres||'').split(',').filter(Boolean);
+    const genreOk = !isO || activeGenres.size===0 || cg.length===0 || cg.some(g=>activeGenres.has(g));
+    const cc = (card.dataset.countries||'').split(',').filter(Boolean);
+    const countryOk = !isO || activeCountries.size===0 || cc.length===0 || cc.some(c=>activeCountries.has(c));
+    card.style.display = (platOk&&ratingOk&&genreOk&&countryOk)?'':'none';
+  });
+}
+function filterRating(min,btn){
+  curRating=min;
+  document.querySelectorAll('#f6,#f7,#f8').forEach(b=>b.className='fpill');
+  btn.className='fpill fpill-on';
+  applyFilter();
+}
+function toggleGenre(g,btn){
+  activeGenres.has(g)?activeGenres.delete(g):activeGenres.add(g);
+  btn.className='fpill'+(activeGenres.has(g)?' fpill-genre-on':'');
+  applyFilter();
+}
+function toggleCountry(c,btn){
+  activeCountries.has(c)?activeCountries.delete(c):activeCountries.add(c);
+  btn.className='fpill'+(activeCountries.has(c)?' fpill-country-on':'');
+  applyFilter();
+}
+function buildFilterPills(){
+  const gs=new Set(), cs=new Set();
+  document.querySelectorAll('.ocard').forEach(card=>{
+    (card.dataset.genres||'').split(',').filter(Boolean).forEach(g=>gs.add(g));
+    (card.dataset.countries||'').split(',').filter(Boolean).forEach(c=>cs.add(c));
+  });
+  const gBox=document.getElementById('genreFilters');
+  const cBox=document.getElementById('countryFilters');
+  if(gBox) gBox.innerHTML=[...gs].sort().map(g=>`<button class="fpill" onclick="toggleGenre('${g}',this)">${g}</button>`).join('');
+  if(cBox) cBox.innerHTML=[...cs].sort().map(c=>`<button class="fpill" onclick="toggleCountry('${c}',this)">${c}</button>`).join('');
+}
+
+// ── Autocomplete ──
+const POPULAR = ['The Last of Us','The White Lotus','Severance','The Boys','Andor','Reacher','Stranger Things','Yellowstone','Succession','Peaky Blinders','True Detective','The Bear','Wednesday','Cobra Kai','Bridgerton','Squid Game','Better Call Saul','Ozark','Dark','House of the Dragon','Grey\'s Anatomy','NCIS','Chicago Med','Chicago Fire','Chicago PD','FBI','9-1-1','The Witcher','Skazana','Pułapka','Ojciec Mateusz','Barwy Szczęścia','Żmijowisko','Wataha','Belfer','1670','Wielka Woda'];
+function showAC(){
+  const v=document.getElementById('serialInput').value.toLowerCase();
+  const ac=document.getElementById('serialAC');
+  if(v.length<2){ac.classList.remove('show');return;}
+  const m=POPULAR.filter(s=>s.toLowerCase().includes(v)).slice(0,8);
+  if(!m.length){ac.classList.remove('show');return;}
+  ac.innerHTML=m.map(s=>`<div class="ac-item" onclick="addSerial('${s.replace(/'/g,"\\'")}')">${s}</div>`).join('');
+  ac.classList.add('show');
+}
+document.addEventListener('click',e=>{if(!e.target.closest('.add-row'))document.getElementById('serialAC').classList.remove('show');});
+function addFromInput(){const v=document.getElementById('serialInput').value.trim();if(v)addSerial(v);document.getElementById('serialInput').value='';document.getElementById('serialAC').classList.remove('show');}
+
+// ── API calls ──
+async function addSerial(nazwa){
+  document.getElementById('serialAC').classList.remove('show');
+  const r=await fetch('/api/ogladam',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nazwa})});
+  const d=await r.json();
+  if(d.ok) location.reload();
+  else if(d.error==='limit') alert(d.msg);
+}
+async function delOgladam(id){await fetch('/api/ogladam/'+id,{method:'DELETE'});location.reload();}
+async function delKandydat(id){await fetch('/api/kandydaci/'+id,{method:'DELETE'});location.reload();}
+async function promoteKandydat(id){
+  const r=await fetch('/api/kandydaci/'+id+'/promote',{method:'POST'});
+  const d=await r.json();
+  if(d.ok) location.reload(); else alert('Limit Oglądam osiągnięty');
+}
+async function delObejrzane(id){await fetch('/api/obejrzane/'+id,{method:'DELETE'});location.reload();}
+async function restoreObejrzane(id){
+  const r=await fetch('/api/obejrzane/'+id+'/restore',{method:'POST'});
+  const d=await r.json();
+  if(d.ok) location.reload(); else alert('Limit Oglądam osiągnięty');
+}
+async function flagSerial(btn,serial_id,nazwa,platform){
+  if(btn.classList.contains('flagged')) return;
+  const r=await fetch('/api/kandydaci',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nazwa,platform})});
+  const d=await r.json();
+  if(d.ok){
+    btn.classList.add('flagged'); btn.textContent='✓ Dodano';
+    setTimeout(()=>document.getElementById('sec-kandydaci')?.scrollIntoView({behavior:'smooth',block:'start'}),300);
+  } else alert(d.msg||'Limit kandydatów osiągnięty');
+}
+
+// ── Odśwież ──
+async function refreshOdcinki(){
+  const btn=document.getElementById('refreshOdcinkiBtn');
+  btn.disabled=true; btn.textContent='⏳ Odświeżam...';
+  await fetch('/api/refresh/odcinki',{method:'POST'});
+  setTimeout(()=>{btn.disabled=false;btn.textContent='⟳ Odśwież odcinki';location.reload();},8000);
+}
+async function refreshNowosci(){
+  const btn=document.getElementById('refreshNowosciBtn');
+  btn.disabled=true; btn.textContent='⏳ Pobieram...';
+  await fetch('/api/refresh/nowosci',{method:'POST'});
+  setTimeout(()=>{btn.disabled=false;btn.textContent='⟳ Odśwież nowości';location.reload();},15000);
+}
+
+// ── Popup hover ──
+const popup=document.getElementById('cardPopup');
+const popupInner=document.getElementById('popupInner');
+const actorPopup=document.getElementById('actorPopup');
+const actorPopupInner=document.getElementById('actorPopupInner');
+let popupTimer=null, hideTimer=null, tmdbCache={}, actorCache={};
+
+function positionPopup(card){
+  const r=card.getBoundingClientRect();
+  let left=r.right+10, top=r.top;
+  if(left+300>window.innerWidth-10) left=r.left-310;
+  if(left<10) left=10;
+  if(top+420>window.innerHeight-10) top=window.innerHeight-430;
+  if(top<10) top=10;
+  popup.style.left=left+'px'; popup.style.top=top+'px';
+}
+
+async function fetchTmdb(title){
+  if(tmdbCache[title]) return tmdbCache[title];
+  try{
+    let r=await fetch(`https://api.themoviedb.org/3/search/tv?api_key=${TMDB_KEY}&query=${encodeURIComponent(title)}&language=pl-PL`);
+    let d=await r.json();
+    if(!d.results?.length){ r=await fetch(`https://api.themoviedb.org/3/search/tv?api_key=${TMDB_KEY}&query=${encodeURIComponent(title)}&language=en-US`); d=await r.json(); }
+    if(!d.results?.length) return null;
+    const item=d.results[0];
+    const [det,cred]=await Promise.all([
+      fetch(`https://api.themoviedb.org/3/tv/${item.id}?api_key=${TMDB_KEY}&language=pl-PL`).then(r=>r.json()),
+      fetch(`https://api.themoviedb.org/3/tv/${item.id}/credits?api_key=${TMDB_KEY}&language=pl-PL`).then(r=>r.json())
+    ]);
+    const result={title:det.name||item.name,overview:det.overview||item.overview||'',
+      poster:item.poster_path?`https://image.tmdb.org/t/p/w342${item.poster_path}`:'',
+      rating:det.vote_average?Math.round(det.vote_average*10)/10:null,
+      year:(det.first_air_date||'').slice(0,4),
+      genres:(det.genres||[]).slice(0,3).map(g=>g.name),
+      cast:(cred.cast||[]).slice(0,6).map(a=>({name:a.name,character:a.character||'',photo:a.profile_path?`https://image.tmdb.org/t/p/w185${a.profile_path}`:'',id:a.id?String(a.id):''})
+    )};
+    tmdbCache[title]=result; return result;
+  }catch(e){return null;}
+}
+
+function renderPopup(d,tmdb){
+  const color=pcolors[d.platform]||'#888', pname=pnames[d.platform]||'';
+  const poster=tmdb?.poster||d.img||'', overview=tmdb?.overview||d.desc||'';
+  const rating=tmdb?.rating||d.rating||'', year=tmdb?.year||'';
+  const genres=tmdb?.genres||[], cast=tmdb?.cast||[];
+  popupInner.innerHTML=`
+    <div class="popup-header">
+      ${poster?`<img class="popup-poster" src="${poster}" onerror="this.outerHTML='<div class=popup-poster-placeholder>🎬</div>'">`:'<div class="popup-poster-placeholder">🎬</div>'}
+      <div class="popup-meta">
+        <div class="popup-title">${d.title}</div>
+        <div class="popup-badges">
+          ${rating?`<span class="popup-badge rating">⭐ ${rating}</span>`:''}
+          ${year?`<span class="popup-badge year">${year}</span>`:''}
+          ${pname?`<span class="popup-badge plat" style="background:${color}">${pname}</span>`:''}
+        </div>
+        ${genres.length?`<div style="font-size:10px;color:var(--h);margin-bottom:4px">${genres.join(' · ')}</div>`:''}
+        ${overview?`<div class="popup-desc">${overview}</div>`:''}
+      </div>
+    </div>
+    ${cast.length?`<hr class="popup-divider"><div class="popup-body"><div class="popup-section">Obsada</div><div class="popup-cast">
+      ${cast.map(a=>`<div class="popup-actor" onclick="showActorPopup(event,'${a.name.replace(/'/g,"\\'")}','${a.character.replace(/'/g,"\\'")}','${a.photo}','${a.id}')">
+        ${a.photo?`<img class="popup-actor-img" src="${a.photo}" onerror="this.outerHTML='<div class=popup-actor-placeholder>👤</div>'">`:'<div class="popup-actor-placeholder">👤</div>'}
+        <span class="popup-actor-name">${a.name}</span></div>`).join('')}
+    </div></div>`:''}`;
+}
+
+async function showPopup(card){
+  const isO=card.classList.contains('ocard'), isK=card.classList.contains('kcard'), isW=card.classList.contains('wcard');
+  let title='',rating='',desc='',img='',platform='';
+  if(isO){title=card.querySelector('.oname')?.textContent||'';rating=card.dataset.rating||'';desc=card.querySelector('.odesc')?.textContent||'';img=card.querySelector('img')?.src||'';platform=card.dataset.platform||'';}
+  else if(isK){title=card.querySelector('.kname')?.textContent||'';rating=card.querySelector('.krating')?.textContent?.replace(/[^\d.]/g,'')||'';desc=card.querySelector('.kdesc')?.textContent||'';img=card.querySelector('img')?.src||'';platform=card.dataset.platform||'';}
+  else if(isW){title=card.querySelector('.wname')?.textContent||'';img=card.querySelector('img')?.src||'';platform=card.dataset.platform||'';}
+  if(!title) return;
+  const d={title,rating,desc,img,platform};
+  positionPopup(card);
+  popupInner.innerHTML=`<div class="popup-loading">⏳ Ładuję...</div>`;
+  popup.classList.add('visible');
+  const tmdb=await fetchTmdb(title);
+  if(popup.classList.contains('visible')){renderPopup(d,tmdb);positionPopup(card);}
+}
+function hidePopup(){popup.classList.remove('visible');}
+
+async function showActorPopup(e,name,character,photo,personId){
+  e.stopPropagation();
+  const x=e.clientX,y=e.clientY;
+  let left=x+12; if(left+240>window.innerWidth-10) left=x-252;
+  let top=y-20; if(top+300>window.innerHeight-10) top=window.innerHeight-320; if(top<10) top=10;
+  actorPopup.style.left=left+'px'; actorPopup.style.top=top+'px';
+  actorPopupInner.innerHTML=`<div class="actor-popup-header">${photo?`<img class="actor-popup-img" src="${photo}">`:'<div class="actor-popup-img" style="background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:22px">👤</div>'}<div><div class="actor-popup-name">${name}</div>${character?`<div class="actor-popup-char">${character}</div>`:''}</div></div><div class="actor-popup-known" id="actorKnown">Ładuję...</div>`;
+  actorPopup.classList.add('visible');
+  const pid=personId&&personId!=='undefined'&&personId!==''?personId:null;
+  if(pid){
+    if(!actorCache[pid]){try{const r=await fetch(`https://api.themoviedb.org/3/person/${pid}?api_key=${TMDB_KEY}&language=pl-PL`);actorCache[pid]=await r.json();}catch(e){}}
+    const p=actorCache[pid];
+    const known=document.getElementById('actorKnown');
+    if(known&&p?.name){
+      const dept=p.known_for_department==='Acting'?'Aktor/ka':(p.known_for_department||'');
+      const bday=p.birthday?p.birthday.slice(0,4):'';
+      const bio=(p.biography||'').slice(0,140);
+      known.innerHTML=`<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:4px">${dept?`<span style="font-size:9px;background:var(--bg);padding:1px 6px;border-radius:20px;color:var(--m)">${dept}</span>`:''} ${bday?`<span style="font-size:9px;background:var(--bg);padding:1px 6px;border-radius:20px;color:var(--m)">ur. ${bday}</span>`:''}</div>${bio?`<div style="font-size:10px;color:var(--m);line-height:1.5;margin-bottom:4px">${bio}${bio.length===140?'…':''}</div>`:''}<a href="https://www.themoviedb.org/person/${pid}" target="_blank" style="color:var(--blue);font-size:9px;text-decoration:none">→ profil TMDB</a>`;
+    }
+  }
+}
+function closeActorPopup(){actorPopup.classList.remove('visible');}
+document.addEventListener('click',e=>{if(!e.target.closest('#actorPopup')&&!e.target.closest('.popup-actor'))closeActorPopup();});
+
+function attachPopupEvents(){
+  document.querySelectorAll('.ocard,.kcard,.wcard').forEach(card=>{
+    if(card._popupAttached) return; card._popupAttached=true;
+    card.addEventListener('mouseenter',()=>{clearTimeout(hideTimer);popupTimer=setTimeout(()=>showPopup(card),350);});
+    card.addEventListener('mouseleave',()=>{clearTimeout(popupTimer);hideTimer=setTimeout(hidePopup,120);});
+  });
+  popup.addEventListener('mouseenter',()=>clearTimeout(hideTimer));
+  popup.addEventListener('mouseleave',()=>{hideTimer=setTimeout(hidePopup,120);});
+}
+
+document.addEventListener('DOMContentLoaded',()=>{attachPopupEvents();buildFilterPills();});
+</script>
+{% endblock %}

@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+{% block title %}Ustawienia — Kanapowy Leniwiec{% endblock %}
+
+{% block content %}
+<main style="max-width:700px">
+
+<h1 style="font-size:20px;font-weight:700;color:var(--t);margin-bottom:20px">Ustawienia</h1>
+
+{# ── PROFIL ── #}
+<div style="background:var(--s);border:1px solid var(--b);border-radius:var(--r12);padding:20px;margin-bottom:14px">
+  <div style="font-size:13px;font-weight:600;color:var(--t);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--b)">👤 Twój profil</div>
+
+  <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px">
+    <div style="width:52px;height:52px;border-radius:50%;background:{{ current_user.avatar_color }};display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff;flex-shrink:0">{{ current_user.initials }}</div>
+    <div>
+      <div style="font-size:15px;font-weight:600;color:var(--t)">{{ current_user.username }}</div>
+      <div style="font-size:12px;color:var(--m)">{{ current_user.email }}</div>
+      <div style="font-size:11px;color:var(--m);margin-top:2px">Dołączył {{ current_user.created_at.strftime('%d.%m.%Y') }}</div>
+    </div>
+    <div style="margin-left:auto">
+      {% if current_user.is_pro %}
+      <span style="font-size:11px;padding:3px 10px;border-radius:20px;background:linear-gradient(135deg,#534AB7,#1D9E75);color:#fff;font-weight:700">PRO</span>
+      {% else %}
+      <span style="font-size:11px;padding:3px 10px;border-radius:20px;background:#FAEEDA;color:#633806;font-weight:700">FREE</span>
+      {% endif %}
+    </div>
+  </div>
+
+  <form method="POST" action="/auth/settings/username">
+    <div style="margin-bottom:12px">
+      <label style="font-size:12px;color:var(--m);display:block;margin-bottom:5px">Zmień login / nick (widoczny w rankingu)</label>
+      <div style="display:flex;gap:8px">
+        <input type="text" name="username" value="{{ current_user.username }}"
+          pattern="[a-zA-Z0-9_\-]{3,30}" required
+          style="flex:1;height:36px;padding:0 12px;border:1px solid var(--b);border-radius:var(--r8);font-size:13px;outline:none;color:var(--t);transition:border-color .15s"
+          onfocus="this.style.borderColor='#534AB7'" onblur="this.style.borderColor='var(--b)'">
+        <button type="submit" class="btn">Zapisz</button>
+      </div>
+      <div style="font-size:10px;color:var(--h);margin-top:3px">3-30 znaków: litery, cyfry, _ lub -</div>
+    </div>
+  </form>
+</div>
+
+{# ── AKTYWNY TYTUŁ ── #}
+<div style="background:var(--s);border:1px solid var(--b);border-radius:var(--r12);padding:20px;margin-bottom:14px">
+  <div style="font-size:13px;font-weight:600;color:var(--t);margin-bottom:4px;padding-bottom:10px;border-bottom:1px solid var(--b)">🏅 Aktywny tytuł</div>
+  <div style="font-size:12px;color:var(--m);margin-bottom:14px;padding-top:10px">Wybrany tytuł pojawia się przy Twoim nicku w rankingu</div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:8px">
+    {% for t in all_titles %}
+    <div onclick="{% if t.earned %}activateTitle('{{ t.id }}'){% endif %}"
+         style="border:{{ '2px solid #534AB7' if t.is_active else '1px solid var(--b)' }};border-radius:10px;padding:11px;cursor:{{ 'pointer' if t.earned else 'default' }};background:{{ '#EEEDFE' if t.earned else 'var(--bg)' }};opacity:{{ '1' if t.earned else '.45' }};transition:all .15s;position:relative"
+         {% if t.earned %}onmouseover="if(!{{ 'true' if t.is_active else 'false' }})this.style.borderColor='#7F77DD'" onmouseout="if(!{{ 'true' if t.is_active else 'false' }})this.style.borderColor='var(--b)'"{% endif %}>
+      <div style="font-size:20px;margin-bottom:5px">{{ t.ico }}</div>
+      <div style="font-size:11px;font-weight:600;color:var(--t);margin-bottom:2px">{{ t.name }}</div>
+      <div style="font-size:10px;color:var(--m)">{{ t.desc }}</div>
+      {% if t.earned and t.earned_at %}
+      <div style="font-size:9px;color:var(--h);margin-top:4px">zdobyty {{ t.earned_at }}</div>
+      {% endif %}
+      {% if not t.earned %}
+      <div style="position:absolute;top:7px;right:8px;font-size:11px;opacity:.4">🔒</div>
+      {% endif %}
+      {% if t.is_active %}
+      <div style="position:absolute;top:7px;right:8px;font-size:9px;background:#534AB7;color:#fff;padding:1px 5px;border-radius:20px;font-weight:600">aktywny</div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+{# ── PLAN I LIMITY ── #}
+<div style="background:var(--s);border:1px solid var(--b);border-radius:var(--r12);padding:20px;margin-bottom:14px" id="upgrade">
+  <div style="font-size:13px;font-weight:600;color:var(--t);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--b)">💳 Twój plan</div>
+
+  {% if current_user.is_pro %}
+  <div style="background:#E1F5EE;border:1px solid #5DCAA5;border-radius:var(--r8);padding:14px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:10px">
+    <div>
+      <div style="font-size:13px;font-weight:600;color:#085041;margin-bottom:2px">✓ Plan Pro aktywny</div>
+      <div style="font-size:12px;color:#0F6E56">Nielimitowane listy · Statystyki · Tytuły · Eksport</div>
+    </div>
+    <form method="POST" action="/payments/portal">
+      <button type="submit" class="btn btn-sm">Zarządzaj subskrypcją</button>
+    </form>
+  </div>
+  {% else %}
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+    <div style="border:1px solid var(--b);border-radius:var(--r12);padding:16px">
+      <div style="font-size:13px;font-weight:600;margin-bottom:3px">Free (teraz)</div>
+      <div style="font-size:11px;color:var(--m);margin-bottom:12px">Twój aktualny plan</div>
+      {% for label, used, max in [
+        ('Oglądam', current_user.watching_count(), 10),
+        ('Obejrzane', current_user.watched_count(), 30),
+        ('Kandydaci', current_user.candidates_count(), 10),
+      ] %}
+      <div style="margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px">
+          <span style="color:var(--m)">{{ label }}</span>
+          <span style="font-weight:600;color:{{ 'var(--red)' if used>=max else 'var(--t)' }}">{{ used }}/{{ max }}</span>
+        </div>
+        <div style="height:4px;background:var(--b);border-radius:2px;overflow:hidden">
+          <div style="width:{{ (used/max*100)|round|int }}%;height:100%;background:{{ '#E24B4A' if used>=max else '#BA7517' if used/max >= .8 else '#534AB7' }};border-radius:2px"></div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <div style="border:2px solid #534AB7;border-radius:var(--r12);padding:16px;position:relative">
+      <div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#534AB7,#1D9E75);color:#fff;font-size:10px;font-weight:700;padding:2px 12px;border-radius:20px">NAJLEPSZY WYBÓR</div>
+      <div style="font-size:13px;font-weight:600;margin-bottom:3px;color:#3C3489">Pro</div>
+      <div style="font-size:22px;font-weight:700;color:#3C3489;margin-bottom:12px">5 zł <span style="font-size:12px;color:var(--m);font-weight:400">/ mies</span></div>
+      {% for f in ['Nielimitowane listy','Statystyki zaawansowane','Tytuły i odznaki','Eksport CSV/JSON'] %}
+      <div style="font-size:11px;color:#3C3489;margin-bottom:5px;display:flex;gap:5px"><span style="color:#1D9E75;font-weight:700">✓</span>{{ f }}</div>
+      {% endfor %}
+      <button onclick="checkout()" class="btn btn-primary" style="width:100%;height:36px;border-radius:var(--r8);font-size:12px;justify-content:center;margin-top:10px">Przejdź na Pro</button>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+{# ── NIEBEZPIECZNA STREFA ── #}
+<div style="background:var(--s);border:1px solid #fecaca;border-radius:var(--r12);padding:20px">
+  <div style="font-size:13px;font-weight:600;color:var(--red);margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid #fecaca">⚠️ Strefa niebezpieczna</div>
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+    <div>
+      <div style="font-size:13px;font-weight:500;color:var(--t);margin-bottom:2px">Usuń konto</div>
+      <div style="font-size:12px;color:var(--m)">Usuwa wszystkie Twoje dane bezpowrotnie (RODO)</div>
+    </div>
+    <button onclick="confirmDelete()" class="btn btn-danger btn-sm">Usuń konto</button>
+  </div>
+</div>
+
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function activateTitle(id){
+  await fetch(`/api/titles/${id}/activate`,{method:'POST'});
+  location.reload();
+}
+
+async function checkout(){
+  const r = await fetch('/payments/checkout',{method:'POST'});
+  const d = await r.json();
+  if(d.url) window.location.href = d.url;
+}
+
+function confirmDelete(){
+  if(confirm('Czy na pewno chcesz usunąć konto? Tej operacji nie można cofnąć.')){
+    fetch('/auth/account',{method:'DELETE'}).then(()=>window.location.href='/');
+  }
+}
+</script>
+{% endblock %}
