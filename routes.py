@@ -25,8 +25,10 @@ def date_sort_key(w):
 
 # ── Strona główna ─────────────────────────────────────────────────────────────
 @main_bp.route("/")
-@login_required
 def index():
+    from flask_login import current_user
+    if not current_user.is_authenticated:
+        return redirect("/auth/login")
     user_platforms = get_user_platforms()
     ogladam = sorted(current_user.watching, key=date_sort_key)
     kandydaci = sorted(current_user.candidates,
