@@ -526,39 +526,27 @@ function addFromInput(){const v=document.getElementById('serialInput').value.tri
 // ── Dodaj serial ──
 async function addSerial(nazwa){
   document.getElementById('serialAC').classList.remove('show');
-  // Gość — pokaż popup logowania
-  if(!document.querySelector('.nav-user-pill') && !document.querySelector('.nav-avatar')){
-    showLoginPrompt('Zaloguj się żeby dodać serial do swojej listy!');
+  if(IS_GUEST){
+    try {
+      const r = await fetch(`https://api.themoviedb.org/3/search/tv?api_key=${TMDB_KEY}&query=${encodeURIComponent(nazwa)}&language=pl-PL`);
+      const d = await r.json();
+      const item = d.results?.[0];
+      const s = {id:'g_'+Date.now(), nazwa:item?.name||nazwa, cover:item?.poster_path?`https://image.tmdb.org/t/p/w342${item.poster_path}`:'', imdb_rating:item?.vote_average?Math.round(item.vote_average*10)/10:null, imdb_url:'#'};
+      guestAddOgladam(s);
+      addWatchingCard(s);
+    } catch(e) {
+      const s = {id:'g_'+Date.now(), nazwa, cover:'', imdb_rating:null, imdb_url:'#'};
+      guestAddOgladam(s);
+      addWatchingCard(s);
+    }
     return;
   }
   const r=await fetch('/api/ogladam',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nazwa})});
   const d=await r.json();
-  if(d.ok){
-    document.getElementById('ogladamEmpty')?.remove();
-    const s=d.serial;
-    const card=document.createElement('div');
-    card.className='wcard';
-    card.dataset.platform='';
-    card.dataset.id=s.id;
-    card.innerHTML=`
-      <div class="wimg">
-        ${s.cover?`<img src="${s.cover}" alt="${s.nazwa}" onerror="this.parentElement.innerHTML='🎬'">`:'🎬'}
-      </div>
-      <div class="wbody">
-        <div class="wname">${s.nazwa}</div>
-        <div class="wep gray"><div class="wep-num" style="color:var(--h);font-weight:400">Kliknij ⟳ odśwież</div></div>
-        ${s.imdb_rating?`<div class="wimdb">⭐ ${s.imdb_rating} · <a href="${s.imdb_url}" target="_blank">TMDB</a></div>`:''}
-      </div>
-      <div class="wactions">
-        <button class="wbtn-serial" onclick="markSerialObejrzany(${s.id}, '${s.nazwa.replace(/'/g,"\\'")}')">📦 Serial obejrzany</button>
-      </div>
-      <button class="wdel" onclick="delOgladam(${s.id})">×</button>`;
-    document.getElementById('ogladamGrid').appendChild(card);
-    attachPopupEvents();
-    const cnt=document.getElementById('ogladamCount');
-    if(cnt) cnt.textContent=document.querySelectorAll('#ogladamGrid .wcard').length;
-  } else if(d.error==='limit') alert(d.msg);
+  if(d.ok){ addWatchingCard(d.serial); }
+  else if(d.error==='limit') alert(d.msg);
 }
+
 
 // ── Oznacz ODCINEK jako obejrzany (serial zostaje w Oglądam) ──
 async function markOdcinek(id, btn){
@@ -880,6 +868,33 @@ function attachPopupEvents(){
     popup.addEventListener('mouseenter',()=>clearTimeout(hideTimer));
     popup.addEventListener('mouseleave',()=>{hideTimer=setTimeout(hidePopup,120);});
   }
+}
+
+function addWatchingCard(s){
+  document.getElementById('ogladamEmpty')?.remove();
+  const card=document.createElement('div');
+  card.className='wcard';
+  card.dataset.platform='';
+  card.dataset.id=String(s.id);
+  const nazwa = s.nazwa||'';
+  card.innerHTML=`
+    <div class="wimg">
+      ${s.cover?`<img src="${s.cover}" alt="${nazwa}" onerror="this.parentElement.innerHTML='🎬'">`:'🎬'}
+    </div>
+    <div class="wbody">
+      <div class="wname">${nazwa}</div>
+      <div class="wep gray"><div class="wep-num" style="color:var(--h);font-weight:400">Kliknij ⟳ odśwież</div></div>
+      ${s.imdb_rating?`<div class="wimdb">⭐ ${s.imdb_rating}</div>`:''}
+    </div>
+    <div class="wactions">
+      <button class="wbtn-serial" onclick="markSerialObejrzany('${String(s.id)}', '${nazwa.replace(/'/g,"\'")}')">📦 Serial obejrzany</button>
+    </div>
+    <button class="wdel" onclick="delOgladam('${String(s.id)}')">×</button>`;
+  const grid = document.getElementById('ogladamGrid');
+  if(grid) grid.appendChild(card);
+  attachPopupEvents();
+  const cnt=document.getElementById('ogladamCount');
+  if(cnt) cnt.textContent=document.querySelectorAll('#ogladamGrid .wcard').length;
 }
 
 function addKandydatCard(s, platform){
