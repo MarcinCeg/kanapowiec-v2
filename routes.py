@@ -26,7 +26,7 @@ def date_sort_key(w):
 # ── Strona główna ─────────────────────────────────────────────────────────────
 @main_bp.route("/app")
 def index():
-  from flask_login import current_user
+    from flask_login import current_user
 
     # Tryb gościa — puste listy
     if not current_user.is_authenticated:
@@ -130,8 +130,6 @@ def mark_odcinek(serial_id):
     w = Watching.query.filter_by(user_id=current_user.id, serial_id=serial_id).first_or_404()
     w.date_label   = None
     w.is_new_today = False
-    # Opcjonalnie: zapisz datę ostatniego obejrzanego odcinka
-    w.last_watched_at = datetime.utcnow()
     db.session.commit()
     return jsonify({"ok": True})
 
