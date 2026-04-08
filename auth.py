@@ -34,7 +34,7 @@ def random_color():
 @auth_bp.route("/register", methods=["GET", "POST"])
 def register():
     if current_user.is_authenticated:
-        return redirect(url_for("main.index"))
+        return redirect("/app")
 
     if request.method == "POST":
         email = request.form.get("email", "").strip().lower()
@@ -74,7 +74,7 @@ def register():
 
             db.session.commit()
             login_user(user, remember=True)
-            return redirect(url_for("main.index"))
+            return redirect("/app")
 
         except SQLAlchemyError as e:
             db.session.rollback()
@@ -94,7 +94,7 @@ def register():
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for("main.index"))
+        return redirect("/app")
 
     if request.method == "POST":
         email = request.form.get("email", "").strip().lower()
@@ -115,7 +115,7 @@ def login():
             db.session.rollback()
 
         login_user(user, remember=remember)
-        return redirect(request.args.get("next") or url_for("main.index"))
+        return redirect("/app")
 
     return render_template("auth/login.html")
 
@@ -167,7 +167,7 @@ def google_callback():
             db.session.commit()
 
         login_user(user, remember=True)
-        return redirect(url_for("main.index"))
+        return redirect("/app")
 
     except Exception as e:
         db.session.rollback()
