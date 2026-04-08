@@ -60,6 +60,15 @@
 .np-fill.warn{background:var(--orange)}
 .np-fill.full{background:var(--red)}
 
+/* PLATFORM GRID 3 kolumny */
+.pgrid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.ps3{border:1.5px solid var(--border);border-radius:12px;overflow:hidden;cursor:pointer;transition:all .15s;background:var(--s)}
+.ps3:hover{border-color:var(--b2);transform:translateY(-1px);box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.ps3.on3{border-color:var(--pc);box-shadow:0 0 0 1px var(--pc)}
+.ps3-logo{padding:10px 8px;font-size:10px;font-weight:800;text-align:center;min-height:36px;display:flex;align-items:center;justify-content:center;letter-spacing:-.2px;border-radius:10px 10px 0 0}
+.ps3-name{display:block;font-size:9px;color:var(--m);text-align:center;padding:4px 4px 6px;font-weight:500}
+.ps3.on3 .ps3-name{color:var(--t);font-weight:700}
+
 /* ── Dwa przyciski akcji na karcie ── */
 .wactions{padding:4px 8px 8px;display:flex;flex-direction:column;gap:4px}
 .wbtn-ep{
@@ -231,28 +240,23 @@
             Platformy
             <div class="filter-active-tags" id="platSummary"></div>
           </div>
-          <span class="filter-chevron" id="chevron-acc2">▼</span>
+          <span class="filter-chevron open" id="chevron-acc2">▼</span>
         </div>
-        <div class="filter-acc-body" id="body-acc2">
-          <div style="font-size:11px;color:var(--m);margin-bottom:8px;font-weight:500">Zaznacz platformy które masz:</div>
-          <div class="pgrid">
-            {% macro pl_logo(p) %}
-              {% if p=='netflix' %}<svg height="18" viewBox="0 0 82 18"><text x="0" y="15" font-family="Arial Black" font-size="16" font-weight="900" fill="#E50914">NETFLIX</text></svg>
-              {% elif p=='hbo' %}<svg height="18" viewBox="0 0 52 18"><text x="0" y="15" font-family="Georgia,serif" font-size="17" font-weight="bold" fill="#8B5CF6">HBO</text></svg>
-              {% elif p=='disney' %}<svg height="18" viewBox="0 0 74 18"><text x="0" y="14" font-family="Arial" font-size="14" font-weight="900" fill="#113CCF">Disney</text><text x="58" y="12" font-size="12" font-weight="900" fill="#113CCF">+</text></svg>
-              {% elif p=='prime' %}<svg height="18" viewBox="0 0 68 18"><text x="0" y="11" font-family="Arial" font-size="11" font-weight="700" fill="#00A8E1">prime video</text></svg>
-              {% elif p=='appletv' %}<svg height="18" viewBox="0 0 72 18"><text x="0" y="13" font-family="-apple-system" font-size="12" font-weight="500" fill="#555">Apple TV+</text></svg>
-              {% elif p=='skyshowtime' %}<svg height="18" viewBox="0 0 90 18"><text x="0" y="13" font-family="Arial" font-size="11" font-weight="800" fill="#0070C9">SKY</text><text x="26" y="13" font-family="Arial" font-size="11" fill="#333">Showtime</text></svg>
-              {% elif p=='canalplus' %}<svg height="18" viewBox="0 0 68 18"><rect width="68" height="18" rx="3" fill="#003366"/><text x="5" y="13" font-family="Arial" font-size="11" font-weight="700" fill="#fff">CANAL+</text></svg>
-              {% elif p=='player' %}<svg height="18" viewBox="0 0 68 18"><rect width="68" height="18" rx="3" fill="#E4002B"/><polygon points="8,4 8,14 15,9" fill="white"/><text x="20" y="13" font-family="Arial" font-size="11" font-weight="700" fill="white">player</text></svg>
-              {% elif p=='polsat' %}<svg height="18" viewBox="0 0 84 18"><rect width="84" height="18" rx="3" fill="#E31E24"/><text x="4" y="12" font-family="Arial Black" font-size="9" font-weight="900" fill="white">POLSAT BOX</text></svg>
-              {% elif p=='tvpvod' %}<svg height="18" viewBox="0 0 72 18"><rect width="72" height="18" rx="3" fill="#003F87"/><text x="4" y="13" font-family="Arial" font-size="11" font-weight="700" fill="white">TVP</text><text x="30" y="13" font-family="Arial" font-size="11" fill="#60a5fa">VOD</text></svg>
-              {% endif %}
-            {% endmacro %}
+        <div class="filter-acc-body open" id="body-acc2">
+          <div style="font-size:11px;color:var(--m);margin-bottom:10px;font-weight:500">Zaznacz platformy które masz:</div>
+          <div class="pgrid3">
+            {% set plat_colors = {'netflix':'#E50914','hbo':'#8B5CF6','disney':'#113CCF','prime':'#00A8E1','appletv':'#444','skyshowtime':'#0070C9','canalplus':'#003366','player':'#E4002B','polsat':'#E31E24','tvpvod':'#003F87'} %}
+            {% set plat_labels = {'netflix':'NETFLIX','hbo':'HBO','disney':'Disney+','prime':'prime video','appletv':'Apple TV+','skyshowtime':'SKY Show','canalplus':'CANAL+','player':'▶ player','polsat':'POLSAT BOX','tvpvod':'TVP VOD'} %}
+            {% set dark_bg = ['canalplus','player','polsat','tvpvod'] %}
             {% for p in platforms %}
-            <div class="ps {% if p in user_platforms %}on{% endif %}" style="--c:{{ pcolors[p] }}" onclick="togglePlatform('{{ p }}')" id="psb-{{ p }}">
-              <div class="pslogo">{{ pl_logo(p) }}</div>
-              <span class="psname">{{ pnames[p] }}</span>
+            {% set is_dark = p in dark_bg %}
+            <div class="ps3 {% if p in user_platforms %}on3{% endif %}"
+                 style="--pc:{{ plat_colors[p] }}"
+                 onclick="togglePlatform('{{ p }}')" id="psb-{{ p }}">
+              <div class="ps3-logo" style="background:{{ plat_colors[p] if is_dark else '#fff' }};color:{{ '#fff' if is_dark else plat_colors[p] }}">
+                {{ plat_labels[p] }}
+              </div>
+              <span class="ps3-name">{{ pnames[p] }}</span>
             </div>
             {% endfor %}
           </div>
@@ -299,7 +303,10 @@
       {% endfor %}
     </div>
     {% else %}
-    <div class="empty"><div class="empty-ico">🔍</div><p>Zaznacz platformy powyżej i kliknij ⟳ Odśwież nowości</p></div>
+    <div class="empty" id="nowosc-empty">
+      <div class="empty-ico">⏳</div>
+      <p id="nowosc-empty-txt">Ładuję nowości...</p>
+    </div>
     {% endif %}
 
   </div>
@@ -772,6 +779,27 @@ function attachPopupEvents(){
 document.addEventListener('DOMContentLoaded',()=>{
   attachPopupEvents();
   buildFilterPills();
+  // Auto-load nowości jeśli brak
+  const grid = document.querySelector('.ogrid');
+  const empty = document.getElementById('nowosc-empty');
+  if(empty && !grid){
+    autoLoadNowosci();
+  }
 });
+
+// Auto-load nowości z domyślnych platform przy starcie
+async function autoLoadNowosci(){
+  const emptyTxt = document.getElementById('nowosc-empty-txt');
+  // Jeśli użytkownik ma platformy — odśwież je, jeśli nie — użyj domyślnych
+  const platformsToLoad = selPlat.length > 0 ? selPlat : ['netflix','player','disney'];
+  try {
+    // Odśwież nowości w tle
+    await fetch('/api/refresh/nowosci', {method:'POST'});
+    if(emptyTxt) emptyTxt.textContent = 'Pobieram nowości... (~15 sek)';
+    setTimeout(()=>{ location.reload(); }, 12000);
+  } catch(e) {
+    if(emptyTxt) emptyTxt.textContent = 'Zaznacz platformy i kliknij ⟳ Odśwież nowości';
+  }
+}
 </script>
 {% endblock %}
