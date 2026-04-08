@@ -245,16 +245,23 @@
         <div class="filter-acc-body open" id="body-acc2">
           <div style="font-size:11px;color:var(--m);margin-bottom:10px;font-weight:500">Zaznacz platformy które masz:</div>
           <div class="pgrid3">
-            {% set plat_colors = {'netflix':'#E50914','hbo':'#8B5CF6','disney':'#113CCF','prime':'#00A8E1','appletv':'#444','skyshowtime':'#0070C9','canalplus':'#003366','player':'#E4002B','polsat':'#E31E24','tvpvod':'#003F87'} %}
-            {% set plat_labels = {'netflix':'NETFLIX','hbo':'HBO','disney':'Disney+','prime':'prime video','appletv':'Apple TV+','skyshowtime':'SKY Show','canalplus':'CANAL+','player':'▶ player','polsat':'POLSAT BOX','tvpvod':'TVP VOD'} %}
-            {% set dark_bg = ['canalplus','player','polsat','tvpvod'] %}
             {% for p in platforms %}
-            {% set is_dark = p in dark_bg %}
+            {% if p == 'netflix' %}{% set logo='NETFLIX' %}{% set lc='#E50914' %}{% set dark=false %}
+            {% elif p == 'hbo' %}{% set logo='HBO' %}{% set lc='#8B5CF6' %}{% set dark=false %}
+            {% elif p == 'disney' %}{% set logo='Disney+' %}{% set lc='#113CCF' %}{% set dark=false %}
+            {% elif p == 'prime' %}{% set logo='prime video' %}{% set lc='#00A8E1' %}{% set dark=false %}
+            {% elif p == 'appletv' %}{% set logo='Apple TV+' %}{% set lc='#444' %}{% set dark=false %}
+            {% elif p == 'skyshowtime' %}{% set logo='SKY Show' %}{% set lc='#0070C9' %}{% set dark=false %}
+            {% elif p == 'canalplus' %}{% set logo='CANAL+' %}{% set lc='#003366' %}{% set dark=true %}
+            {% elif p == 'player' %}{% set logo='player' %}{% set lc='#E4002B' %}{% set dark=true %}
+            {% elif p == 'polsat' %}{% set logo='POLSAT BOX' %}{% set lc='#E31E24' %}{% set dark=true %}
+            {% elif p == 'tvpvod' %}{% set logo='TVP VOD' %}{% set lc='#003F87' %}{% set dark=true %}
+            {% endif %}
             <div class="ps3 {% if p in user_platforms %}on3{% endif %}"
-                 style="--pc:{{ plat_colors[p] }}"
+                 style="--pc:{{ lc }}"
                  onclick="togglePlatform('{{ p }}')" id="psb-{{ p }}">
-              <div class="ps3-logo" style="background:{{ plat_colors[p] if is_dark else '#fff' }};color:{{ '#fff' if is_dark else plat_colors[p] }}">
-                {{ plat_labels[p] }}
+              <div class="ps3-logo" style="background:{{ lc if dark else '#fff' }};color:{{ '#fff' if dark else lc }}">
+                {{ logo }}
               </div>
               <span class="ps3-name">{{ pnames[p] }}</span>
             </div>
