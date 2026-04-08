@@ -26,7 +26,21 @@ def date_sort_key(w):
 # ── Strona główna ─────────────────────────────────────────────────────────────
 @main_bp.route("/app")
 def index():
-    from flask_login import current_user
+  from flask_login import current_user
+
+    # Tryb gościa — puste listy
+    if not current_user.is_authenticated:
+        return render_template("index.html",
+            ogladam=[], kandydaci=[], obejrzane=[],
+            nowosci=[], platforms=PLATFORMS, pnames=PNAMES, pcolors=PCOLORS,
+            user_platforms=[], limits={
+                "watching":   {"used": 0, "max": 10},
+                "watched":    {"used": 0, "max": 30},
+                "candidates": {"used": 0, "max": 10},
+            },
+            is_pro=False,
+        )
+
     user_platforms = get_user_platforms()
     ogladam = sorted(current_user.watching, key=date_sort_key)
     kandydaci = sorted(current_user.candidates,
@@ -34,9 +48,8 @@ def index():
     obejrzane = sorted(current_user.watched,
                        key=lambda w: w.finished_at, reverse=True)
 
-    # Nowości — z GlobalNowosci, tylko platformy użytkownika
-    watching_ids   = {w.serial_id for w in current_user.watching}
-    candidate_ids  = {c.serial_id for c in current_user.candidates}
+    watching_ids  = {w.serial_id for w in current_user.watching}
+    candidate_ids = {c.serial_id for c in current_user.candidates}
     nowosci = []
     if user_platforms:
         rows = (GlobalNowosci.query
@@ -50,7 +63,6 @@ def index():
                     seen.add(row.serial_id)
                     nowosci.append(row)
 
-    # Limity free
     limits = {
         "watching":   {"used": current_user.watching_count(),  "max": 10 if not current_user.is_pro else None},
         "watched":    {"used": current_user.watched_count(),   "max": 30 if not current_user.is_pro else None},
