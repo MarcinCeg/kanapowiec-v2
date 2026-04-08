@@ -91,8 +91,8 @@ def add_ogladam():
 @main_bp.route("/api/ogladam/<int:serial_id>", methods=["DELETE"])
 @login_required
 def del_ogladam(serial_id):
+    """Usuwa serial z Oglądam i przenosi do Obejrzanych (cały serial obejrzany)."""
     w = Watching.query.filter_by(user_id=current_user.id, serial_id=serial_id).first_or_404()
-    serial = w.serial
     db.session.delete(w)
     # Przenieś do Obejrzane jeśli nie ma
     if current_user.can_add_watched():
@@ -104,6 +104,23 @@ def del_ogladam(serial_id):
             ))
     db.session.commit()
     threading.Thread(target=_recalc_bg, args=(current_user.id,), daemon=True).start()
+    return jsonify({"ok": True})
+
+
+@main_bp.route("/api/ogladam/<int:serial_id>/odcinek", methods=["POST"])
+@login_required
+def mark_odcinek(serial_id):
+    """
+    Oznacza bieżący odcinek jako obejrzany.
+    Serial zostaje w Oglądam — tylko kasujemy date_label i is_new_today
+    żeby przycisk zniknął do następnego odświeżenia.
+    """
+    w = Watching.query.filter_by(user_id=current_user.id, serial_id=serial_id).first_or_404()
+    w.date_label   = None
+    w.is_new_today = False
+    # Opcjonalnie: zapisz datę ostatniego obejrzanego odcinka
+    w.last_watched_at = datetime.utcnow()
+    db.session.commit()
     return jsonify({"ok": True})
 
 
@@ -297,17 +314,14 @@ def stats():
                 "status": "ogladam" if isinstance(w, Watching) else "obejrzane",
             })
 
-    # Top by hours
     top = sorted(all_serials, key=lambda x: x["serial"].total_hours, reverse=True)[:10]
 
-    # Genre counts
     genre_counts = {}
     for item in all_serials:
         for g in item["serial"].genres_list:
             if g: genre_counts[g] = genre_counts.get(g, 0) + 1
     genre_counts = dict(sorted(genre_counts.items(), key=lambda x: -x[1])[:8])
 
-    # Fun facts
     total_min = (stats.total_hours or 0) * 60
     fun_facts = _fun_facts(total_min, len(all_serials), stats.total_episodes or 0)
 
@@ -334,19 +348,15 @@ def _fun_facts(total_min, serial_count, episode_count):
     ]
 
 
-
-
 # ── AI Rekomendacje ───────────────────────────────────────────────────────────
 @main_bp.route("/ai")
 @login_required
 def ai_page():
-    from titles_service import get_all_titles_for_user
     return render_template("ai.html")
 
 @main_bp.route("/api/ai/rekomenduj", methods=["POST"])
 @login_required
 def ai_rekomenduj():
-    """Agent rekomendacji — pełny, z narzędziami."""
     try:
         from ai_service import agent_rekomenduj
         nastroj = request.json.get("nastroj","").strip()
@@ -360,7 +370,6 @@ def ai_rekomenduj():
 @main_bp.route("/api/ai/szybkie", methods=["GET"])
 @login_required
 def ai_szybkie():
-    """Szybkie rekomendacje bez agenta."""
     try:
         from ai_service import szybkie_rekomendacje
         wynik = szybkie_rekomendacje(current_user)
@@ -371,7 +380,6 @@ def ai_szybkie():
 @main_bp.route("/api/ai/podsumowanie", methods=["GET"])
 @login_required
 def ai_podsumowanie():
-    """Tygodniowe podsumowanie."""
     try:
         from ai_service import podsumowanie_tygodnia
         tekst = podsumowanie_tygodnia(current_user)
@@ -382,7 +390,6 @@ def ai_podsumowanie():
 @main_bp.route("/api/export/csv")
 @login_required
 def export_csv():
-    """Eksport danych do CSV (tylko Pro)."""
     if not current_user.is_pro:
         return jsonify({"error":"Pro only"}), 403
     import csv, io
