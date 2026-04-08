@@ -8,7 +8,13 @@ from anthropic import Anthropic
 from flask import current_app
 from models import db, Serial, Watching, Watched, Candidate, GlobalNowosci
 
-client = Anthropic()
+def _get_client():
+    """Tworzy klienta Anthropic z kluczem z konfiguracji Flask."""
+    api_key = current_app.config.get("ANTHROPIC_API_KEY")
+    if not api_key:
+        raise ValueError("Brak ANTHROPIC_API_KEY w konfiguracji aplikacji")
+    return Anthropic(api_key=api_key)
+
 
 # ── Narzędzia agenta ──────────────────────────────────────────────────────────
 TOOLS = [
@@ -142,9 +148,9 @@ def agent_rekomenduj(user, nastroj: str, max_turns: int = 5) -> str:
     Agent rekomendacji seriali.
     Analizuje historię oglądania użytkownika i jego nastrój,
     używa narzędzi TMDB żeby znaleźć najlepsze dopasowanie.
-
-    Returns: tekst z rekomendacjami (markdown)
     """
+    client = _get_client()
+
     system = """Jesteś asystentem rekomendacji seriali dla polskiego użytkownika.
 Masz dostęp do jego list seriali oraz TMDB API.
 
@@ -164,7 +170,6 @@ Zasady:
         }
     ]
 
-    # Pętla agenta — max max_turns iteracji
     for turn in range(max_turns):
         response = client.messages.create(
             model="claude-sonnet-4-6",
@@ -174,14 +179,11 @@ Zasady:
             messages=messages
         )
 
-        # Dodaj odpowiedź asystenta do historii
         messages.append({"role": "assistant", "content": response.content})
 
-        # Jeśli koniec — zwróć tekst
         if response.stop_reason == "end_turn":
             return _extract_text(response.content)
 
-        # Jeśli agent chce użyć narzędzi
         if response.stop_reason == "tool_use":
             tool_results = []
             for block in response.content:
@@ -192,7 +194,6 @@ Zasady:
                         "tool_use_id": block.id,
                         "content": result
                     })
-
             if tool_results:
                 messages.append({"role": "user", "content": tool_results})
             else:
@@ -212,13 +213,14 @@ def _extract_text(content) -> str:
     return "\n".join(parts) or "Brak rekomendacji."
 
 
-# ── Szybkie rekomendacje (bez agenta, tańsze) ─────────────────────────────────
+# ── Szybkie rekomendacje ──────────────────────────────────────────────────────
 def szybkie_rekomendacje(user, limit: int = 5) -> list:
     """
-    Szybkie rekomendacje bez pełnego agenta — używa tylko Claude bez tools.
+    Szybkie rekomendacje bez pełnego agenta.
     Zwraca listę {"nazwa": str, "powod": str}
-    Tańsze — używa Haiku.
     """
+    client = _get_client()
+
     obejrzane = [w.serial.nazwa for w in user.watched if w.serial][:20]
     ogladam   = [w.serial.nazwa for w in user.watching if w.serial][:10]
     gatunki = {}
@@ -249,7 +251,6 @@ Zasady:
             messages=[{"role": "user", "content": prompt}]
         )
         text = response.content[0].text.strip()
-        # Usuń ewentualne markdown backticks
         text = text.replace("```json","").replace("```","").strip()
         return json.loads(text)
     except Exception as e:
@@ -260,6 +261,8 @@ Zasady:
 # ── Podsumowanie tygodnia ─────────────────────────────────────────────────────
 def podsumowanie_tygodnia(user) -> str:
     """Generuje tygodniowe podsumowanie w formie śmiesznego tekstu."""
+    client = _get_client()
+
     stats = user.stats
     if not stats:
         return ""
