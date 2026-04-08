@@ -359,14 +359,15 @@ main{max-width:1100px;margin:0 auto;padding:16px 20px}
     </div>
   </a>
 
-  {% if current_user.is_authenticated %}
   <div class="nav-center">
     <a href="/app" class="nav-tab tracker-tab {% if request.endpoint == 'main.index' %}active{% endif %}">📺 Tracker</a>
     <a href="/stats" class="nav-tab stats-tab {% if request.endpoint == 'main.stats' %}active{% endif %}">📊 Statystyki</a>
     <a href="/ranking" class="nav-tab ranking-tab {% if request.endpoint == 'main.ranking' %}active{% endif %}">🏆 Ranking</a>
     <a href="/ai" class="nav-tab ai-tab {% if request.endpoint == 'main.ai_page' %}active{% endif %}">🤖 AI</a>
   </div>
+
   <div class="nav-right">
+    {% if current_user.is_authenticated %}
     <a href="/settings" class="nav-user-pill">
       <div class="nav-avatar" style="background:{{ current_user.avatar_color }}">{{ current_user.initials }}</div>
       <div class="nav-user-info">
@@ -377,6 +378,10 @@ main{max-width:1100px;margin:0 auto;padding:16px 20px}
         <div class="nav-rank">{{ current_user.active_title.ico }} {{ current_user.active_title.name }}</div>
       </div>
     </a>
+    {% else %}
+    <a href="/auth/login" class="btn btn-sm">Zaloguj</a>
+    <a href="/auth/register" class="btn btn-sm btn-primary">Rejestracja</a>
+    {% endif %}
     <button class="hamburger" id="hamburgerBtn" onclick="toggleDrawer()"><span></span><span></span><span></span></button>
   </div>
 
@@ -387,20 +392,17 @@ main{max-width:1100px;margin:0 auto;padding:16px 20px}
     <a href="/ranking" class="drawer-tab ranking-tab" onclick="closeDrawer()">🏆 Ranking</a>
     <a href="/ai" class="drawer-tab ai-tab" onclick="closeDrawer()">🤖 AI</a>
     <div class="drawer-divider"></div>
+    {% if current_user.is_authenticated %}
     <a href="/settings" class="drawer-tab" onclick="closeDrawer()">⚙️ Ustawienia</a>
     <a href="/auth/logout" class="drawer-tab" onclick="closeDrawer()">🚪 Wyloguj</a>
+    {% else %}
+    <a href="/auth/login" class="drawer-tab" onclick="closeDrawer()">🔑 Zaloguj się</a>
+    <a href="/auth/register" class="drawer-tab btn-primary" style="background:linear-gradient(135deg,var(--purple),var(--teal));color:#fff" onclick="closeDrawer()">🚀 Zarejestruj się</a>
+    {% endif %}
   </div>
-
-  {% else %}
-  <div class="nav-right">
-    <a href="/auth/login" class="btn btn-sm">Zaloguj się</a>
-    <a href="/auth/register" class="btn btn-sm btn-primary">Zarejestruj się</a>
-  </div>
-  {% endif %}
 </nav>
 
 {# ── BOTTOM NAV (mobile, tylko zalogowani) ── #}
-{% if current_user.is_authenticated %}
 <nav class="bottom-nav">
   <div class="bottom-nav-inner">
     <a href="/app" class="bot-tab {% if request.endpoint == 'main.index' %}active{% endif %}">
@@ -421,7 +423,6 @@ main{max-width:1100px;margin:0 auto;padding:16px 20px}
     </a>
   </div>
 </nav>
-{% endif %}
 
 {% with messages = get_flashed_messages(with_categories=true) %}
 {% if messages %}
