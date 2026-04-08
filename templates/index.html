@@ -4,33 +4,65 @@
 {% block content %}
 <main>
 
-{# ── PASEK LIMITÓW ── #}
-<div class="limit-strip">
-  {% set w_pct = (limits.watching.used / limits.watching.max * 100)|int if limits.watching.max else 0 %}
-  {% set k_pct = (limits.candidates.used / limits.candidates.max * 100)|int if limits.candidates.max else 0 %}
-  {% set o_pct = (limits.watched.used / limits.watched.max * 100)|int if limits.watched.max else 0 %}
-  <div class="limit-item">
-    Oglądam
-    <div class="lbar"><div class="lbar-fill {{ 'warn' if w_pct >= 80 else '' }} {{ 'full' if w_pct >= 100 else '' }}" style="width:{{ w_pct if limits.watching.max else 20 }}%"></div></div>
-    <span class="lval">{{ limits.watching.used }}{% if limits.watching.max %}/{{ limits.watching.max }}{% endif %}</span>
-  </div>
-  <div class="limit-item">
-    Obejrzane
-    <div class="lbar"><div class="lbar-fill {{ 'warn' if o_pct >= 80 else '' }} {{ 'full' if o_pct >= 100 else '' }}" style="width:{{ o_pct if limits.watched.max else 20 }}%"></div></div>
-    <span class="lval">{{ limits.watched.used }}{% if limits.watched.max %}/{{ limits.watched.max }}{% endif %}</span>
-  </div>
-  <div class="limit-item">
-    Kandydaci
-    <div class="lbar"><div class="lbar-fill {{ 'warn' if k_pct >= 80 else '' }} {{ 'full' if k_pct >= 100 else '' }}" style="width:{{ k_pct if limits.candidates.max else 20 }}%"></div></div>
-    <span class="lval">{{ limits.candidates.used }}{% if limits.candidates.max %}/{{ limits.candidates.max }}{% endif %}</span>
-  </div>
+{# ── PASEK NAWIGACYJNY ── #}
+{% set w_pct = (limits.watching.used / limits.watching.max * 100)|int if limits.watching.max else 0 %}
+{% set k_pct = (limits.candidates.used / limits.candidates.max * 100)|int if limits.candidates.max else 0 %}
+{% set o_pct = (limits.watched.used / limits.watched.max * 100)|int if limits.watched.max else 0 %}
+<div class="nav-pills-strip">
+  <a href="#sec-ogladam" class="nav-pill nav-pill-green">
+    <span class="np-ico">📺</span>
+    <span class="np-label">Oglądam</span>
+    <span class="np-val {{ 'np-warn' if w_pct >= 80 else '' }} {{ 'np-full' if w_pct >= 100 else '' }}">{{ limits.watching.used }}{% if limits.watching.max %}/{{ limits.watching.max }}{% endif %}</span>
+    <div class="np-bar"><div class="np-fill {{ 'warn' if w_pct >= 80 else '' }} {{ 'full' if w_pct >= 100 else '' }}" style="width:{{ w_pct if limits.watching.max else 20 }}%"></div></div>
+  </a>
+  <a href="#sec-obejrzane" class="nav-pill nav-pill-gray">
+    <span class="np-ico">✅</span>
+    <span class="np-label">Obejrzane</span>
+    <span class="np-val {{ 'np-warn' if o_pct >= 80 else '' }}">{{ limits.watched.used }}{% if limits.watched.max %}/{{ limits.watched.max }}{% endif %}</span>
+    <div class="np-bar"><div class="np-fill {{ 'warn' if o_pct >= 80 else '' }}" style="width:{{ o_pct if limits.watched.max else 20 }}%"></div></div>
+  </a>
+  <a href="#sec-kandydaci" class="nav-pill nav-pill-blue">
+    <span class="np-ico">🚩</span>
+    <span class="np-label">Kandydaci</span>
+    <span class="np-val {{ 'np-warn' if k_pct >= 80 else '' }}">{{ limits.candidates.used }}{% if limits.candidates.max %}/{{ limits.candidates.max }}{% endif %}</span>
+    <div class="np-bar"><div class="np-fill {{ 'warn' if k_pct >= 80 else '' }}" style="width:{{ k_pct if limits.candidates.max else 20 }}%"></div></div>
+  </a>
   {% if not is_pro %}
-  <a href="/settings#upgrade" class="upgrade-hint">⬆️ Upgrade do Pro — 5 zł/mies</a>
+  <a href="/settings#upgrade" class="nav-pill nav-pill-pro">
+    <span class="np-ico">⬆️</span>
+    <span class="np-label">Pro</span>
+    <span class="np-val" style="color:var(--purple);font-size:9px">5 zł/mies</span>
+  </a>
   {% endif %}
 </div>
 
+<style>
+.nav-pills-strip{display:flex;gap:8px;margin-bottom:14px;flex-wrap:nowrap;overflow-x:auto;padding-bottom:2px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.nav-pills-strip::-webkit-scrollbar{display:none}
+.nav-pill{display:flex;flex-direction:column;align-items:center;gap:3px;background:var(--s);border:1.5px solid var(--border);border-radius:12px;padding:10px 12px;min-width:80px;flex:1;text-decoration:none;cursor:pointer;transition:all .15s;box-shadow:0 1px 3px rgba(0,0,0,.05);position:relative;overflow:hidden}
+.nav-pill:hover{transform:translateY(-1px);box-shadow:0 3px 10px rgba(0,0,0,.1)}
+.nav-pill:active{transform:translateY(0);box-shadow:none}
+.nav-pill-green{border-color:#bbf7d0}
+.nav-pill-green:hover{border-color:#16a34a;background:#f0fdf4}
+.nav-pill-blue{border-color:#bfdbfe}
+.nav-pill-blue:hover{border-color:#2563eb;background:#eff6ff}
+.nav-pill-gray{border-color:var(--b2)}
+.nav-pill-gray:hover{border-color:var(--m);background:var(--bg)}
+.nav-pill-pro{border-color:#DDD6FE;background:linear-gradient(135deg,#EEEDFE,#E0F7F1)}
+.nav-pill-pro:hover{border-color:var(--purple)}
+.np-ico{font-size:18px;line-height:1}
+.np-label{font-size:10px;font-weight:600;color:var(--m)}
+.np-val{font-size:12px;font-weight:800;color:var(--t)}
+.np-warn{color:var(--orange)}
+.np-full{color:var(--red)}
+.np-bar{width:100%;height:3px;background:var(--bg);border-radius:2px;overflow:hidden;margin-top:1px}
+.np-fill{height:100%;border-radius:2px;background:#16a34a;transition:width .3s}
+.np-fill.warn{background:var(--orange)}
+.np-fill.full{background:var(--red)}
+</style>
+
 {# ── OGLĄDAM ── #}
-<div class="section-box">
+<div class="section-box" id="sec-ogladam">
   <div class="sec-div" style="border-left-color:#16a34a;margin-bottom:0;border-radius:8px 8px 0 0">
     <div class="sec-div-l">
       <div class="dot8" style="background:#16a34a"></div>
@@ -214,7 +246,7 @@
 </div>
 
 {# ── OBEJRZANE ── #}
-<div class="section-box" style="margin-top:12px">
+<div class="section-box" style="margin-top:12px" id="sec-obejrzane">
   <div class="sec-div" style="border-left-color:var(--h);margin-bottom:0;border-radius:8px 8px 0 0">
     <div class="sec-div-l">
       <div class="dot8" style="background:var(--h)"></div>
