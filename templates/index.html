@@ -63,11 +63,11 @@
 /* PLATFORM GRID 3 kolumny */
 .pgrid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .ps3{border:1.5px solid var(--border);border-radius:12px;overflow:hidden;cursor:pointer;transition:all .15s;background:var(--s)}
-.ps3:hover{border-color:var(--b2);transform:translateY(-1px);box-shadow:0 2px 8px rgba(0,0,0,.08)}
-.ps3.on3{border-color:var(--pc);box-shadow:0 0 0 1px var(--pc)}
-.ps3-logo{padding:10px 8px;font-size:10px;font-weight:800;text-align:center;min-height:36px;display:flex;align-items:center;justify-content:center;letter-spacing:-.2px;border-radius:10px 10px 0 0}
-.ps3-name{display:block;font-size:9px;color:var(--m);text-align:center;padding:4px 4px 6px;font-weight:500}
-.ps3.on3 .ps3-name{color:var(--t);font-weight:700}
+.ps3:hover{border-color:var(--pc);transform:translateY(-1px);box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.ps3.on3{border-color:var(--pc);border-width:2px;box-shadow:0 0 0 1px var(--pc)}
+.ps3-logo{padding:8px 6px;font-size:10px;font-weight:800;text-align:center;min-height:32px;display:flex;align-items:center;justify-content:center;letter-spacing:-.2px;background:#fff}
+.ps3-name{display:block;font-size:9px;color:var(--m);text-align:center;padding:3px 4px 5px;font-weight:500;background:var(--bg);border-top:1px solid var(--border)}
+.ps3.on3 .ps3-name{color:var(--t);font-weight:700;background:color-mix(in srgb,var(--pc) 8%,white)}
 
 /* ── Dwa przyciski akcji na karcie ── */
 .wactions{padding:4px 8px 8px;display:flex;flex-direction:column;gap:4px}
@@ -246,23 +246,23 @@
           <div style="font-size:11px;color:var(--m);margin-bottom:10px;font-weight:500">Zaznacz platformy które masz:</div>
           <div class="pgrid3">
             {% set pdata = {
-              'netflix':     {'logo':'NETFLIX',    'bg':'#fff',    'color':'#E50914', 'pc':'#E50914'},
-              'hbo':         {'logo':'HBO',         'bg':'#fff',    'color':'#8B5CF6', 'pc':'#8B5CF6'},
-              'disney':      {'logo':'Disney+',     'bg':'#fff',    'color':'#113CCF', 'pc':'#113CCF'},
-              'prime':       {'logo':'prime video', 'bg':'#fff',    'color':'#00A8E1', 'pc':'#00A8E1'},
-              'appletv':     {'logo':'Apple TV+',   'bg':'#fff',    'color':'#444',    'pc':'#444'},
-              'skyshowtime': {'logo':'SKY Show',    'bg':'#fff',    'color':'#0070C9', 'pc':'#0070C9'},
-              'canalplus':   {'logo':'CANAL+',      'bg':'#003366', 'color':'#fff',    'pc':'#003366'},
-              'player':      {'logo':'▶ player',    'bg':'#E4002B', 'color':'#fff',    'pc':'#E4002B'},
-              'polsat':      {'logo':'POLSAT BOX',  'bg':'#E31E24', 'color':'#fff',    'pc':'#E31E24'},
-              'tvpvod':      {'logo':'TVP VOD',     'bg':'#003F87', 'color':'#fff',    'pc':'#003F87'},
+              'netflix':     {'logo':'NETFLIX',     'color':'#E50914'},
+              'hbo':         {'logo':'HBO',          'color':'#8B5CF6'},
+              'disney':      {'logo':'Disney+',      'color':'#113CCF'},
+              'prime':       {'logo':'prime video',  'color':'#00A8E1'},
+              'appletv':     {'logo':'Apple TV+',    'color':'#444'},
+              'skyshowtime': {'logo':'SKY Show',     'color':'#0070C9'},
+              'canalplus':   {'logo':'CANAL+',       'color':'#003366'},
+              'player':      {'logo':'▶ player',     'color':'#E4002B'},
+              'polsat':      {'logo':'POLSAT BOX',   'color':'#E31E24'},
+              'tvpvod':      {'logo':'TVP VOD',      'color':'#003F87'},
             } %}
             {% for p in platforms %}
             {% set pd = pdata[p] %}
             <div class="ps3 {% if p in user_platforms %}on3{% endif %}"
-                 style="--pc:{{ pd.pc }}"
+                 style="--pc:{{ pd.color }}"
                  onclick="togglePlatform('{{ p }}')" id="psb-{{ p }}">
-              <div class="ps3-logo" style="background:{{ pd.bg }};color:{{ pd.color }}">
+              <div class="ps3-logo" style="background:#fff;color:{{ pd.color }}">
                 {{ pd.logo }}
               </div>
               <span class="ps3-name">{{ pnames[p] }}</span>
