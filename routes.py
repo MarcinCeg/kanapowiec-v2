@@ -9,7 +9,8 @@ import threading
 
 main_bp = Blueprint("main", __name__)
 
-# ── Helpers ──────────────────────────────────────────────────────────────────
+DEFAULT_PLATFORMS = ['netflix', 'player', 'disney']
+
 def get_user_platforms():
     if not current_user.is_authenticated:
         return []
@@ -25,10 +26,32 @@ def date_sort_key(w):
     return 99
 
 
-# ── Strona główna ─────────────────────────────────────────────────────────────
 @main_bp.route("/app")
 def index():
-    from flask_login import current_user
+    # Tryb gościa
+    if not current_user.is_authenticated:
+        nowosci = []
+        rows = (GlobalNowosci.query
+                .filter(GlobalNowosci.platform.in_(DEFAULT_PLATFORMS))
+                .order_by(GlobalNowosci.date_added.desc())
+                .all())
+        seen = set()
+        for row in rows:
+            if row.serial_id not in seen:
+                seen.add(row.serial_id)
+                nowosci.append(row)
+        return render_template("index.html",
+            ogladam=[], kandydaci=[], obejrzane=[],
+            nowosci=nowosci, platforms=PLATFORMS, pnames=PNAMES, pcolors=PCOLORS,
+            user_platforms=[], limits={
+                "watching":   {"used": 0, "max": 10},
+                "watched":    {"used": 0, "max": 30},
+                "candidates": {"used": 0, "max": 10},
+            },
+            is_pro=False,
+        )
+
+    # Zalogowany użytkownik
     user_platforms = get_user_platforms()
     ogladam = sorted(current_user.watching, key=date_sort_key)
     kandydaci = sorted(current_user.candidates,
@@ -36,23 +59,21 @@ def index():
     obejrzane = sorted(current_user.watched,
                        key=lambda w: w.finished_at, reverse=True)
 
-    # Nowości — z GlobalNowosci, tylko platformy użytkownika
-    watching_ids   = {w.serial_id for w in current_user.watching}
-    candidate_ids  = {c.serial_id for c in current_user.candidates}
+    watching_ids  = {w.serial_id for w in current_user.watching}
+    candidate_ids = {c.serial_id for c in current_user.candidates}
     nowosci = []
-    if user_platforms:
-        rows = (GlobalNowosci.query
-                .filter(GlobalNowosci.platform.in_(user_platforms))
-                .order_by(GlobalNowosci.date_added.desc())
-                .all())
-        seen = set()
-        for row in rows:
-            if row.serial_id not in watching_ids and row.serial_id not in candidate_ids:
-                if row.serial_id not in seen:
-                    seen.add(row.serial_id)
-                    nowosci.append(row)
+    platforms_to_show = user_platforms if user_platforms else DEFAULT_PLATFORMS
+    rows = (GlobalNowosci.query
+            .filter(GlobalNowosci.platform.in_(platforms_to_show))
+            .order_by(GlobalNowosci.date_added.desc())
+            .all())
+    seen = set()
+    for row in rows:
+        if row.serial_id not in watching_ids and row.serial_id not in candidate_ids:
+            if row.serial_id not in seen:
+                seen.add(row.serial_id)
+                nowosci.append(row)
 
-    # Limity free
     limits = {
         "watching":   {"used": current_user.watching_count(),  "max": 10 if not current_user.is_pro else None},
         "watched":    {"used": current_user.watched_count(),   "max": 30 if not current_user.is_pro else None},
@@ -67,7 +88,6 @@ def index():
     )
 
 
-# ── API: Oglądam ──────────────────────────────────────────────────────────────
 @main_bp.route("/api/ogladam", methods=["POST"])
 @login_required
 def add_ogladam():
@@ -77,9 +97,7 @@ def add_ogladam():
     if not nazwa:
         return jsonify({"ok": False})
     serial = search_or_create_serial(nazwa)
-    # Usuń z kandydatów jeśli był
     Candidate.query.filter_by(user_id=current_user.id, serial_id=serial.id).delete()
-    # Dodaj do Oglądam jeśli nie ma
     if not Watching.query.filter_by(user_id=current_user.id, serial_id=serial.id).first():
         db.session.add(Watching(user_id=current_user.id, serial_id=serial.id))
         db.session.commit()
@@ -93,10 +111,8 @@ def add_ogladam():
 @main_bp.route("/api/ogladam/<int:serial_id>", methods=["DELETE"])
 @login_required
 def del_ogladam(serial_id):
-    """Usuwa serial z Oglądam i przenosi do Obejrzanych (cały serial obejrzany)."""
     w = Watching.query.filter_by(user_id=current_user.id, serial_id=serial_id).first_or_404()
     db.session.delete(w)
-    # Przenieś do Obejrzane jeśli nie ma
     if current_user.can_add_watched():
         if not Watched.query.filter_by(user_id=current_user.id, serial_id=serial_id).first():
             db.session.add(Watched(
@@ -112,16 +128,9 @@ def del_ogladam(serial_id):
 @main_bp.route("/api/ogladam/<int:serial_id>/odcinek", methods=["POST"])
 @login_required
 def mark_odcinek(serial_id):
-    """
-    Oznacza bieżący odcinek jako obejrzany.
-    Serial zostaje w Oglądam — tylko kasujemy date_label i is_new_today
-    żeby przycisk zniknął do następnego odświeżenia.
-    """
     w = Watching.query.filter_by(user_id=current_user.id, serial_id=serial_id).first_or_404()
     w.date_label   = None
     w.is_new_today = False
-    # Opcjonalnie: zapisz datę ostatniego obejrzanego odcinka
-    w.last_watched_at = datetime.utcnow()
     db.session.commit()
     return jsonify({"ok": True})
 
@@ -141,7 +150,6 @@ def refresh_odcinek(serial_id):
     return jsonify({"ok": True, "ep": ep})
 
 
-# ── API: Kandydaci ────────────────────────────────────────────────────────────
 @main_bp.route("/api/kandydaci", methods=["POST"])
 @login_required
 def add_kandydat():
@@ -183,7 +191,6 @@ def promote_kandydat(serial_id):
     return jsonify({"ok": True})
 
 
-# ── API: Obejrzane ────────────────────────────────────────────────────────────
 @main_bp.route("/api/obejrzane/<int:serial_id>", methods=["DELETE"])
 @login_required
 def del_obejrzane(serial_id):
@@ -205,7 +212,6 @@ def restore_obejrzane(serial_id):
     return jsonify({"ok": True})
 
 
-# ── API: Platformy ────────────────────────────────────────────────────────────
 @main_bp.route("/api/platformy", methods=["POST"])
 @login_required
 def set_platformy():
@@ -218,7 +224,6 @@ def set_platformy():
     return jsonify({"ok": True})
 
 
-# ── API: Odśwież wszystkie odcinki ───────────────────────────────────────────
 @main_bp.route("/api/refresh/odcinki", methods=["POST"])
 @login_required
 def refresh_all_odcinki():
@@ -242,7 +247,6 @@ def refresh_all_odcinki():
     return jsonify({"ok": True})
 
 
-# ── API: Odśwież nowości ──────────────────────────────────────────────────────
 @main_bp.route("/api/refresh/nowosci", methods=["POST"])
 @login_required
 def refresh_nowosci():
@@ -258,7 +262,6 @@ def refresh_nowosci():
     return jsonify({"ok": True})
 
 
-# ── Tytuły ────────────────────────────────────────────────────────────────────
 @main_bp.route("/api/titles/<title_id>/activate", methods=["POST"])
 @login_required
 def activate_title(title_id):
@@ -266,7 +269,6 @@ def activate_title(title_id):
     return jsonify({"ok": ok})
 
 
-# ── Ustawienia ────────────────────────────────────────────────────────────────
 @main_bp.route("/settings")
 @login_required
 def settings():
@@ -276,7 +278,6 @@ def settings():
         user_platforms=get_user_platforms())
 
 
-# ── Ranking ───────────────────────────────────────────────────────────────────
 @main_bp.route("/ranking")
 @login_required
 def ranking():
@@ -299,7 +300,6 @@ def ranking():
         pnames=PNAMES, pcolors=PCOLORS)
 
 
-# ── Statystyki ────────────────────────────────────────────────────────────────
 @main_bp.route("/stats")
 @login_required
 def stats():
@@ -350,7 +350,6 @@ def _fun_facts(total_min, serial_count, episode_count):
     ]
 
 
-# ── AI Rekomendacje ───────────────────────────────────────────────────────────
 @main_bp.route("/ai")
 @login_required
 def ai_page():
