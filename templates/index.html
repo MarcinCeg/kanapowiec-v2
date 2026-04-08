@@ -245,23 +245,25 @@
         <div class="filter-acc-body open" id="body-acc2">
           <div style="font-size:11px;color:var(--m);margin-bottom:10px;font-weight:500">Zaznacz platformy które masz:</div>
           <div class="pgrid3">
+            {% set pdata = {
+              'netflix':     {'logo':'NETFLIX',    'bg':'#fff',    'color':'#E50914', 'pc':'#E50914'},
+              'hbo':         {'logo':'HBO',         'bg':'#fff',    'color':'#8B5CF6', 'pc':'#8B5CF6'},
+              'disney':      {'logo':'Disney+',     'bg':'#fff',    'color':'#113CCF', 'pc':'#113CCF'},
+              'prime':       {'logo':'prime video', 'bg':'#fff',    'color':'#00A8E1', 'pc':'#00A8E1'},
+              'appletv':     {'logo':'Apple TV+',   'bg':'#fff',    'color':'#444',    'pc':'#444'},
+              'skyshowtime': {'logo':'SKY Show',    'bg':'#fff',    'color':'#0070C9', 'pc':'#0070C9'},
+              'canalplus':   {'logo':'CANAL+',      'bg':'#003366', 'color':'#fff',    'pc':'#003366'},
+              'player':      {'logo':'▶ player',    'bg':'#E4002B', 'color':'#fff',    'pc':'#E4002B'},
+              'polsat':      {'logo':'POLSAT BOX',  'bg':'#E31E24', 'color':'#fff',    'pc':'#E31E24'},
+              'tvpvod':      {'logo':'TVP VOD',     'bg':'#003F87', 'color':'#fff',    'pc':'#003F87'},
+            } %}
             {% for p in platforms %}
-            {% if p == 'netflix' %}{% set logo='NETFLIX' %}{% set lc='#E50914' %}{% set dark=false %}
-            {% elif p == 'hbo' %}{% set logo='HBO' %}{% set lc='#8B5CF6' %}{% set dark=false %}
-            {% elif p == 'disney' %}{% set logo='Disney+' %}{% set lc='#113CCF' %}{% set dark=false %}
-            {% elif p == 'prime' %}{% set logo='prime video' %}{% set lc='#00A8E1' %}{% set dark=false %}
-            {% elif p == 'appletv' %}{% set logo='Apple TV+' %}{% set lc='#444' %}{% set dark=false %}
-            {% elif p == 'skyshowtime' %}{% set logo='SKY Show' %}{% set lc='#0070C9' %}{% set dark=false %}
-            {% elif p == 'canalplus' %}{% set logo='CANAL+' %}{% set lc='#003366' %}{% set dark=true %}
-            {% elif p == 'player' %}{% set logo='player' %}{% set lc='#E4002B' %}{% set dark=true %}
-            {% elif p == 'polsat' %}{% set logo='POLSAT BOX' %}{% set lc='#E31E24' %}{% set dark=true %}
-            {% elif p == 'tvpvod' %}{% set logo='TVP VOD' %}{% set lc='#003F87' %}{% set dark=true %}
-            {% endif %}
+            {% set pd = pdata[p] %}
             <div class="ps3 {% if p in user_platforms %}on3{% endif %}"
-                 style="--pc:{{ lc }}"
+                 style="--pc:{{ pd.pc }}"
                  onclick="togglePlatform('{{ p }}')" id="psb-{{ p }}">
-              <div class="ps3-logo" style="background:{{ lc if dark else '#fff' }};color:{{ '#fff' if dark else lc }}">
-                {{ logo }}
+              <div class="ps3-logo" style="background:{{ pd.bg }};color:{{ pd.color }}">
+                {{ pd.logo }}
               </div>
               <span class="ps3-name">{{ pnames[p] }}</span>
             </div>
@@ -376,10 +378,57 @@
 const pcolors = {{ pcolors|tojson }};
 const pnames  = {{ pnames|tojson }};
 const TMDB_KEY = '8265bd1679663a7ea12ac168da84d2e8';
+const IS_GUEST = {{ 'true' if not current_user.is_authenticated else 'false' }};
 let selPlat = {{ user_platforms|tojson }};
 let curRating = 6;
 let activeGenres = new Set();
 let activeCountries = new Set();
+
+// ── GUEST localStorage system ──
+const GUEST_KEY = 'kanapowiec_guest';
+function guestLoad(){
+  try { return JSON.parse(localStorage.getItem(GUEST_KEY)) || {ogladam:[],kandydaci:[]}; }
+  catch(e){ return {ogladam:[],kandydaci:[]}; }
+}
+function guestSave(data){ localStorage.setItem(GUEST_KEY, JSON.stringify(data)); }
+function guestAddOgladam(serial){
+  const d = guestLoad();
+  if(!d.ogladam.find(s=>s.nazwa===serial.nazwa)){
+    d.ogladam.push(serial);
+    guestSave(d);
+  }
+}
+function guestAddKandydat(serial, platform){
+  const d = guestLoad();
+  if(!d.kandydaci.find(s=>s.nazwa===serial.nazwa)){
+    d.kandydaci.push({...serial, platform});
+    guestSave(d);
+  }
+}
+function guestDelOgladam(nazwa){
+  const d = guestLoad();
+  d.ogladam = d.ogladam.filter(s=>s.nazwa!==nazwa);
+  guestSave(d);
+}
+function guestDelKandydat(nazwa){
+  const d = guestLoad();
+  d.kandydaci = d.kandydaci.filter(s=>s.nazwa!==nazwa);
+  guestSave(d);
+}
+
+// Login prompt co 3 minuty dla gościa
+if(IS_GUEST){
+  const lastShown = parseInt(sessionStorage.getItem('lastLoginPrompt')||'0');
+  const now = Date.now();
+  const INTERVAL = 3 * 60 * 1000;
+  if(!sessionStorage.getItem('loginPromptDismissed')){
+    setTimeout(function showPromptLoop(){
+      showLoginPrompt();
+      sessionStorage.setItem('lastLoginPrompt', Date.now().toString());
+      setTimeout(showPromptLoop, INTERVAL);
+    }, INTERVAL);
+  }
+}
 
 // ── Akordeony filtrów ──
 function toggleAcc(id){
@@ -393,9 +442,11 @@ function toggleAcc(id){
 // ── Platformy ──
 function togglePlatform(p){
   const el = document.getElementById('psb-'+p);
-  if(selPlat.includes(p)){ selPlat = selPlat.filter(x=>x!==p); el.classList.remove('on'); }
-  else { selPlat.push(p); el.classList.add('on'); }
-  fetch('/api/platformy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({platformy:selPlat})});
+  if(selPlat.includes(p)){ selPlat = selPlat.filter(x=>x!==p); el.classList.remove('on3'); }
+  else { selPlat.push(p); el.classList.add('on3'); }
+  if(document.querySelector('.nav-user-pill') || document.querySelector('.nav-avatar')){
+    fetch('/api/platformy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({platformy:selPlat})});
+  }
   updatePlatSummary();
 }
 
@@ -475,6 +526,11 @@ function addFromInput(){const v=document.getElementById('serialInput').value.tri
 // ── Dodaj serial ──
 async function addSerial(nazwa){
   document.getElementById('serialAC').classList.remove('show');
+  // Gość — pokaż popup logowania
+  if(!document.querySelector('.nav-user-pill') && !document.querySelector('.nav-avatar')){
+    showLoginPrompt('Zaloguj się żeby dodać serial do swojej listy!');
+    return;
+  }
   const r=await fetch('/api/ogladam',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nazwa})});
   const d=await r.json();
   if(d.ok){
@@ -547,6 +603,15 @@ document.getElementById('watchedConfirmPopup')?.addEventListener('click',e=>{
 // ── Del/Restore ──
 async function delOgladam(id){
   if(!confirm('Usunąć serial z Oglądam?')) return;
+  if(IS_GUEST){
+    const card = document.querySelector(`#ogladamGrid .wcard[data-id="${id}"]`);
+    const nazwa = card?.querySelector('.wname')?.textContent||'';
+    guestDelOgladam(nazwa);
+    card?.remove();
+    const cnt=document.getElementById('ogladamCount');
+    if(cnt) cnt.textContent=document.querySelectorAll('#ogladamGrid .wcard').length;
+    return;
+  }
   await fetch('/api/ogladam/'+id,{method:'DELETE'});
   location.reload();
 }
@@ -626,6 +691,16 @@ async function restoreObejrzane(id){
 // ── Flag (kandydat) ──
 async function flagSerial(btn,serial_id,nazwa,platform){
   if(btn.classList.contains('flagged')) return;
+
+  if(IS_GUEST){
+    // Gość — zapisz lokalnie
+    const s = {id:'g_'+Date.now(), nazwa, cover: btn.closest('.ocard')?.querySelector('img')?.src||'', imdb_rating:null};
+    guestAddKandydat(s, platform);
+    btn.classList.add('flagged'); btn.textContent='✓ Dodano';
+    addKandydatCard(s, platform);
+    return;
+  }
+
   const r=await fetch('/api/kandydaci',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nazwa,platform})});
   const d=await r.json();
   if(d.ok){
@@ -783,9 +858,51 @@ function attachPopupEvents(){
   }
 }
 
+function addKandydatCard(s, platform){
+  document.getElementById('kandydaciEmpty')?.remove();
+  const card=document.createElement('div');
+  card.className='kcard';
+  card.dataset.id=s.id;
+  card.dataset.platform=platform||'';
+  const platColor=pcolors[platform]||'#888';
+  const platName=pnames[platform]||'';
+  card.innerHTML=`
+    <div class="kimg">${s.cover?`<img src="${s.cover}" alt="${s.nazwa}" onerror="this.parentElement.innerHTML='🎬'">`:'🎬'}</div>
+    ${platform?`<span class="kplat" style="background:${platColor}">${platName}</span>`:''}
+    <button class="kdel" onclick="delKandydat('${s.id}')">×</button>
+    <div class="kbody">
+      <div class="kname">${s.nazwa}</div>
+      ${s.imdb_rating?`<div class="krating">⭐ ${s.imdb_rating}</div>`:''}
+    </div>
+    <button class="kpromote" onclick="promoteKandydat('${s.id}', this)">▶ Oglądam</button>`;
+  document.getElementById('kandydaciGrid').appendChild(card);
+  attachPopupEvents();
+  const cnt=document.getElementById('kandydaciCount');
+  if(cnt) cnt.textContent=document.querySelectorAll('#kandydaciGrid .kcard').length;
+}
+
+function showLoginPrompt(msg){
+  const overlay = document.getElementById('loginPrompt');
+  if(overlay){
+    if(msg){
+      const sub = overlay.querySelector('.login-prompt-sub');
+      if(sub) sub.innerHTML = msg + '<br><br>Zarejestruj się <strong>za darmo</strong> żeby nie stracić listy!';
+    }
+    overlay.classList.add('show');
+  }
+}
+
 document.addEventListener('DOMContentLoaded',()=>{
   attachPopupEvents();
   buildFilterPills();
+  // Wczytaj dane gościa z localStorage
+  if(IS_GUEST){
+    const gd = guestLoad();
+    gd.ogladam.forEach(s => addWatchingCard(s));
+    gd.kandydaci.forEach(s => addKandydatCard(s, s.platform||''));
+    if(gd.ogladam.length > 0) document.getElementById('ogladamEmpty')?.remove();
+    if(gd.kandydaci.length > 0) document.getElementById('kandydaciEmpty')?.remove();
+  }
   // Auto-load nowości jeśli brak
   const grid = document.querySelector('.ogrid');
   const empty = document.getElementById('nowosc-empty');
