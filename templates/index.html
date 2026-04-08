@@ -625,6 +625,27 @@ async function delKandydat(id){
 // ── Promote kandydat → oglądam ──
 async function promoteKandydat(id, btn){
   btn.disabled=true; btn.textContent='⏳...';
+
+  if(IS_GUEST){
+    const kcard=document.querySelector(`#kandydaciGrid .kcard[data-id="${id}"]`);
+    const nazwa=kcard?.querySelector('.kname')?.textContent||'';
+    const cover=kcard?.querySelector('img')?.src||'';
+    const rating=kcard?.querySelector('.krating')?.textContent?.match(/[\d.]+/)?.[0]||'';
+    // Przesuń w localStorage
+    const gd=guestLoad();
+    const kandydat=gd.kandydaci.find(s=>s.id==id||s.nazwa===nazwa);
+    gd.kandydaci=gd.kandydaci.filter(s=>s.id!=id&&s.nazwa!==nazwa);
+    if(!gd.ogladam.find(s=>s.nazwa===nazwa)){
+      gd.ogladam.push({id, nazwa, cover, imdb_rating:rating?parseFloat(rating):null, imdb_url:'#'});
+    }
+    guestSave(gd);
+    kcard?.remove();
+    const kcnt=document.getElementById('kandydaciCount');
+    if(kcnt) kcnt.textContent=document.querySelectorAll('#kandydaciGrid .kcard').length;
+    addWatchingCard({id, nazwa, cover, imdb_rating:rating?parseFloat(rating):null, imdb_url:'#'});
+    return;
+  }
+
   const r=await fetch('/api/kandydaci/'+id+'/promote',{method:'POST'});
   const d=await r.json();
   if(d.ok){
