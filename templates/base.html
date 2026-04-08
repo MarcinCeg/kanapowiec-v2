@@ -26,25 +26,21 @@ nav{background:var(--s);border-bottom:1px solid var(--border);padding:0 20px;hei
 .logo-text{font-size:15px;font-weight:800;color:var(--t);letter-spacing:-.4px;line-height:1.1}
 .logo-sub{font-size:9px;color:var(--h);letter-spacing:.8px;text-transform:uppercase}
 
-/* Desktop nav tabs — pill style */
-.nav-center{display:flex;gap:3px;align-items:center}
-.nav-tab{height:32px;padding:0 13px;border-radius:20px;border:none;background:transparent;font-size:12px;font-weight:500;cursor:pointer;color:var(--m);text-decoration:none;display:inline-flex;align-items:center;gap:5px;transition:all .15s;white-space:nowrap}
-.nav-tab:hover{background:var(--bg);color:var(--t)}
-/* Tracker — aktywny używa koloru strony, nieaktywny — szary pill */
-.nav-tab.tracker-tab{color:var(--m)}
-.nav-tab.tracker-tab:hover{background:var(--bg);color:var(--t)}
-.nav-tab.tracker-tab.active{background:var(--t);color:#fff}
+/* Desktop nav tabs — floating pills z cieniem */
+.nav-center{display:flex;gap:4px;align-items:center}
+.nav-tab{height:30px;padding:0 14px;border-radius:15px;border:none;font-size:11px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;white-space:nowrap;transition:all .15s}
+.nav-tab:hover{opacity:.88;transform:translateY(-1px)}
+.nav-tab:active{transform:translateY(0)}
+/* Tracker */
+.nav-tab.tracker-tab{background:var(--bg);color:var(--m);box-shadow:none}
+.nav-tab.tracker-tab:hover{background:#e4e4ec;color:var(--t)}
+.nav-tab.tracker-tab.active{background:var(--t);color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.2)}
 /* Statystyki */
-.nav-tab.stats-tab{background:linear-gradient(135deg,var(--purple),var(--teal));color:#fff}
+.nav-tab.stats-tab{background:linear-gradient(135deg,var(--purple),var(--teal));color:#fff;box-shadow:0 2px 8px rgba(83,74,183,.3)}
 /* Ranking */
-.nav-tab.ranking-tab{background:linear-gradient(135deg,#BA7517,#D85A30);color:#fff}
+.nav-tab.ranking-tab{background:linear-gradient(135deg,#BA7517,#D85A30);color:#fff;box-shadow:0 2px 8px rgba(186,117,23,.3)}
 /* AI */
-.nav-tab.ai-tab{background:linear-gradient(135deg,#1D9E75,#185FA5);color:#fff}
-/* Aktywna zakładka dostaje obramowanie + cień */
-.nav-tab.active{box-shadow:0 0 0 2px rgba(83,74,183,.25)}
-.nav-tab.stats-tab.active{box-shadow:0 0 0 2px rgba(83,74,183,.35)}
-.nav-tab.ranking-tab.active{box-shadow:0 0 0 2px rgba(186,117,23,.35)}
-.nav-tab.ai-tab.active{box-shadow:0 0 0 2px rgba(29,158,117,.35)}
+.nav-tab.ai-tab{background:linear-gradient(135deg,#1D9E75,#185FA5);color:#fff;box-shadow:0 2px 8px rgba(29,158,117,.3)}
 
 .nav-right{display:flex;align-items:center;gap:8px}
 
@@ -328,12 +324,21 @@ main{max-width:1100px;margin:0 auto;padding:16px 20px}
 ══════════════════════════════════════════ */
 @media(max-width:640px){
   body{padding-bottom:calc(var(--bot-h) + 8px)}
-  nav{padding:0 14px}
+  nav{padding:0 8px;height:50px;gap:0}
   main{padding:12px 12px}
-  .nav-center{display:none}
-  .hamburger{display:flex}
+  .logo-icon{width:28px;height:28px;font-size:15px}
+  .logo-text{font-size:12px}
+  .logo-sub{display:none}
+  .nav-center{display:flex;gap:2px;flex:1;justify-content:center}
+  .nav-tab{height:28px;padding:0 7px;font-size:10px;gap:2px;border-radius:14px}
+  .nav-tab .tab-ico{display:none}
+  .hamburger{display:none}
   .bottom-nav{display:flex}
+  .nav-right{gap:4px}
+  .nav-user-pill{padding:3px 7px 3px 4px}
   .nav-user-pill .nav-user-info{display:none}
+  .nav-avatar{width:22px;height:22px;font-size:9px}
+  .btn-sm{height:26px;padding:0 8px;font-size:10px}
   .wgrid{grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px}
   .kgrid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
   .ogrid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
