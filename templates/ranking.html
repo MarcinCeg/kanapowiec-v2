@@ -90,8 +90,7 @@
 <div style="margin-top:20px">
   <div style="font-size:13px;font-weight:600;color:var(--t);margin-bottom:10px">Tytuły do zdobycia</div>
   <div style="display:flex;flex-wrap:wrap;gap:6px">
-    {% from "models" import TITLES %}
-    {% for tid, name, desc, ico, ctype, cval in [
+    {% for tid, name, desc, ico in [
       ('godziny500','Mistrz Kanapy','500h','🏆'),
       ('popcorn500','Serial Maniak','500 odc','🎬'),
       ('binge_sezon','Binge Sprinter','sezon w 1 dzień','⚡'),
@@ -100,7 +99,7 @@
       ('kraje10','Globtroter','10 krajów','🌍'),
       ('seria30','Żyję na kanapie','30 dni','💪'),
       ('ukonczyl25','Encyklopedia','25 seriali','📚'),
-    ] %}
+] %}
     <span style="padding:4px 10px;border-radius:20px;font-size:11px;font-weight:500;background:var(--bg);border:1px solid var(--b);color:var(--m)">
       {{ ico }} {{ name }} <span style="color:var(--h)">— {{ desc }}</span>
     </span>
