@@ -5,9 +5,7 @@ landing_bp = Blueprint("landing", __name__)
 
 @landing_bp.route("/")
 def index():
-    if current_user.is_authenticated:
-        return redirect("/app")
-    return render_template("landing.html")
+    return redirect("/app")
 
 @landing_bp.route("/health")
 def health():
