@@ -24,7 +24,7 @@ def date_sort_key(w):
 
 
 # ── Strona główna ─────────────────────────────────────────────────────────────
-@main_bp.route("/")
+@main_bp.route("/app")
 def index():
     from flask_login import current_user
     if not current_user.is_authenticated:
