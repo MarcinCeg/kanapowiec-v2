@@ -22,23 +22,38 @@ body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSyste
 ══════════════════════════════════════════ */
 nav{background:var(--s);border-bottom:1px solid var(--border);padding:0 20px;height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;box-shadow:0 1px 8px rgba(0,0,0,.06)}
 .logo{display:flex;align-items:center;gap:9px;text-decoration:none}
-.logo-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--purple),var(--teal));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.logo-icon{width:34px;height:34px;background:linear-gradient(135deg,var(--purple),var(--teal));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
 .logo-text{font-size:15px;font-weight:800;color:var(--t);letter-spacing:-.4px;line-height:1.1}
 .logo-sub{font-size:9px;color:var(--h);letter-spacing:.8px;text-transform:uppercase}
 
-/* Desktop nav tabs */
-.nav-center{display:flex;gap:3px}
-.nav-tab{height:32px;padding:0 13px;border-radius:var(--r8);border:none;background:transparent;font-size:12px;font-weight:500;cursor:pointer;color:var(--m);text-decoration:none;display:inline-flex;align-items:center;gap:5px;transition:all .15s}
+/* Desktop nav tabs — pill style */
+.nav-center{display:flex;gap:3px;align-items:center}
+.nav-tab{height:32px;padding:0 13px;border-radius:20px;border:none;background:transparent;font-size:12px;font-weight:500;cursor:pointer;color:var(--m);text-decoration:none;display:inline-flex;align-items:center;gap:5px;transition:all .15s;white-space:nowrap}
 .nav-tab:hover{background:var(--bg);color:var(--t)}
-.nav-tab.active{background:var(--t);color:#fff}
+/* Tracker — aktywny używa koloru strony, nieaktywny — szary pill */
+.nav-tab.tracker-tab{color:var(--m)}
+.nav-tab.tracker-tab:hover{background:var(--bg);color:var(--t)}
+.nav-tab.tracker-tab.active{background:var(--t);color:#fff}
+/* Statystyki */
 .nav-tab.stats-tab{background:linear-gradient(135deg,var(--purple),var(--teal));color:#fff}
+/* Ranking */
 .nav-tab.ranking-tab{background:linear-gradient(135deg,#BA7517,#D85A30);color:#fff}
+/* AI */
 .nav-tab.ai-tab{background:linear-gradient(135deg,#1D9E75,#185FA5);color:#fff}
+/* Aktywna zakładka dostaje obramowanie + cień */
+.nav-tab.active{box-shadow:0 0 0 2px rgba(83,74,183,.25)}
+.nav-tab.stats-tab.active{box-shadow:0 0 0 2px rgba(83,74,183,.35)}
+.nav-tab.ranking-tab.active{box-shadow:0 0 0 2px rgba(186,117,23,.35)}
+.nav-tab.ai-tab.active{box-shadow:0 0 0 2px rgba(29,158,117,.35)}
 
 .nav-right{display:flex;align-items:center;gap:8px}
-.nav-avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
-.nav-user-info{text-align:right}
-.nav-nick{font-size:11px;font-weight:700;color:var(--t);display:flex;align-items:center;gap:4px;justify-content:flex-end}
+
+/* User pill */
+.nav-user-pill{display:flex;align-items:center;gap:7px;background:var(--bg);border:1px solid var(--b);border-radius:20px;padding:4px 12px 4px 5px;cursor:pointer;transition:all .15s;text-decoration:none}
+.nav-user-pill:hover{border-color:var(--b2);background:#e8e8ee}
+.nav-avatar{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0}
+.nav-user-info{line-height:1.2}
+.nav-nick{font-size:11px;font-weight:700;color:var(--t);display:flex;align-items:center;gap:4px}
 .nav-rank{font-size:9px;color:var(--m)}
 .badge-pro{font-size:8px;padding:1px 5px;border-radius:20px;background:linear-gradient(135deg,var(--purple),var(--teal));color:#fff;font-weight:700}
 .badge-free{font-size:8px;padding:1px 5px;border-radius:20px;background:#FEF3C7;color:#92400E;font-weight:700}
@@ -53,7 +68,8 @@ nav{background:var(--s);border-bottom:1px solid var(--border);padding:0 20px;hei
 /* Mobile drawer menu */
 .mobile-drawer{position:fixed;top:var(--nav-h);left:0;right:0;background:var(--s);border-bottom:1px solid var(--border);z-index:199;padding:12px 16px;display:none;flex-direction:column;gap:6px;box-shadow:0 4px 20px rgba(0,0,0,.12)}
 .mobile-drawer.open{display:flex}
-.drawer-tab{height:44px;padding:0 14px;border-radius:10px;border:none;background:var(--bg);font-size:13px;font-weight:500;cursor:pointer;color:var(--t);text-decoration:none;display:flex;align-items:center;gap:10px;transition:all .15s}
+.drawer-tab{height:44px;padding:0 14px;border-radius:12px;border:none;background:var(--bg);font-size:13px;font-weight:500;cursor:pointer;color:var(--t);text-decoration:none;display:flex;align-items:center;gap:10px;transition:all .15s}
+.drawer-tab:hover{background:#e8e8ee}
 .drawer-tab.active{background:var(--t);color:#fff}
 .drawer-tab.stats-tab{background:linear-gradient(135deg,var(--purple),var(--teal));color:#fff}
 .drawer-tab.ranking-tab{background:linear-gradient(135deg,#BA7517,#D85A30);color:#fff}
@@ -77,11 +93,11 @@ nav{background:var(--s);border-bottom:1px solid var(--border);padding:0 20px;hei
 .bot-tab.bot-ai.active{color:#1D9E75}
 
 /* Buttons */
-.btn{display:inline-flex;align-items:center;gap:5px;height:32px;padding:0 14px;border-radius:var(--r8);border:1px solid var(--border);background:var(--s);color:var(--t);font-size:12px;font-weight:500;cursor:pointer;text-decoration:none;transition:all .15s;white-space:nowrap}
+.btn{display:inline-flex;align-items:center;gap:5px;height:32px;padding:0 14px;border-radius:20px;border:1px solid var(--border);background:var(--s);color:var(--t);font-size:12px;font-weight:500;cursor:pointer;text-decoration:none;transition:all .15s;white-space:nowrap}
 .btn:hover{border-color:var(--b2);background:var(--bg)}
 .btn-primary{background:linear-gradient(135deg,var(--purple),var(--teal));color:#fff;border:none}
 .btn-primary:hover{opacity:.9}
-.btn-sm{height:28px;padding:0 11px;font-size:11px}
+.btn-sm{height:28px;padding:0 11px;font-size:11px;border-radius:20px}
 
 /* Flash */
 .flashes{padding:0 20px;margin-top:8px}
@@ -93,7 +109,7 @@ nav{background:var(--s);border-bottom:1px solid var(--border);padding:0 20px;hei
 main{max-width:1100px;margin:0 auto;padding:16px 20px}
 
 /* ═══════════════════════════════════════════
-   SECTION BOX — nowy design
+   SECTION BOX
 ══════════════════════════════════════════ */
 .section-box{border:1px solid var(--border);border-radius:14px;overflow:hidden;background:var(--s);margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.04)}
 .section-header{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;border-bottom:1px solid var(--border)}
@@ -104,7 +120,7 @@ main{max-width:1100px;margin:0 auto;padding:16px 20px}
 .section-right{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--h)}
 .section-body{padding:12px}
 
-/* Legacy sec-div compat */
+/* Legacy sec-div */
 .sec-div{display:flex;align-items:center;justify-content:space-between;background:var(--bg);border-radius:var(--r8);padding:7px 12px;margin:16px 0 12px;border-left:3px solid var(--b2)}
 .sec-div-l{display:flex;align-items:center;gap:7px}
 .sec-div-title{font-size:13px;font-weight:600;color:var(--t)}
@@ -212,7 +228,7 @@ main{max-width:1100px;margin:0 auto;padding:16px 20px}
 .ob-del{position:absolute;top:4px;right:4px;background:rgba(255,255,255,.85);border:none;color:var(--h);width:17px;height:17px;border-radius:50%;cursor:pointer;font-size:10px;display:flex;align-items:center;justify-content:center}
 .ob-del:hover{color:var(--red)}
 
-/* FILTRY — mobilne */
+/* FILTRY */
 .filt-row{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
 .filt-label{font-size:11px;color:var(--h);white-space:nowrap;font-weight:600;background:var(--bg);padding:2px 8px;border-radius:20px}
 .filt-sep{width:1px;height:16px;background:var(--b2);flex-shrink:0;margin:0 2px}
@@ -221,6 +237,23 @@ main{max-width:1100px;margin:0 auto;padding:16px 20px}
 .fpill-on{background:var(--t);color:#fff;border-color:var(--t)}
 .fpill-genre-on{background:#EEEDFE;color:#3C3489;border-color:#AFA9EC}
 .fpill-country-on{background:#E1F5EE;color:#085041;border-color:#5DCAA5}
+
+/* ACCORDION FILTRY */
+.filter-accordion{background:var(--bg);border:1px solid var(--b);border-radius:10px;overflow:hidden;margin-bottom:8px}
+.filter-acc-header{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;cursor:pointer;user-select:none;transition:background .15s}
+.filter-acc-header:hover{background:#e8e8ee}
+.filter-acc-left{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:var(--t);flex-wrap:wrap}
+.filter-acc-ico{font-size:13px}
+.filter-active-tags{display:flex;gap:4px;flex-wrap:wrap}
+.filter-tag{font-size:10px;padding:1px 7px;border-radius:20px;font-weight:600}
+.filter-tag.rating{background:#fef9c3;color:#92400e}
+.filter-tag.genre{background:#EEEDFE;color:#3C3489}
+.filter-tag.country{background:#E1F5EE;color:#085041}
+.filter-tag.plat{color:#fff;font-size:9px}
+.filter-chevron{font-size:11px;color:var(--h);transition:transform .2s;flex-shrink:0}
+.filter-chevron.open{transform:rotate(180deg)}
+.filter-acc-body{padding:10px 12px;border-top:1px solid var(--b);display:none}
+.filter-acc-body.open{display:block}
 
 /* POPUP */
 .card-popup{position:fixed;z-index:9999;width:300px;background:#fff;border-radius:16px;box-shadow:0 8px 40px rgba(0,0,0,.18);border:1px solid var(--b);pointer-events:none;opacity:0;transform:translateY(6px) scale(.98);transition:opacity .18s,transform .18s;overflow:hidden}
@@ -276,9 +309,7 @@ main{max-width:1100px;margin:0 auto;padding:16px 20px}
 .psname{font-size:10px;font-weight:500;color:var(--m)}
 .ps.on .psname{color:var(--t);font-weight:600}
 
-/* ═══════════════════════════════════════════
-   LOGIN PROMPT POPUP (po 3 min)
-══════════════════════════════════════════ */
+/* LOGIN PROMPT POPUP */
 .login-prompt-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9500;align-items:flex-end;justify-content:center;padding-bottom:0}
 .login-prompt-overlay.show{display:flex}
 .login-prompt-box{background:var(--s);border-radius:20px 20px 0 0;padding:28px 24px 40px;width:100%;max-width:480px;box-shadow:0 -4px 40px rgba(0,0,0,.2);animation:slideUp .35s ease}
@@ -302,7 +333,7 @@ main{max-width:1100px;margin:0 auto;padding:16px 20px}
   .nav-center{display:none}
   .hamburger{display:flex}
   .bottom-nav{display:flex}
-  .nav-user-info{display:none}
+  .nav-user-pill .nav-user-info{display:none}
   .wgrid{grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px}
   .kgrid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
   .ogrid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
@@ -330,20 +361,22 @@ main{max-width:1100px;margin:0 auto;padding:16px 20px}
 
   {% if current_user.is_authenticated %}
   <div class="nav-center">
-    <a href="/app" class="nav-tab {% if request.endpoint == 'main.index' %}active{% endif %}">📺 Tracker</a>
+    <a href="/app" class="nav-tab tracker-tab {% if request.endpoint == 'main.index' %}active{% endif %}">📺 Tracker</a>
     <a href="/stats" class="nav-tab stats-tab {% if request.endpoint == 'main.stats' %}active{% endif %}">📊 Statystyki</a>
     <a href="/ranking" class="nav-tab ranking-tab {% if request.endpoint == 'main.ranking' %}active{% endif %}">🏆 Ranking</a>
     <a href="/ai" class="nav-tab ai-tab {% if request.endpoint == 'main.ai_page' %}active{% endif %}">🤖 AI</a>
   </div>
   <div class="nav-right">
-    <div class="nav-user-info">
-      <div class="nav-nick">
-        {{ current_user.username }}
-        {% if current_user.is_pro %}<span class="badge-pro">PRO</span>{% else %}<span class="badge-free">FREE</span>{% endif %}
+    <a href="/settings" class="nav-user-pill">
+      <div class="nav-avatar" style="background:{{ current_user.avatar_color }}">{{ current_user.initials }}</div>
+      <div class="nav-user-info">
+        <div class="nav-nick">
+          {{ current_user.username }}
+          {% if current_user.is_pro %}<span class="badge-pro">PRO</span>{% else %}<span class="badge-free">FREE</span>{% endif %}
+        </div>
+        <div class="nav-rank">{{ current_user.active_title.ico }} {{ current_user.active_title.name }}</div>
       </div>
-      <div class="nav-rank">{{ current_user.active_title.ico }} {{ current_user.active_title.name }}</div>
-    </div>
-    <div class="nav-avatar" style="background:{{ current_user.avatar_color }}">{{ current_user.initials }}</div>
+    </a>
     <button class="hamburger" id="hamburgerBtn" onclick="toggleDrawer()"><span></span><span></span><span></span></button>
   </div>
 
@@ -354,6 +387,7 @@ main{max-width:1100px;margin:0 auto;padding:16px 20px}
     <a href="/ranking" class="drawer-tab ranking-tab" onclick="closeDrawer()">🏆 Ranking</a>
     <a href="/ai" class="drawer-tab ai-tab" onclick="closeDrawer()">🤖 AI</a>
     <div class="drawer-divider"></div>
+    <a href="/settings" class="drawer-tab" onclick="closeDrawer()">⚙️ Ustawienia</a>
     <a href="/auth/logout" class="drawer-tab" onclick="closeDrawer()">🚪 Wyloguj</a>
   </div>
 
@@ -427,7 +461,6 @@ main{max-width:1100px;margin:0 auto;padding:16px 20px}
   </div>
 </div>
 <script>
-  // Pokaż popup po 3 minutach (tylko raz na sesję)
   if(!sessionStorage.getItem('loginPromptDismissed')){
     setTimeout(()=>{
       document.getElementById('loginPrompt').classList.add('show');
