@@ -39,7 +39,7 @@
 <style>
 .nav-pills-strip{display:flex;gap:8px;margin-bottom:14px;flex-wrap:nowrap;overflow-x:auto;padding-bottom:2px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .nav-pills-strip::-webkit-scrollbar{display:none}
-.nav-pill{display:flex;flex-direction:column;align-items:center;gap:3px;background:var(--s);border:1.5px solid var(--border);border-radius:12px;padding:10px 12px;min-width:80px;flex:1;text-decoration:none;cursor:pointer;transition:all .15s;box-shadow:0 1px 3px rgba(0,0,0,.05);position:relative;overflow:hidden}
+.nav-pill{display:flex;flex-direction:column;align-items:center;gap:3px;background:var(--s);border:1.5px solid var(--border);border-radius:12px;padding:10px 12px;min-width:80px;flex:1;text-decoration:none;cursor:pointer;transition:all .15s;box-shadow:0 1px 3px rgba(0,0,0,.05)}
 .nav-pill:hover{transform:translateY(-1px);box-shadow:0 3px 10px rgba(0,0,0,.1)}
 .nav-pill:active{transform:translateY(0);box-shadow:none}
 .nav-pill-green{border-color:#bbf7d0}
@@ -59,6 +59,29 @@
 .np-fill{height:100%;border-radius:2px;background:#16a34a;transition:width .3s}
 .np-fill.warn{background:var(--orange)}
 .np-fill.full{background:var(--red)}
+
+/* ── Dwa przyciski akcji na karcie ── */
+.wactions{padding:4px 8px 8px;display:flex;flex-direction:column;gap:4px}
+.wbtn-ep{
+  width:100%;padding:5px 8px;border-radius:6px;
+  border:1px solid #2563eb;background:transparent;
+  color:#2563eb;font-size:10px;font-weight:600;
+  cursor:pointer;transition:background .15s,color .15s;
+  display:flex;align-items:center;justify-content:center;gap:4px
+}
+.wbtn-ep:hover{background:#2563eb;color:#fff}
+.wbtn-ep.done{
+  border-color:var(--b2);background:var(--bg);
+  color:var(--h);cursor:default;pointer-events:none;
+}
+.wbtn-serial{
+  width:100%;padding:5px 8px;border-radius:6px;
+  border:1px solid #16a34a;background:transparent;
+  color:#16a34a;font-size:10px;font-weight:600;
+  cursor:pointer;transition:background .15s,color .15s;
+  display:flex;align-items:center;justify-content:center;gap:4px
+}
+.wbtn-serial:hover{background:#16a34a;color:#fff}
 </style>
 
 {# ── OGLĄDAM ── #}
@@ -97,7 +120,17 @@
           {% if s.imdb_rating %}<div class="wimdb">⭐ {{ s.imdb_rating }} · <a href="{{ s.imdb_url }}" target="_blank">TMDB</a></div>{% endif %}
         </div>
         <div class="wactions">
-          <button class="wbtn-watched" onclick="markObejrzane({{ s.id }}, '{{ s.nazwa|replace("'", "\\'") }}')">✓ Obejrzane</button>
+          {# Przycisk odcinek — pokazuj tylko jeśli jest date_label (nowy odcinek) #}
+          {% if w.last_title %}
+          <button class="wbtn-ep" id="ep-btn-{{ s.id }}"
+            onclick="markOdcinek({{ s.id }}, this)">
+            ✓ Odcinek obejrzany
+          </button>
+          {% endif %}
+          <button class="wbtn-serial"
+            onclick="markSerialObejrzany({{ s.id }}, '{{ s.nazwa|replace("'", "\\'") }}')">
+            📦 Serial obejrzany
+          </button>
         </div>
         <button class="wdel" onclick="delOgladam({{ s.id }})">×</button>
       </div>
@@ -159,90 +192,117 @@
   </div>
   <div class="section-body">
 
-<div style="margin-bottom:10px">
-  <div class="filt-row" style="margin-bottom:6px">
-    <span class="filt-label">Ocena</span>
-    <button class="fpill fpill-on" id="f6" onclick="filterRating(6,this)">6.0+</button>
-    <button class="fpill" id="f7" onclick="filterRating(7,this)">7.0+</button>
-    <button class="fpill" id="f8" onclick="filterRating(8,this)">8.0+</button>
-    <div class="filt-sep"></div>
-    <span class="filt-label">Gatunek</span>
-    <div id="genreFilters" style="display:flex;flex-wrap:wrap;gap:4px"></div>
-  </div>
-  <div class="filt-row">
-    <span class="filt-label">Kraj</span>
-    <div id="countryFilters" style="display:flex;flex-wrap:wrap;gap:4px"></div>
-  </div>
-</div>
+    {# ── FILTRY — akordeony ── #}
+    <div style="margin-bottom:12px">
 
-{# PLATFORMY #}
-<div style="margin-bottom:14px">
-  <div style="font-size:11px;color:var(--m);margin-bottom:7px;font-weight:500">Twoje platformy — zaznacz które masz:</div>
-  <div class="pgrid">
-    {% macro pl_logo(p) %}
-      {% if p=='netflix' %}<svg height="18" viewBox="0 0 82 18"><text x="0" y="15" font-family="Arial Black" font-size="16" font-weight="900" fill="#E50914">NETFLIX</text></svg>
-      {% elif p=='hbo' %}<svg height="18" viewBox="0 0 52 18"><text x="0" y="15" font-family="Georgia,serif" font-size="17" font-weight="bold" fill="#8B5CF6">HBO</text></svg>
-      {% elif p=='disney' %}<svg height="18" viewBox="0 0 74 18"><text x="0" y="14" font-family="Arial" font-size="14" font-weight="900" fill="#113CCF">Disney</text><text x="58" y="12" font-size="12" font-weight="900" fill="#113CCF">+</text></svg>
-      {% elif p=='prime' %}<svg height="18" viewBox="0 0 68 18"><text x="0" y="11" font-family="Arial" font-size="11" font-weight="700" fill="#00A8E1">prime video</text></svg>
-      {% elif p=='appletv' %}<svg height="18" viewBox="0 0 72 18"><text x="0" y="13" font-family="-apple-system" font-size="12" font-weight="500" fill="#555">Apple TV+</text></svg>
-      {% elif p=='skyshowtime' %}<svg height="18" viewBox="0 0 90 18"><text x="0" y="13" font-family="Arial" font-size="11" font-weight="800" fill="#0070C9">SKY</text><text x="26" y="13" font-family="Arial" font-size="11" fill="#333">Showtime</text></svg>
-      {% elif p=='canalplus' %}<svg height="18" viewBox="0 0 68 18"><rect width="68" height="18" rx="3" fill="#003366"/><text x="5" y="13" font-family="Arial" font-size="11" font-weight="700" fill="#fff">CANAL+</text></svg>
-      {% elif p=='player' %}<svg height="18" viewBox="0 0 68 18"><rect width="68" height="18" rx="3" fill="#E4002B"/><polygon points="8,4 8,14 15,9" fill="white"/><text x="20" y="13" font-family="Arial" font-size="11" font-weight="700" fill="white">player</text></svg>
-      {% elif p=='polsat' %}<svg height="18" viewBox="0 0 84 18"><rect width="84" height="18" rx="3" fill="#E31E24"/><text x="4" y="12" font-family="Arial Black" font-size="9" font-weight="900" fill="white">POLSAT BOX</text></svg>
-      {% elif p=='tvpvod' %}<svg height="18" viewBox="0 0 72 18"><rect width="72" height="18" rx="3" fill="#003F87"/><text x="4" y="13" font-family="Arial" font-size="11" font-weight="700" fill="white">TVP</text><text x="30" y="13" font-family="Arial" font-size="11" fill="#60a5fa">VOD</text></svg>
-      {% endif %}
-    {% endmacro %}
-    {% for p in platforms %}
-    <div class="ps {% if p in user_platforms %}on{% endif %}" style="--c:{{ pcolors[p] }}" onclick="togglePlatform('{{ p }}')" id="psb-{{ p }}">
-      <div class="pslogo">{{ pl_logo(p) }}</div>
-      <span class="psname">{{ pnames[p] }}</span>
-    </div>
-    {% endfor %}
-  </div>
-</div>
-
-{# DODAJ SERIAL #}
-<div style="margin-bottom:14px">
-  <div style="font-size:11px;color:var(--m);margin-bottom:7px;font-weight:500">Dodaj serial do Oglądam:</div>
-  <div class="add-row">
-    <input class="add-inp" type="text" id="serialInput" placeholder="Wyszukaj serial..." oninput="showAC()" onkeydown="if(event.key==='Enter')addFromInput()" autocomplete="off">
-    <button class="btn" style="background:var(--t);color:#fff;border-color:var(--t)" onclick="addFromInput()">Dodaj</button>
-    <div class="ac" id="serialAC"></div>
-  </div>
-</div>
-
-{# NOWOŚCI GRID #}
-{% if nowosci %}
-<div class="ogrid">
-  {% for row in nowosci %}
-  {% set s = row.serial %}
-  <div class="ocard" data-platform="{{ row.platform }}" data-rating="{{ s.imdb_rating or 0 }}"
-       data-genres="{{ s.genres }}" data-countries="{{ s.countries }}">
-    <div class="oimg">
-      {% if s.cover %}<img src="{{ s.cover }}" alt="{{ s.nazwa }}" loading="lazy" onerror="this.parentElement.innerHTML='🎬'">{% else %}🎬{% endif %}
-    </div>
-    {% if row.platform %}<span class="oplat" style="background:{{ pcolors.get(row.platform,'#888') }}">{{ pnames.get(row.platform,'') }}</span>{% endif %}
-    <div class="obody">
-      <div class="oname">{{ s.nazwa[:45] }}</div>
-      {% if s.imdb_rating %}<div class="orating">⭐ {{ s.imdb_rating }} {% if s.imdb_url %}<a href="{{ s.imdb_url }}" target="_blank">TMDB</a>{% endif %}</div>{% endif %}
-      {% if s.genres_list or s.countries_list %}
-      <div class="otags">
-        {% for g in s.genres_list[:2] %}<span class="otag otag-genre">{{ g }}</span>{% endfor %}
-        {% for c in s.countries_list[:1] %}<span class="otag otag-country">{{ c }}</span>{% endfor %}
+      <div class="filter-accordion">
+        <div class="filter-acc-header" onclick="toggleAcc('acc1')">
+          <div class="filter-acc-left">
+            <span class="filter-acc-ico">🎛️</span>
+            Filtry
+            <div class="filter-active-tags" id="filterSummary">
+              <span class="filter-tag rating">6.0+</span>
+            </div>
+          </div>
+          <span class="filter-chevron open" id="chevron-acc1">▼</span>
+        </div>
+        <div class="filter-acc-body open" id="body-acc1">
+          <div class="filt-row" style="margin-bottom:6px">
+            <span class="filt-label">Ocena</span>
+            <button class="fpill fpill-on" id="f6" onclick="filterRating(6,this)">6.0+</button>
+            <button class="fpill" id="f7" onclick="filterRating(7,this)">7.0+</button>
+            <button class="fpill" id="f8" onclick="filterRating(8,this)">8.0+</button>
+          </div>
+          <div class="filt-row" style="margin-bottom:6px">
+            <span class="filt-label">Gatunek</span>
+            <div id="genreFilters" style="display:flex;flex-wrap:wrap;gap:4px"></div>
+          </div>
+          <div class="filt-row">
+            <span class="filt-label">Kraj</span>
+            <div id="countryFilters" style="display:flex;flex-wrap:wrap;gap:4px"></div>
+          </div>
+        </div>
       </div>
-      {% endif %}
-      {% if s.imdb_desc %}<div class="odesc">{{ s.imdb_desc[:120] }}</div>{% endif %}
-      {% if row.date_label %}<div class="odate-label">📅 {{ row.date_label }}</div>{% endif %}
-    </div>
-    <button class="flag-btn" onclick="flagSerial(this,{{ s.id }},'{{ s.nazwa|replace("'","\\'") }}','{{ row.platform }}')">🚩 Kandydat</button>
-  </div>
-  {% endfor %}
-</div>
-{% else %}
-<div class="empty"><div class="empty-ico">🔍</div><p>Zaznacz platformy powyżej i kliknij ⟳ Odśwież nowości</p></div>
-{% endif %}
 
-  </div>{# end section-body #}
+      <div class="filter-accordion">
+        <div class="filter-acc-header" onclick="toggleAcc('acc2')">
+          <div class="filter-acc-left">
+            <span class="filter-acc-ico">📺</span>
+            Platformy
+            <div class="filter-active-tags" id="platSummary"></div>
+          </div>
+          <span class="filter-chevron" id="chevron-acc2">▼</span>
+        </div>
+        <div class="filter-acc-body" id="body-acc2">
+          <div style="font-size:11px;color:var(--m);margin-bottom:8px;font-weight:500">Zaznacz platformy które masz:</div>
+          <div class="pgrid">
+            {% macro pl_logo(p) %}
+              {% if p=='netflix' %}<svg height="18" viewBox="0 0 82 18"><text x="0" y="15" font-family="Arial Black" font-size="16" font-weight="900" fill="#E50914">NETFLIX</text></svg>
+              {% elif p=='hbo' %}<svg height="18" viewBox="0 0 52 18"><text x="0" y="15" font-family="Georgia,serif" font-size="17" font-weight="bold" fill="#8B5CF6">HBO</text></svg>
+              {% elif p=='disney' %}<svg height="18" viewBox="0 0 74 18"><text x="0" y="14" font-family="Arial" font-size="14" font-weight="900" fill="#113CCF">Disney</text><text x="58" y="12" font-size="12" font-weight="900" fill="#113CCF">+</text></svg>
+              {% elif p=='prime' %}<svg height="18" viewBox="0 0 68 18"><text x="0" y="11" font-family="Arial" font-size="11" font-weight="700" fill="#00A8E1">prime video</text></svg>
+              {% elif p=='appletv' %}<svg height="18" viewBox="0 0 72 18"><text x="0" y="13" font-family="-apple-system" font-size="12" font-weight="500" fill="#555">Apple TV+</text></svg>
+              {% elif p=='skyshowtime' %}<svg height="18" viewBox="0 0 90 18"><text x="0" y="13" font-family="Arial" font-size="11" font-weight="800" fill="#0070C9">SKY</text><text x="26" y="13" font-family="Arial" font-size="11" fill="#333">Showtime</text></svg>
+              {% elif p=='canalplus' %}<svg height="18" viewBox="0 0 68 18"><rect width="68" height="18" rx="3" fill="#003366"/><text x="5" y="13" font-family="Arial" font-size="11" font-weight="700" fill="#fff">CANAL+</text></svg>
+              {% elif p=='player' %}<svg height="18" viewBox="0 0 68 18"><rect width="68" height="18" rx="3" fill="#E4002B"/><polygon points="8,4 8,14 15,9" fill="white"/><text x="20" y="13" font-family="Arial" font-size="11" font-weight="700" fill="white">player</text></svg>
+              {% elif p=='polsat' %}<svg height="18" viewBox="0 0 84 18"><rect width="84" height="18" rx="3" fill="#E31E24"/><text x="4" y="12" font-family="Arial Black" font-size="9" font-weight="900" fill="white">POLSAT BOX</text></svg>
+              {% elif p=='tvpvod' %}<svg height="18" viewBox="0 0 72 18"><rect width="72" height="18" rx="3" fill="#003F87"/><text x="4" y="13" font-family="Arial" font-size="11" font-weight="700" fill="white">TVP</text><text x="30" y="13" font-family="Arial" font-size="11" fill="#60a5fa">VOD</text></svg>
+              {% endif %}
+            {% endmacro %}
+            {% for p in platforms %}
+            <div class="ps {% if p in user_platforms %}on{% endif %}" style="--c:{{ pcolors[p] }}" onclick="togglePlatform('{{ p }}')" id="psb-{{ p }}">
+              <div class="pslogo">{{ pl_logo(p) }}</div>
+              <span class="psname">{{ pnames[p] }}</span>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    {# DODAJ SERIAL #}
+    <div style="margin-bottom:14px">
+      <div style="font-size:11px;color:var(--m);margin-bottom:7px;font-weight:500">Dodaj serial do Oglądam:</div>
+      <div class="add-row">
+        <input class="add-inp" type="text" id="serialInput" placeholder="Wyszukaj serial..." oninput="showAC()" onkeydown="if(event.key==='Enter')addFromInput()" autocomplete="off">
+        <button class="btn" style="background:var(--t);color:#fff;border-color:var(--t)" onclick="addFromInput()">Dodaj</button>
+        <div class="ac" id="serialAC"></div>
+      </div>
+    </div>
+
+    {# NOWOŚCI GRID #}
+    {% if nowosci %}
+    <div class="ogrid">
+      {% for row in nowosci %}
+      {% set s = row.serial %}
+      <div class="ocard" data-platform="{{ row.platform }}" data-rating="{{ s.imdb_rating or 0 }}"
+           data-genres="{{ s.genres }}" data-countries="{{ s.countries }}">
+        <div class="oimg">
+          {% if s.cover %}<img src="{{ s.cover }}" alt="{{ s.nazwa }}" loading="lazy" onerror="this.parentElement.innerHTML='🎬'">{% else %}🎬{% endif %}
+        </div>
+        {% if row.platform %}<span class="oplat" style="background:{{ pcolors.get(row.platform,'#888') }}">{{ pnames.get(row.platform,'') }}</span>{% endif %}
+        <div class="obody">
+          <div class="oname">{{ s.nazwa[:45] }}</div>
+          {% if s.imdb_rating %}<div class="orating">⭐ {{ s.imdb_rating }} {% if s.imdb_url %}<a href="{{ s.imdb_url }}" target="_blank">TMDB</a>{% endif %}</div>{% endif %}
+          {% if s.genres_list or s.countries_list %}
+          <div class="otags">
+            {% for g in s.genres_list[:2] %}<span class="otag otag-genre">{{ g }}</span>{% endfor %}
+            {% for c in s.countries_list[:1] %}<span class="otag otag-country">{{ c }}</span>{% endfor %}
+          </div>
+          {% endif %}
+          {% if s.imdb_desc %}<div class="odesc">{{ s.imdb_desc[:120] }}</div>{% endif %}
+          {% if row.date_label %}<div class="odate-label">📅 {{ row.date_label }}</div>{% endif %}
+        </div>
+        <button class="flag-btn" onclick="flagSerial(this,{{ s.id }},'{{ s.nazwa|replace("'","\\'") }}','{{ row.platform }}')">🚩 Kandydat</button>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty"><div class="empty-ico">🔍</div><p>Zaznacz platformy powyżej i kliknij ⟳ Odśwież nowości</p></div>
+    {% endif %}
+
+  </div>
 </div>
 
 {# ── OBEJRZANE ── #}
@@ -279,18 +339,18 @@
 
 </main>
 
-{# ── POPUP: Obejrzane potwierdzenie ── #}
+{# ── POPUP: Serial obejrzany — potwierdzenie ── #}
 <div id="watchedConfirmPopup" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9000;align-items:center;justify-content:center">
   <div style="background:var(--card);border-radius:14px;padding:28px 24px;max-width:340px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.3)">
     <div style="font-size:28px;text-align:center;margin-bottom:12px">🎉</div>
     <div style="font-weight:700;font-size:15px;text-align:center;margin-bottom:8px" id="watchedPopupTitle">Gratulacje!</div>
     <div style="font-size:12px;color:var(--m);text-align:center;margin-bottom:18px;line-height:1.6">
-      Serial trafi do <strong>Obejrzanych</strong> i zostanie wliczony do Twoich statystyk — godziny, odcinki, rankingi.<br><br>
-      <span style="font-size:11px;color:var(--h)">Nie możesz cofnąć tej akcji, ale możesz przywrócić serial do Oglądam.</span>
+      Serial trafi do <strong>Obejrzanych</strong> i zostanie wliczony do Twoich statystyk.<br><br>
+      <span style="font-size:11px;color:var(--h)">Możesz później przywrócić serial do Oglądam.</span>
     </div>
     <div style="display:flex;gap:10px">
       <button onclick="closeWatchedPopup()" style="flex:1;padding:10px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--t);cursor:pointer;font-size:13px">Anuluj</button>
-      <button id="watchedConfirmBtn" style="flex:1;padding:10px;border-radius:8px;border:none;background:#16a34a;color:#fff;cursor:pointer;font-size:13px;font-weight:600">✓ Tak, obejrzane!</button>
+      <button id="watchedConfirmBtn" style="flex:1;padding:10px;border-radius:8px;border:none;background:#16a34a;color:#fff;cursor:pointer;font-size:13px;font-weight:600">📦 Tak, obejrzany!</button>
     </div>
   </div>
 </div>
@@ -306,7 +366,15 @@ let selPlat = {{ user_platforms|tojson }};
 let curRating = 6;
 let activeGenres = new Set();
 let activeCountries = new Set();
-let activePlatFilter = null;
+
+// ── Akordeony filtrów ──
+function toggleAcc(id){
+  const body = document.getElementById('body-'+id);
+  const chev = document.getElementById('chevron-'+id);
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  chev.classList.toggle('open', !isOpen);
+}
 
 // ── Platformy ──
 function togglePlatform(p){
@@ -314,20 +382,20 @@ function togglePlatform(p){
   if(selPlat.includes(p)){ selPlat = selPlat.filter(x=>x!==p); el.classList.remove('on'); }
   else { selPlat.push(p); el.classList.add('on'); }
   fetch('/api/platformy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({platformy:selPlat})});
+  updatePlatSummary();
 }
 
 // ── Filtry ──
 function applyFilter(){
-  document.querySelectorAll('[data-platform]').forEach(card=>{
-    const platOk = !activePlatFilter || card.dataset.platform===activePlatFilter;
-    const isO = card.classList.contains('ocard');
-    const ratingOk = !isO || parseFloat(card.dataset.rating||0)>=curRating;
+  document.querySelectorAll('.ocard').forEach(card=>{
+    const ratingOk = parseFloat(card.dataset.rating||0) >= curRating;
     const cg = (card.dataset.genres||'').split(',').filter(Boolean);
-    const genreOk = !isO || activeGenres.size===0 || cg.length===0 || cg.some(g=>activeGenres.has(g));
+    const genreOk = activeGenres.size===0 || cg.some(g=>activeGenres.has(g));
     const cc = (card.dataset.countries||'').split(',').filter(Boolean);
-    const countryOk = !isO || activeCountries.size===0 || cc.length===0 || cc.some(c=>activeCountries.has(c));
-    card.style.display = (platOk&&ratingOk&&genreOk&&countryOk)?'':'none';
+    const countryOk = activeCountries.size===0 || cc.some(c=>activeCountries.has(c));
+    card.style.display = (ratingOk && genreOk && countryOk) ? '' : 'none';
   });
+  updateFilterSummary();
 }
 function filterRating(min,btn){
   curRating=min;
@@ -355,6 +423,25 @@ function buildFilterPills(){
   const cBox=document.getElementById('countryFilters');
   if(gBox) gBox.innerHTML=[...gs].sort().map(g=>`<button class="fpill" onclick="toggleGenre('${g}',this)">${g}</button>`).join('');
   if(cBox) cBox.innerHTML=[...cs].sort().map(c=>`<button class="fpill" onclick="toggleCountry('${c}',this)">${c}</button>`).join('');
+  updatePlatSummary();
+}
+function updateFilterSummary(){
+  const s = document.getElementById('filterSummary');
+  if(!s) return;
+  const ratingBtn = document.querySelector('#f6.fpill-on,#f7.fpill-on,#f8.fpill-on');
+  const genres = [...document.querySelectorAll('#genreFilters .fpill-genre-on')].map(b=>b.textContent);
+  const countries = [...document.querySelectorAll('#countryFilters .fpill-country-on')].map(b=>b.textContent);
+  let html = '';
+  if(ratingBtn) html += `<span class="filter-tag rating">${ratingBtn.textContent}</span>`;
+  genres.forEach(g=>html+=`<span class="filter-tag genre">${g}</span>`);
+  countries.forEach(c=>html+=`<span class="filter-tag country">${c}</span>`);
+  s.innerHTML = html;
+}
+function updatePlatSummary(){
+  const s = document.getElementById('platSummary');
+  if(!s) return;
+  const platColors={'netflix':'#E50914','hbo':'#8B5CF6','disney':'#113CCF','prime':'#00A8E1','appletv':'#555','player':'#E4002B','canalplus':'#003366','polsat':'#E31E24','tvpvod':'#003F87','skyshowtime':'#0070C9'};
+  s.innerHTML = selPlat.map(p=>`<span class="filter-tag plat" style="background:${platColors[p]||'#888'}">${pnames[p]||p}</span>`).join('');
 }
 
 // ── Autocomplete ──
@@ -371,13 +458,12 @@ function showAC(){
 document.addEventListener('click',e=>{if(!e.target.closest('.add-row'))document.getElementById('serialAC').classList.remove('show');});
 function addFromInput(){const v=document.getElementById('serialInput').value.trim();if(v)addSerial(v);document.getElementById('serialInput').value='';document.getElementById('serialAC').classList.remove('show');}
 
-// ── Dodaj serial (bez reload) ──
+// ── Dodaj serial ──
 async function addSerial(nazwa){
   document.getElementById('serialAC').classList.remove('show');
   const r=await fetch('/api/ogladam',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nazwa})});
   const d=await r.json();
   if(d.ok){
-    // Usuń "empty" jeśli był
     document.getElementById('ogladamEmpty')?.remove();
     const s=d.serial;
     const card=document.createElement('div');
@@ -394,34 +480,45 @@ async function addSerial(nazwa){
         ${s.imdb_rating?`<div class="wimdb">⭐ ${s.imdb_rating} · <a href="${s.imdb_url}" target="_blank">TMDB</a></div>`:''}
       </div>
       <div class="wactions">
-        <button class="wbtn-watched" onclick="markObejrzane(${s.id}, '${s.nazwa.replace(/'/g,"\\'")}')">✓ Obejrzane</button>
+        <button class="wbtn-serial" onclick="markSerialObejrzany(${s.id}, '${s.nazwa.replace(/'/g,"\\'")}')">📦 Serial obejrzany</button>
       </div>
       <button class="wdel" onclick="delOgladam(${s.id})">×</button>`;
     document.getElementById('ogladamGrid').appendChild(card);
     attachPopupEvents();
-    // Aktualizuj licznik
     const cnt=document.getElementById('ogladamCount');
     if(cnt) cnt.textContent=document.querySelectorAll('#ogladamGrid .wcard').length;
   } else if(d.error==='limit') alert(d.msg);
 }
 
-// ── Obejrzane popup ──
-let pendingWatchedId=null;
-function markObejrzane(id, nazwa){
-  pendingWatchedId=id;
-  document.getElementById('watchedPopupTitle').textContent=`"${nazwa}" — obejrzane?`;
-  const popup=document.getElementById('watchedConfirmPopup');
-  popup.style.display='flex';
-  document.getElementById('watchedConfirmBtn').onclick=async()=>{
+// ── Oznacz ODCINEK jako obejrzany (serial zostaje w Oglądam) ──
+async function markOdcinek(id, btn){
+  btn.disabled = true;
+  const r = await fetch(`/api/ogladam/${id}/odcinek`, {method:'POST'});
+  const d = await r.json();
+  if(d.ok){
+    // Usuń przycisk odcinka — serial zostaje
+    btn.remove();
+  } else {
+    btn.disabled = false;
+  }
+}
+
+// ── Oznacz CAŁY SERIAL jako obejrzany — przenosi do Obejrzanych ──
+let pendingWatchedId = null;
+function markSerialObejrzany(id, nazwa){
+  pendingWatchedId = id;
+  document.getElementById('watchedPopupTitle').textContent = `"${nazwa}" — serial obejrzany?`;
+  const popup = document.getElementById('watchedConfirmPopup');
+  popup.style.display = 'flex';
+  document.getElementById('watchedConfirmBtn').onclick = async () => {
     closeWatchedPopup();
-    const r=await fetch('/api/ogladam/'+pendingWatchedId,{method:'DELETE'});
-    const d=await r.json();
+    const r = await fetch('/api/ogladam/'+pendingWatchedId, {method:'DELETE'});
+    const d = await r.json();
     if(d.ok){
-      // Usuń kartę z gridu
       document.querySelector(`#ogladamGrid .wcard[data-id="${pendingWatchedId}"]`)?.remove();
-      const cnt=document.getElementById('ogladamCount');
-      if(cnt) cnt.textContent=document.querySelectorAll('#ogladamGrid .wcard').length;
-      location.reload(); // reload żeby odświeżyć Obejrzane
+      const cnt = document.getElementById('ogladamCount');
+      if(cnt) cnt.textContent = document.querySelectorAll('#ogladamGrid .wcard').length;
+      location.reload();
     }
   };
 }
@@ -446,13 +543,12 @@ async function delKandydat(id){
   if(cnt) cnt.textContent=document.querySelectorAll('#kandydaciGrid .kcard').length;
 }
 
-// ── Promote kandydat → oglądam (bez reload) ──
+// ── Promote kandydat → oglądam ──
 async function promoteKandydat(id, btn){
   btn.disabled=true; btn.textContent='⏳...';
   const r=await fetch('/api/kandydaci/'+id+'/promote',{method:'POST'});
   const d=await r.json();
   if(d.ok){
-    // Usuń z kandydatów
     const kcard=document.querySelector(`#kandydaciGrid .kcard[data-id="${id}"]`);
     const nazwa=kcard?.querySelector('.kname')?.textContent||'';
     const cover=kcard?.querySelector('img')?.src||'';
@@ -460,7 +556,6 @@ async function promoteKandydat(id, btn){
     kcard?.remove();
     const kcnt=document.getElementById('kandydaciCount');
     if(kcnt) kcnt.textContent=document.querySelectorAll('#kandydaciGrid .kcard').length;
-    // Dodaj do oglądam
     document.getElementById('ogladamEmpty')?.remove();
     const card=document.createElement('div');
     card.className='wcard';
@@ -475,20 +570,29 @@ async function promoteKandydat(id, btn){
         ${rating?`<div class="wimdb">⭐ ${rating} · TMDB</div>`:''}
       </div>
       <div class="wactions">
-        <button class="wbtn-watched" onclick="markObejrzane(${id}, '${nazwa.replace(/'/g,"\\'")}')">✓ Obejrzane</button>
+        <button class="wbtn-serial" onclick="markSerialObejrzany(${id}, '${nazwa.replace(/'/g,"\\'")}')">📦 Serial obejrzany</button>
       </div>
       <button class="wdel" onclick="delOgladam(${id})">×</button>`;
     document.getElementById('ogladamGrid').appendChild(card);
     attachPopupEvents();
     const wcnt=document.getElementById('ogladamCount');
     if(wcnt) wcnt.textContent=document.querySelectorAll('#ogladamGrid .wcard').length;
-    // Odśwież odcinki dla nowego
     fetch('/api/ogladam/'+id+'/refresh',{method:'POST'}).then(r=>r.json()).then(d=>{
       if(d.ok&&d.ep){
         const wcard=document.querySelector(`#ogladamGrid .wcard[data-id="${id}"]`);
         if(wcard){
           const ep=wcard.querySelector('.wep');
           if(ep) ep.innerHTML=`<div class="wep-num"><a href="${d.ep.link}" target="_blank" style="color:var(--blue);text-decoration:none;font-size:10px">${d.ep.title?.slice(0,48)||''}</a></div><div class="wep-date">${d.ep.date_label||''}</div>`;
+          // Dodaj przycisk odcinka jeśli jest tytuł
+          const actions = wcard.querySelector('.wactions');
+          if(actions && d.ep.title){
+            const epBtn = document.createElement('button');
+            epBtn.className = 'wbtn-ep';
+            epBtn.id = `ep-btn-${id}`;
+            epBtn.innerHTML = '✓ Odcinek obejrzany';
+            epBtn.onclick = function(){ markOdcinek(id, this); };
+            actions.insertBefore(epBtn, actions.firstChild);
+          }
         }
       }
     });
@@ -505,14 +609,13 @@ async function restoreObejrzane(id){
   if(d.ok) location.reload(); else alert('Limit Oglądam osiągnięty');
 }
 
-// ── Flag (kandydat) bez reload ──
+// ── Flag (kandydat) ──
 async function flagSerial(btn,serial_id,nazwa,platform){
   if(btn.classList.contains('flagged')) return;
   const r=await fetch('/api/kandydaci',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nazwa,platform})});
   const d=await r.json();
   if(d.ok){
     btn.classList.add('flagged'); btn.textContent='✓ Dodano';
-    // Dodaj kartę do gridu kandydatów
     document.getElementById('kandydaciEmpty')?.remove();
     const s=d.serial;
     const card=document.createElement('div');
@@ -557,24 +660,23 @@ const popup=document.getElementById('cardPopup');
 const popupInner=document.getElementById('popupInner');
 const actorPopup=document.getElementById('actorPopup');
 const actorPopupInner=document.getElementById('actorPopupInner');
-let popupTimer=null, hideTimer=null, tmdbCache={}, actorCache={};
+let popupTimer=null,hideTimer=null,tmdbCache={},actorCache={};
 
 function positionPopup(card){
   const r=card.getBoundingClientRect();
-  let left=r.right+10, top=r.top;
+  let left=r.right+10,top=r.top;
   if(left+300>window.innerWidth-10) left=r.left-310;
   if(left<10) left=10;
   if(top+420>window.innerHeight-10) top=window.innerHeight-430;
   if(top<10) top=10;
-  popup.style.left=left+'px'; popup.style.top=top+'px';
+  popup.style.left=left+'px';popup.style.top=top+'px';
 }
-
 async function fetchTmdb(title){
   if(tmdbCache[title]) return tmdbCache[title];
   try{
     let r=await fetch(`https://api.themoviedb.org/3/search/tv?api_key=${TMDB_KEY}&query=${encodeURIComponent(title)}&language=pl-PL`);
     let d=await r.json();
-    if(!d.results?.length){ r=await fetch(`https://api.themoviedb.org/3/search/tv?api_key=${TMDB_KEY}&query=${encodeURIComponent(title)}&language=en-US`); d=await r.json(); }
+    if(!d.results?.length){r=await fetch(`https://api.themoviedb.org/3/search/tv?api_key=${TMDB_KEY}&query=${encodeURIComponent(title)}&language=en-US`);d=await r.json();}
     if(!d.results?.length) return null;
     const item=d.results[0];
     const [det,cred]=await Promise.all([
@@ -586,17 +688,15 @@ async function fetchTmdb(title){
       rating:det.vote_average?Math.round(det.vote_average*10)/10:null,
       year:(det.first_air_date||'').slice(0,4),
       genres:(det.genres||[]).slice(0,3).map(g=>g.name),
-      cast:(cred.cast||[]).slice(0,6).map(a=>({name:a.name,character:a.character||'',photo:a.profile_path?`https://image.tmdb.org/t/p/w185${a.profile_path}`:'',id:a.id?String(a.id):''})
-    )};
-    tmdbCache[title]=result; return result;
+      cast:(cred.cast||[]).slice(0,6).map(a=>({name:a.name,character:a.character||'',photo:a.profile_path?`https://image.tmdb.org/t/p/w185${a.profile_path}`:'',id:a.id?String(a.id):''}))};
+    tmdbCache[title]=result;return result;
   }catch(e){return null;}
 }
-
 function renderPopup(d,tmdb){
-  const color=pcolors[d.platform]||'#888', pname=pnames[d.platform]||'';
-  const poster=tmdb?.poster||d.img||'', overview=tmdb?.overview||d.desc||'';
-  const rating=tmdb?.rating||d.rating||'', year=tmdb?.year||'';
-  const genres=tmdb?.genres||[], cast=tmdb?.cast||[];
+  const color=pcolors[d.platform]||'#888',pname=pnames[d.platform]||'';
+  const poster=tmdb?.poster||d.img||'',overview=tmdb?.overview||d.desc||'';
+  const rating=tmdb?.rating||d.rating||'',year=tmdb?.year||'';
+  const genres=tmdb?.genres||[],cast=tmdb?.cast||[];
   popupInner.innerHTML=`
     <div class="popup-header">
       ${poster?`<img class="popup-poster" src="${poster}" onerror="this.outerHTML='<div class=popup-poster-placeholder>🎬</div>'">`:'<div class="popup-poster-placeholder">🎬</div>'}
@@ -617,9 +717,8 @@ function renderPopup(d,tmdb){
         <span class="popup-actor-name">${a.name}</span></div>`).join('')}
     </div></div>`:''}`;
 }
-
 async function showPopup(card){
-  const isO=card.classList.contains('ocard'), isK=card.classList.contains('kcard'), isW=card.classList.contains('wcard');
+  const isO=card.classList.contains('ocard'),isK=card.classList.contains('kcard'),isW=card.classList.contains('wcard');
   let title='',rating='',desc='',img='',platform='';
   if(isO){title=card.querySelector('.oname')?.textContent||'';rating=card.dataset.rating||'';desc=card.querySelector('.odesc')?.textContent||'';img=card.querySelector('img')?.src||'';platform=card.dataset.platform||'';}
   else if(isK){title=card.querySelector('.kname')?.textContent||'';rating=card.querySelector('.krating')?.textContent?.replace(/[^\d.]/g,'')||'';desc=card.querySelector('.kdesc')?.textContent||'';img=card.querySelector('img')?.src||'';platform=card.dataset.platform||'';}
@@ -637,9 +736,9 @@ function hidePopup(){popup.classList.remove('visible');}
 async function showActorPopup(e,name,character,photo,personId){
   e.stopPropagation();
   const x=e.clientX,y=e.clientY;
-  let left=x+12; if(left+240>window.innerWidth-10) left=x-252;
-  let top=y-20; if(top+300>window.innerHeight-10) top=window.innerHeight-320; if(top<10) top=10;
-  actorPopup.style.left=left+'px'; actorPopup.style.top=top+'px';
+  let left=x+12;if(left+240>window.innerWidth-10) left=x-252;
+  let top=y-20;if(top+300>window.innerHeight-10) top=window.innerHeight-320;if(top<10) top=10;
+  actorPopup.style.left=left+'px';actorPopup.style.top=top+'px';
   actorPopupInner.innerHTML=`<div class="actor-popup-header">${photo?`<img class="actor-popup-img" src="${photo}">`:'<div class="actor-popup-img" style="background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:22px">👤</div>'}<div><div class="actor-popup-name">${name}</div>${character?`<div class="actor-popup-char">${character}</div>`:''}</div></div><div class="actor-popup-known" id="actorKnown">Ładuję...</div>`;
   actorPopup.classList.add('visible');
   const pid=personId&&personId!=='undefined'&&personId!==''?personId:null;
@@ -670,43 +769,9 @@ function attachPopupEvents(){
   }
 }
 
-document.addEventListener('DOMContentLoaded',()=>{attachPopupEvents();buildFilterPills();});
+document.addEventListener('DOMContentLoaded',()=>{
+  attachPopupEvents();
+  buildFilterPills();
+});
 </script>
-
-<style>
-.section-box {
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  overflow: hidden;
-  background: var(--card);
-}
-.section-body {
-  padding: 14px;
-}
-.section-box .sec-div {
-  margin-bottom: 0 !important;
-  border-radius: 0 !important;
-}
-.wactions {
-  padding: 0 10px 8px;
-  display: flex;
-  gap: 6px;
-}
-.wbtn-watched {
-  flex: 1;
-  padding: 6px 8px;
-  border-radius: 6px;
-  border: 1px solid #16a34a;
-  background: transparent;
-  color: #16a34a;
-  font-size: 11px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background .15s, color .15s;
-}
-.wbtn-watched:hover {
-  background: #16a34a;
-  color: #fff;
-}
-</style>
 {% endblock %}
