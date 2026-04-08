@@ -30,91 +30,102 @@
 </div>
 
 {# ── OGLĄDAM ── #}
-<div class="sec-div" style="border-left-color:#16a34a">
-  <div class="sec-div-l">
-    <div class="dot8" style="background:#16a34a"></div>
-    <span class="sec-div-title">Oglądam teraz</span>
-    <span class="sec-div-n" id="ogladamCount">{{ ogladam|length }}</span>
-  </div>
-  <div class="sec-div-r">
-    <span id="stepOdcinki" style="font-style:italic"></span>
-    <button class="btn btn-sm" id="refreshOdcinkiBtn" onclick="refreshOdcinki()">⟳ Odśwież odcinki</button>
-  </div>
-</div>
-
-<div class="wgrid" id="ogladamGrid">
-  {% for w in ogladam %}
-  {% set s = w.serial %}
-  <div class="wcard {{ 'new-today' if '🔥' in w.date_label else 'new-recent' if w.is_new_today else '' }}" data-platform="{{ w.platforma }}">
-    <div class="wimg">
-      {% if s.cover %}<img src="{{ s.cover }}" alt="{{ s.nazwa }}" onerror="this.parentElement.innerHTML='🎬'">{% else %}🎬{% endif %}
-      {% if w.platforma %}<span class="wplat" style="background:{{ pcolors.get(w.platforma,'#888') }}">{{ pnames.get(w.platforma,'') }}</span>{% endif %}
-      {% if '🔥' in w.date_label %}<span class="wnew">DZIŚ</span>{% elif w.is_new_today %}<span class="wnew" style="animation:none">NOWY</span>{% endif %}
+<div class="section-box">
+  <div class="sec-div" style="border-left-color:#16a34a;margin-bottom:0;border-radius:8px 8px 0 0">
+    <div class="sec-div-l">
+      <div class="dot8" style="background:#16a34a"></div>
+      <span class="sec-div-title">Oglądam teraz</span>
+      <span class="sec-div-n" id="ogladamCount">{{ ogladam|length }}</span>
     </div>
-    <div class="wbody">
-      <div class="wname">{{ s.nazwa }}</div>
-      {% if w.last_title %}
-      <div class="wep {{ 'orange' if w.is_new_today and '🔥' not in w.date_label else 'gray' if not w.is_new_today else '' }}">
-        <div class="wep-num"><a href="{{ w.last_link }}" target="_blank" style="color:var(--blue);text-decoration:none;font-size:10px">{{ w.last_title[:48] }}</a></div>
-        {% if w.date_label %}<div class="wep-date {{ 'today' if '🔥' in w.date_label else 'recent' if w.is_new_today else '' }}">{{ w.date_label }}</div>{% endif %}
+    <div class="sec-div-r">
+      <span id="stepOdcinki" style="font-style:italic"></span>
+      <button class="btn btn-sm" id="refreshOdcinkiBtn" onclick="refreshOdcinki()">⟳ Odśwież odcinki</button>
+    </div>
+  </div>
+  <div class="section-body">
+    <div class="wgrid" id="ogladamGrid">
+      {% for w in ogladam %}
+      {% set s = w.serial %}
+      <div class="wcard {{ 'new-today' if '🔥' in w.date_label else 'new-recent' if w.is_new_today else '' }}" data-platform="{{ w.platforma }}" data-id="{{ s.id }}">
+        <div class="wimg">
+          {% if s.cover %}<img src="{{ s.cover }}" alt="{{ s.nazwa }}" onerror="this.parentElement.innerHTML='🎬'">{% else %}🎬{% endif %}
+          {% if w.platforma %}<span class="wplat" style="background:{{ pcolors.get(w.platforma,'#888') }}">{{ pnames.get(w.platforma,'') }}</span>{% endif %}
+          {% if '🔥' in w.date_label %}<span class="wnew">DZIŚ</span>{% elif w.is_new_today %}<span class="wnew" style="animation:none">NOWY</span>{% endif %}
+        </div>
+        <div class="wbody">
+          <div class="wname">{{ s.nazwa }}</div>
+          {% if w.last_title %}
+          <div class="wep {{ 'orange' if w.is_new_today and '🔥' not in w.date_label else 'gray' if not w.is_new_today else '' }}">
+            <div class="wep-num"><a href="{{ w.last_link }}" target="_blank" style="color:var(--blue);text-decoration:none;font-size:10px">{{ w.last_title[:48] }}</a></div>
+            {% if w.date_label %}<div class="wep-date {{ 'today' if '🔥' in w.date_label else 'recent' if w.is_new_today else '' }}">{{ w.date_label }}</div>{% endif %}
+          </div>
+          {% else %}
+          <div class="wep gray"><div class="wep-num" style="color:var(--h);font-weight:400">Kliknij ⟳ odśwież</div></div>
+          {% endif %}
+          {% if s.imdb_rating %}<div class="wimdb">⭐ {{ s.imdb_rating }} · <a href="{{ s.imdb_url }}" target="_blank">TMDB</a></div>{% endif %}
+        </div>
+        <div class="wactions">
+          <button class="wbtn-watched" onclick="markObejrzane({{ s.id }}, '{{ s.nazwa|replace("'", "\\'") }}')">✓ Obejrzane</button>
+        </div>
+        <button class="wdel" onclick="delOgladam({{ s.id }})">×</button>
       </div>
       {% else %}
-      <div class="wep gray"><div class="wep-num" style="color:var(--h);font-weight:400">Kliknij ⟳ odśwież</div></div>
-      {% endif %}
-      {% if s.imdb_rating %}<div class="wimdb">⭐ {{ s.imdb_rating }} · <a href="{{ s.imdb_url }}" target="_blank">TMDB</a></div>{% endif %}
+      <div id="ogladamEmpty" style="grid-column:1/-1">
+        <div class="empty"><div class="empty-ico">📺</div><p>Dodaj swój pierwszy serial poniżej</p></div>
+      </div>
+      {% endfor %}
     </div>
-    <button class="wdel" onclick="delOgladam({{ s.id }})">×</button>
   </div>
-  {% else %}
-  <div id="ogladamEmpty" style="grid-column:1/-1">
-    <div class="empty"><div class="empty-ico">📺</div><p>Dodaj swój pierwszy serial poniżej</p></div>
-  </div>
-  {% endfor %}
 </div>
 
 {# ── KANDYDACI ── #}
-<div class="sec-div" style="border-left-color:#2563eb;margin-top:8px" id="sec-kandydaci">
-  <div class="sec-div-l">
-    <div class="dot8" style="background:#2563eb"></div>
-    <span class="sec-div-title">Kandydaci</span>
-    <span class="sec-div-n" id="kandydaciCount">{{ kandydaci|length }}</span>
-  </div>
-  <div class="sec-div-r">Kliknij ▶ żeby zacząć oglądać</div>
-</div>
-
-<div class="kgrid" id="kandydaciGrid">
-  {% for c in kandydaci %}
-  {% set s = c.serial %}
-  <div class="kcard" data-platform="{{ c.platform }}">
-    <div class="kimg">{% if s.cover %}<img src="{{ s.cover }}" alt="{{ s.nazwa }}" onerror="this.parentElement.innerHTML='🎬'">{% else %}🎬{% endif %}</div>
-    {% if c.platform %}<span class="kplat" style="background:{{ pcolors.get(c.platform,'#888') }}">{{ pnames.get(c.platform,'') }}</span>{% endif %}
-    <button class="kdel" onclick="delKandydat({{ s.id }})">×</button>
-    <div class="kbody">
-      <div class="kname">{{ s.nazwa }}</div>
-      {% if s.imdb_rating %}<div class="krating">⭐ {{ s.imdb_rating }} {% if s.imdb_url %}<a href="{{ s.imdb_url }}" target="_blank">TMDB</a>{% endif %}</div>{% endif %}
-      {% if s.imdb_desc %}<div class="kdesc">{{ s.imdb_desc }}</div>{% endif %}
+<div class="section-box" style="margin-top:12px" id="sec-kandydaci">
+  <div class="sec-div" style="border-left-color:#2563eb;margin-bottom:0;border-radius:8px 8px 0 0">
+    <div class="sec-div-l">
+      <div class="dot8" style="background:#2563eb"></div>
+      <span class="sec-div-title">Kandydaci</span>
+      <span class="sec-div-n" id="kandydaciCount">{{ kandydaci|length }}</span>
     </div>
-    <button class="kpromote" onclick="promoteKandydat({{ s.id }})">▶ Oglądam</button>
+    <div class="sec-div-r">Kliknij ▶ żeby zacząć oglądać</div>
   </div>
-  {% else %}
-  <div id="kandydaciEmpty" style="grid-column:1/-1">
-    <div class="empty"><div class="empty-ico">🚩</div><p>Kliknij 🚩 przy serialu w Odkryj poniżej</p></div>
+  <div class="section-body">
+    <div class="kgrid" id="kandydaciGrid">
+      {% for c in kandydaci %}
+      {% set s = c.serial %}
+      <div class="kcard" data-platform="{{ c.platform }}" data-id="{{ s.id }}">
+        <div class="kimg">{% if s.cover %}<img src="{{ s.cover }}" alt="{{ s.nazwa }}" onerror="this.parentElement.innerHTML='🎬'">{% else %}🎬{% endif %}</div>
+        {% if c.platform %}<span class="kplat" style="background:{{ pcolors.get(c.platform,'#888') }}">{{ pnames.get(c.platform,'') }}</span>{% endif %}
+        <button class="kdel" onclick="delKandydat({{ s.id }})">×</button>
+        <div class="kbody">
+          <div class="kname">{{ s.nazwa }}</div>
+          {% if s.imdb_rating %}<div class="krating">⭐ {{ s.imdb_rating }} {% if s.imdb_url %}<a href="{{ s.imdb_url }}" target="_blank">TMDB</a>{% endif %}</div>{% endif %}
+          {% if s.imdb_desc %}<div class="kdesc">{{ s.imdb_desc }}</div>{% endif %}
+        </div>
+        <button class="kpromote" onclick="promoteKandydat({{ s.id }}, this)">▶ Oglądam</button>
+      </div>
+      {% else %}
+      <div id="kandydaciEmpty" style="grid-column:1/-1">
+        <div class="empty"><div class="empty-ico">🚩</div><p>Kliknij 🚩 przy serialu w Odkryj poniżej</p></div>
+      </div>
+      {% endfor %}
+    </div>
   </div>
-  {% endfor %}
 </div>
 
 {# ── ODKRYJ ── #}
-<div class="sec-div" style="border-left-color:var(--orange);margin-top:8px">
-  <div class="sec-div-l">
-    <div class="dot8" style="background:var(--orange)"></div>
-    <span class="sec-div-title">Odkryj — nowości</span>
-    <span class="sec-div-n">{{ nowosci|length }}</span>
+<div class="section-box" style="margin-top:12px">
+  <div class="sec-div" style="border-left-color:var(--orange);margin-bottom:0;border-radius:8px 8px 0 0">
+    <div class="sec-div-l">
+      <div class="dot8" style="background:var(--orange)"></div>
+      <span class="sec-div-title">Odkryj — nowości</span>
+      <span class="sec-div-n">{{ nowosci|length }}</span>
+    </div>
+    <div class="sec-div-r">
+      <span id="stepNowosci" style="font-style:italic"></span>
+      <button class="btn btn-sm" id="refreshNowosciBtn" onclick="refreshNowosci()">⟳ Odśwież nowości</button>
+    </div>
   </div>
-  <div class="sec-div-r">
-    <span id="stepNowosci" style="font-style:italic"></span>
-    <button class="btn btn-sm" id="refreshNowosciBtn" onclick="refreshNowosci()">⟳ Odśwież nowości</button>
-  </div>
-</div>
+  <div class="section-body">
 
 <div style="margin-bottom:10px">
   <div class="filt-row" style="margin-bottom:6px">
@@ -199,36 +210,59 @@
 <div class="empty"><div class="empty-ico">🔍</div><p>Zaznacz platformy powyżej i kliknij ⟳ Odśwież nowości</p></div>
 {% endif %}
 
-{# ── OBEJRZANE ── #}
-<div class="sec-div" style="border-left-color:var(--h);margin-top:8px">
-  <div class="sec-div-l">
-    <div class="dot8" style="background:var(--h)"></div>
-    <span class="sec-div-title">Obejrzane</span>
-    <span class="sec-div-n">{{ obejrzane|length }}</span>
-  </div>
-  <div class="sec-div-r">↩ żeby przywrócić do Oglądam</div>
+  </div>{# end section-body #}
 </div>
 
-{% if obejrzane %}
-<div class="obgrid">
-  {% for w in obejrzane %}
-  {% set s = w.serial %}
-  <div class="obcard">
-    <div class="obimg">{% if s.cover %}<img src="{{ s.cover }}" alt="{{ s.nazwa }}" onerror="this.parentElement.innerHTML='🎬'">{% else %}🎬{% endif %}</div>
-    <button class="ob-del" onclick="delObejrzane({{ s.id }})">×</button>
-    <div class="obbody">
-      <div class="obname">{{ s.nazwa }}</div>
-      {% if w.date_finished %}<div class="obdate">{{ w.date_finished }}</div>{% endif %}
+{# ── OBEJRZANE ── #}
+<div class="section-box" style="margin-top:12px">
+  <div class="sec-div" style="border-left-color:var(--h);margin-bottom:0;border-radius:8px 8px 0 0">
+    <div class="sec-div-l">
+      <div class="dot8" style="background:var(--h)"></div>
+      <span class="sec-div-title">Obejrzane</span>
+      <span class="sec-div-n">{{ obejrzane|length }}</span>
     </div>
-    <button class="ob-restore" onclick="restoreObejrzane({{ s.id }})">↩ Przywróć</button>
+    <div class="sec-div-r">↩ żeby przywrócić do Oglądam</div>
   </div>
-  {% endfor %}
+  <div class="section-body">
+    {% if obejrzane %}
+    <div class="obgrid">
+      {% for w in obejrzane %}
+      {% set s = w.serial %}
+      <div class="obcard">
+        <div class="obimg">{% if s.cover %}<img src="{{ s.cover }}" alt="{{ s.nazwa }}" onerror="this.parentElement.innerHTML='🎬'">{% else %}🎬{% endif %}</div>
+        <button class="ob-del" onclick="delObejrzane({{ s.id }})">×</button>
+        <div class="obbody">
+          <div class="obname">{{ s.nazwa }}</div>
+          {% if w.date_finished %}<div class="obdate">{{ w.date_finished }}</div>{% endif %}
+        </div>
+        <button class="ob-restore" onclick="restoreObejrzane({{ s.id }})">↩ Przywróć</button>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty" style="padding:20px"><div class="empty-ico" style="font-size:20px">✓</div><p>Tu pojawią się ukończone seriale</p></div>
+    {% endif %}
+  </div>
 </div>
-{% else %}
-<div class="empty" style="padding:20px"><div class="empty-ico" style="font-size:20px">✓</div><p>Tu pojawią się ukończone seriale</p></div>
-{% endif %}
 
 </main>
+
+{# ── POPUP: Obejrzane potwierdzenie ── #}
+<div id="watchedConfirmPopup" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9000;align-items:center;justify-content:center">
+  <div style="background:var(--card);border-radius:14px;padding:28px 24px;max-width:340px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.3)">
+    <div style="font-size:28px;text-align:center;margin-bottom:12px">🎉</div>
+    <div style="font-weight:700;font-size:15px;text-align:center;margin-bottom:8px" id="watchedPopupTitle">Gratulacje!</div>
+    <div style="font-size:12px;color:var(--m);text-align:center;margin-bottom:18px;line-height:1.6">
+      Serial trafi do <strong>Obejrzanych</strong> i zostanie wliczony do Twoich statystyk — godziny, odcinki, rankingi.<br><br>
+      <span style="font-size:11px;color:var(--h)">Nie możesz cofnąć tej akcji, ale możesz przywrócić serial do Oglądam.</span>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button onclick="closeWatchedPopup()" style="flex:1;padding:10px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--t);cursor:pointer;font-size:13px">Anuluj</button>
+      <button id="watchedConfirmBtn" style="flex:1;padding:10px;border-radius:8px;border:none;background:#16a34a;color:#fff;cursor:pointer;font-size:13px;font-weight:600">✓ Tak, obejrzane!</button>
+    </div>
+  </div>
+</div>
+
 {% endblock %}
 
 {% block scripts %}
@@ -305,33 +339,169 @@ function showAC(){
 document.addEventListener('click',e=>{if(!e.target.closest('.add-row'))document.getElementById('serialAC').classList.remove('show');});
 function addFromInput(){const v=document.getElementById('serialInput').value.trim();if(v)addSerial(v);document.getElementById('serialInput').value='';document.getElementById('serialAC').classList.remove('show');}
 
-// ── API calls ──
+// ── Dodaj serial (bez reload) ──
 async function addSerial(nazwa){
   document.getElementById('serialAC').classList.remove('show');
   const r=await fetch('/api/ogladam',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nazwa})});
   const d=await r.json();
-  if(d.ok) location.reload();
-  else if(d.error==='limit') alert(d.msg);
+  if(d.ok){
+    // Usuń "empty" jeśli był
+    document.getElementById('ogladamEmpty')?.remove();
+    const s=d.serial;
+    const card=document.createElement('div');
+    card.className='wcard';
+    card.dataset.platform='';
+    card.dataset.id=s.id;
+    card.innerHTML=`
+      <div class="wimg">
+        ${s.cover?`<img src="${s.cover}" alt="${s.nazwa}" onerror="this.parentElement.innerHTML='🎬'">`:'🎬'}
+      </div>
+      <div class="wbody">
+        <div class="wname">${s.nazwa}</div>
+        <div class="wep gray"><div class="wep-num" style="color:var(--h);font-weight:400">Kliknij ⟳ odśwież</div></div>
+        ${s.imdb_rating?`<div class="wimdb">⭐ ${s.imdb_rating} · <a href="${s.imdb_url}" target="_blank">TMDB</a></div>`:''}
+      </div>
+      <div class="wactions">
+        <button class="wbtn-watched" onclick="markObejrzane(${s.id}, '${s.nazwa.replace(/'/g,"\\'")}')">✓ Obejrzane</button>
+      </div>
+      <button class="wdel" onclick="delOgladam(${s.id})">×</button>`;
+    document.getElementById('ogladamGrid').appendChild(card);
+    attachPopupEvents();
+    // Aktualizuj licznik
+    const cnt=document.getElementById('ogladamCount');
+    if(cnt) cnt.textContent=document.querySelectorAll('#ogladamGrid .wcard').length;
+  } else if(d.error==='limit') alert(d.msg);
 }
-async function delOgladam(id){await fetch('/api/ogladam/'+id,{method:'DELETE'});location.reload();}
-async function delKandydat(id){await fetch('/api/kandydaci/'+id,{method:'DELETE'});location.reload();}
-async function promoteKandydat(id){
+
+// ── Obejrzane popup ──
+let pendingWatchedId=null;
+function markObejrzane(id, nazwa){
+  pendingWatchedId=id;
+  document.getElementById('watchedPopupTitle').textContent=`"${nazwa}" — obejrzane?`;
+  const popup=document.getElementById('watchedConfirmPopup');
+  popup.style.display='flex';
+  document.getElementById('watchedConfirmBtn').onclick=async()=>{
+    closeWatchedPopup();
+    const r=await fetch('/api/ogladam/'+pendingWatchedId,{method:'DELETE'});
+    const d=await r.json();
+    if(d.ok){
+      // Usuń kartę z gridu
+      document.querySelector(`#ogladamGrid .wcard[data-id="${pendingWatchedId}"]`)?.remove();
+      const cnt=document.getElementById('ogladamCount');
+      if(cnt) cnt.textContent=document.querySelectorAll('#ogladamGrid .wcard').length;
+      location.reload(); // reload żeby odświeżyć Obejrzane
+    }
+  };
+}
+function closeWatchedPopup(){
+  document.getElementById('watchedConfirmPopup').style.display='none';
+  pendingWatchedId=null;
+}
+document.getElementById('watchedConfirmPopup')?.addEventListener('click',e=>{
+  if(e.target===e.currentTarget) closeWatchedPopup();
+});
+
+// ── Del/Restore ──
+async function delOgladam(id){
+  if(!confirm('Usunąć serial z Oglądam?')) return;
+  await fetch('/api/ogladam/'+id,{method:'DELETE'});
+  location.reload();
+}
+async function delKandydat(id){
+  await fetch('/api/kandydaci/'+id,{method:'DELETE'});
+  document.querySelector(`#kandydaciGrid .kcard[data-id="${id}"]`)?.remove();
+  const cnt=document.getElementById('kandydaciCount');
+  if(cnt) cnt.textContent=document.querySelectorAll('#kandydaciGrid .kcard').length;
+}
+
+// ── Promote kandydat → oglądam (bez reload) ──
+async function promoteKandydat(id, btn){
+  btn.disabled=true; btn.textContent='⏳...';
   const r=await fetch('/api/kandydaci/'+id+'/promote',{method:'POST'});
   const d=await r.json();
-  if(d.ok) location.reload(); else alert('Limit Oglądam osiągnięty');
+  if(d.ok){
+    // Usuń z kandydatów
+    const kcard=document.querySelector(`#kandydaciGrid .kcard[data-id="${id}"]`);
+    const nazwa=kcard?.querySelector('.kname')?.textContent||'';
+    const cover=kcard?.querySelector('img')?.src||'';
+    const rating=kcard?.querySelector('.krating')?.textContent?.match(/[\d.]+/)?.[0]||'';
+    kcard?.remove();
+    const kcnt=document.getElementById('kandydaciCount');
+    if(kcnt) kcnt.textContent=document.querySelectorAll('#kandydaciGrid .kcard').length;
+    // Dodaj do oglądam
+    document.getElementById('ogladamEmpty')?.remove();
+    const card=document.createElement('div');
+    card.className='wcard';
+    card.dataset.id=id;
+    card.innerHTML=`
+      <div class="wimg">
+        ${cover?`<img src="${cover}" alt="${nazwa}" onerror="this.parentElement.innerHTML='🎬'">`:'🎬'}
+      </div>
+      <div class="wbody">
+        <div class="wname">${nazwa}</div>
+        <div class="wep gray"><div class="wep-num" style="color:var(--h);font-weight:400">Kliknij ⟳ odśwież</div></div>
+        ${rating?`<div class="wimdb">⭐ ${rating} · TMDB</div>`:''}
+      </div>
+      <div class="wactions">
+        <button class="wbtn-watched" onclick="markObejrzane(${id}, '${nazwa.replace(/'/g,"\\'")}')">✓ Obejrzane</button>
+      </div>
+      <button class="wdel" onclick="delOgladam(${id})">×</button>`;
+    document.getElementById('ogladamGrid').appendChild(card);
+    attachPopupEvents();
+    const wcnt=document.getElementById('ogladamCount');
+    if(wcnt) wcnt.textContent=document.querySelectorAll('#ogladamGrid .wcard').length;
+    // Odśwież odcinki dla nowego
+    fetch('/api/ogladam/'+id+'/refresh',{method:'POST'}).then(r=>r.json()).then(d=>{
+      if(d.ok&&d.ep){
+        const wcard=document.querySelector(`#ogladamGrid .wcard[data-id="${id}"]`);
+        if(wcard){
+          const ep=wcard.querySelector('.wep');
+          if(ep) ep.innerHTML=`<div class="wep-num"><a href="${d.ep.link}" target="_blank" style="color:var(--blue);text-decoration:none;font-size:10px">${d.ep.title?.slice(0,48)||''}</a></div><div class="wep-date">${d.ep.date_label||''}</div>`;
+        }
+      }
+    });
+  } else {
+    btn.disabled=false; btn.textContent='▶ Oglądam';
+    alert('Limit Oglądam osiągnięty');
+  }
 }
+
 async function delObejrzane(id){await fetch('/api/obejrzane/'+id,{method:'DELETE'});location.reload();}
 async function restoreObejrzane(id){
   const r=await fetch('/api/obejrzane/'+id+'/restore',{method:'POST'});
   const d=await r.json();
   if(d.ok) location.reload(); else alert('Limit Oglądam osiągnięty');
 }
+
+// ── Flag (kandydat) bez reload ──
 async function flagSerial(btn,serial_id,nazwa,platform){
   if(btn.classList.contains('flagged')) return;
   const r=await fetch('/api/kandydaci',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nazwa,platform})});
   const d=await r.json();
   if(d.ok){
     btn.classList.add('flagged'); btn.textContent='✓ Dodano';
+    // Dodaj kartę do gridu kandydatów
+    document.getElementById('kandydaciEmpty')?.remove();
+    const s=d.serial;
+    const card=document.createElement('div');
+    card.className='kcard';
+    card.dataset.platform=platform||'';
+    card.dataset.id=s.id;
+    const platColor=pcolors[platform]||'#888';
+    const platName=pnames[platform]||'';
+    card.innerHTML=`
+      <div class="kimg">${s.cover?`<img src="${s.cover}" alt="${s.nazwa}" onerror="this.parentElement.innerHTML='🎬'">`:'🎬'}</div>
+      ${platform?`<span class="kplat" style="background:${platColor}">${platName}</span>`:''}
+      <button class="kdel" onclick="delKandydat(${s.id})">×</button>
+      <div class="kbody">
+        <div class="kname">${s.nazwa}</div>
+        ${s.imdb_rating?`<div class="krating">⭐ ${s.imdb_rating}</div>`:''}
+      </div>
+      <button class="kpromote" onclick="promoteKandydat(${s.id}, this)">▶ Oglądam</button>`;
+    document.getElementById('kandydaciGrid').appendChild(card);
+    attachPopupEvents();
+    const cnt=document.getElementById('kandydaciCount');
+    if(cnt) cnt.textContent=document.querySelectorAll('#kandydaciGrid .kcard').length;
     setTimeout(()=>document.getElementById('sec-kandydaci')?.scrollIntoView({behavior:'smooth',block:'start'}),300);
   } else alert(d.msg||'Limit kandydatów osiągnięty');
 }
@@ -449,7 +619,7 @@ async function showActorPopup(e,name,character,photo,personId){
       const dept=p.known_for_department==='Acting'?'Aktor/ka':(p.known_for_department||'');
       const bday=p.birthday?p.birthday.slice(0,4):'';
       const bio=(p.biography||'').slice(0,140);
-      known.innerHTML=`<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:4px">${dept?`<span style="font-size:9px;background:var(--bg);padding:1px 6px;border-radius:20px;color:var(--m)">${dept}</span>`:''} ${bday?`<span style="font-size:9px;background:var(--bg);padding:1px 6px;border-radius:20px;color:var(--m)">ur. ${bday}</span>`:''}</div>${bio?`<div style="font-size:10px;color:var(--m);line-height:1.5;margin-bottom:4px">${bio}${bio.length===140?'…':''}</div>`:''}<a href="https://www.themoviedb.org/person/${pid}" target="_blank" style="color:var(--blue);font-size:9px;text-decoration:none">→ profil TMDB</a>`;
+      known.innerHTML=`<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:4px">${dept?`<span style="font-size:9px;background:var(--bg);padding:1px 6px;border-radius:20px;color:var(--m)">${dept}</span>`:''} ${bday?`<span style="font-size:9px;background:var(--bg);padding:1px 6px;border-radius:20px;color:var(--m)">ur. ${bday}</span>`:''}</div>${bio?`<div style="font-size:10px;color:var(--m);line-height:1.5;margin-bottom:4px">${bio}${bio.length===140?'…':''}</div>`:''}<a href="https://www.tmdb.org/person/${pid}" target="_blank" style="color:var(--blue);font-size:9px;text-decoration:none">→ profil TMDB</a>`;
     }
   }
 }
@@ -462,10 +632,49 @@ function attachPopupEvents(){
     card.addEventListener('mouseenter',()=>{clearTimeout(hideTimer);popupTimer=setTimeout(()=>showPopup(card),350);});
     card.addEventListener('mouseleave',()=>{clearTimeout(popupTimer);hideTimer=setTimeout(hidePopup,120);});
   });
-  popup.addEventListener('mouseenter',()=>clearTimeout(hideTimer));
-  popup.addEventListener('mouseleave',()=>{hideTimer=setTimeout(hidePopup,120);});
+  if(popup){
+    popup.addEventListener('mouseenter',()=>clearTimeout(hideTimer));
+    popup.addEventListener('mouseleave',()=>{hideTimer=setTimeout(hidePopup,120);});
+  }
 }
 
 document.addEventListener('DOMContentLoaded',()=>{attachPopupEvents();buildFilterPills();});
 </script>
+
+<style>
+.section-box {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--card);
+}
+.section-body {
+  padding: 14px;
+}
+.section-box .sec-div {
+  margin-bottom: 0 !important;
+  border-radius: 0 !important;
+}
+.wactions {
+  padding: 0 10px 8px;
+  display: flex;
+  gap: 6px;
+}
+.wbtn-watched {
+  flex: 1;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid #16a34a;
+  background: transparent;
+  color: #16a34a;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.wbtn-watched:hover {
+  background: #16a34a;
+  color: #fff;
+}
+</style>
 {% endblock %}
