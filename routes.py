@@ -11,6 +11,8 @@ main_bp = Blueprint("main", __name__)
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
 def get_user_platforms():
+    if not current_user.is_authenticated:
+        return []
     return [p.platform for p in current_user.platforms]
 
 def date_sort_key(w):
