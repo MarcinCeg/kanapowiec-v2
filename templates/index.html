@@ -963,7 +963,20 @@ async function showPopup(card){
   const tmdb=await fetchTmdb(title);
   if(popup.classList.contains('visible')){renderPopup(d,tmdb);positionPopup(card);}
 }
-function hidePopup(){popup.classList.remove('visible');}
+function hidePopup(){
+  popup.classList.remove('visible');
+  clearTimeout(popupTimer);
+}
+// Ukryj popup gdy mysz wychodzi poza obszar kart
+document.addEventListener('mousemove', e=>{
+  if(!popup.classList.contains('visible')) return;
+  const onCard = e.target.closest('.ocard,.kcard,.wcard');
+  const onPopup = e.target.closest('#cardPopup');
+  if(!onCard && !onPopup){
+    clearTimeout(hideTimer);
+    hideTimer = setTimeout(hidePopup, 300);
+  }
+});
 
 async function showActorPopup(e,name,character,photo,personId){
   e.stopPropagation();
@@ -992,12 +1005,12 @@ document.addEventListener('click',e=>{if(!e.target.closest('#actorPopup')&&!e.ta
 function attachPopupEvents(){
   document.querySelectorAll('.ocard,.kcard,.wcard').forEach(card=>{
     if(card._popupAttached) return; card._popupAttached=true;
-    card.addEventListener('mouseenter',()=>{clearTimeout(hideTimer);popupTimer=setTimeout(()=>showPopup(card),350);});
-    card.addEventListener('mouseleave',()=>{clearTimeout(popupTimer);hideTimer=setTimeout(hidePopup,120);});
+    card.addEventListener('mouseenter',()=>{clearTimeout(hideTimer);popupTimer=setTimeout(()=>showPopup(card),900);});
+    card.addEventListener('mouseleave',()=>{clearTimeout(popupTimer);hideTimer=setTimeout(hidePopup,200);});
   });
   if(popup){
     popup.addEventListener('mouseenter',()=>clearTimeout(hideTimer));
-    popup.addEventListener('mouseleave',()=>{hideTimer=setTimeout(hidePopup,120);});
+    popup.addEventListener('mouseleave',()=>{hideTimer=setTimeout(hidePopup,200);});
   }
 }
 
