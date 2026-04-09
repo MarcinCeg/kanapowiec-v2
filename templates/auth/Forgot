@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Reset hasła — seriale.fun{% endblock %}
+{% block content %}
+<div style="max-width:400px;margin:48px auto;background:#fff;border:1px solid var(--b);border-radius:16px;padding:32px">
+  <div style="text-align:center;margin-bottom:24px">
+    <div style="font-size:36px;margin-bottom:8px">🔑</div>
+    <h1 style="font-size:20px;font-weight:700;color:var(--t);margin-bottom:4px">Reset hasła</h1>
+    <p style="font-size:13px;color:var(--m)">Wyślemy Ci link do ustawienia nowego hasła</p>
+  </div>
+
+  {% if sent %}
+  <div style="background:#E1F5EE;border:1px solid #5DCAA5;border-radius:12px;padding:20px;text-align:center">
+    <div style="font-size:28px;margin-bottom:8px">📬</div>
+    <div style="font-size:14px;font-weight:600;color:#085041;margin-bottom:6px">Email wysłany!</div>
+    <div style="font-size:12px;color:#0F6E56;line-height:1.6">
+      Jeśli podany email istnieje w naszej bazie, wysłaliśmy link do resetu hasła.<br>
+      Sprawdź skrzynkę — link jest ważny przez <strong>1 godzinę</strong>.
+    </div>
+    <a href="/auth/login" style="display:inline-block;margin-top:16px;font-size:12px;color:#534AB7;text-decoration:none;font-weight:600">← Wróć do logowania</a>
+  </div>
+  {% else %}
+  <form method="POST">
+    <div style="margin-bottom:20px">
+      <label style="font-size:12px;color:var(--m);display:block;margin-bottom:5px">Twój email</label>
+      <input type="email" name="email" placeholder="ty@email.com" required autofocus
+        style="width:100%;height:38px;padding:0 12px;border:1px solid var(--b);border-radius:var(--r8);font-size:13px;outline:none;color:var(--t);transition:border-color .15s"
+        onfocus="this.style.borderColor='#534AB7'" onblur="this.style.borderColor='var(--b)'">
+    </div>
+    <button type="submit" class="btn btn-primary" style="width:100%;height:40px;border-radius:var(--r8);font-size:13px;justify-content:center">
+      Wyślij link do resetu
+    </button>
+  </form>
+  <div style="text-align:center;margin-top:16px;font-size:12px;color:var(--m)">
+    <a href="/auth/login" style="color:#534AB7;font-weight:500;text-decoration:none">← Wróć do logowania</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
