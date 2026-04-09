@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Seriale Fun - tracker serialowy {% endblock %}
+{% block title %}Tracker — Kanapowy Leniwiec{% endblock %}
 
 {% block content %}
 <main>
@@ -254,7 +254,7 @@
     <div class="sec-div-l">
       <div class="dot8" style="background:var(--orange)"></div>
       <span class="sec-div-title">Odkryj — nowości</span>
-      <span class="sec-div-n">{{ nowosci|length }}</span>
+      <span class="sec-div-n" id="nowosciCount">{{ nowosci|length }}</span>
     </div>
     <div class="sec-div-r">
       <span id="stepNowosci" style="font-style:italic"></span>
@@ -510,35 +510,42 @@ function togglePlatform(p){
     fetch('/api/platformy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({platformy:selPlat})});
   }
   updatePlatSummary();
-  // Odśwież nowości gdy zmieniamy platformy
-  clearTimeout(window._platDebounce);
-  window._platDebounce = setTimeout(()=>{
-    const btn = document.getElementById('refreshNowosciBtn');
-    if(btn && selPlat.length > 0){
-      refreshNowosci();
-    }
-  }, 800);
+  applyFilter(); // Filtruj karty natychmiast
 }
 
 // ── Filtry ──
 function applyFilter(){
   document.querySelectorAll('.ocard').forEach(card=>{
+    // Filtr oceny
     const ratingOk = parseFloat(card.dataset.rating||0) >= curRating;
+
+    // Filtr gatunku
     const cg = (card.dataset.genres||'').split(',').filter(Boolean);
     const genreOk = activeGenres.size===0 || cg.some(g=>activeGenres.has(g));
+
+    // Filtr krajów (grupy)
     const cc = (card.dataset.countries||'').split(',').filter(Boolean);
-    // Sprawdź czy karta pasuje do aktywnych krajów/grup
     const countryOk = activeCountries.size===0 || cc.some(c=>{
-      // Sprawdź bezpośrednie dopasowanie
       if(activeCountries.has(c)) return true;
-      // Sprawdź czy kraj jest w aktywnej grupie
       for(const [group, codes] of Object.entries(COUNTRY_GROUPS)){
         if(activeCountries.has(group) && codes.includes(c)) return true;
       }
       return false;
     });
-    card.style.display = (ratingOk && genreOk && countryOk) ? '' : 'none';
+
+    // Filtr platformy — jeśli zaznaczono jakieś platformy, pokaż tylko ich karty
+    const cardPlat = card.dataset.platform || '';
+    const platOk = selPlat.length===0 || selPlat.includes(cardPlat);
+
+    card.style.display = (ratingOk && genreOk && countryOk && platOk) ? '' : 'none';
   });
+
+  // Pokaż info ile widocznych
+  const visible = document.querySelectorAll('.ocard:not([style*="none"])').length;
+  const total = document.querySelectorAll('.ocard').length;
+  const countEl = document.getElementById('nowosciCount');
+  if(countEl) countEl.textContent = visible;
+
   updateFilterSummary();
 }
 function filterRating(min,btn){
@@ -1058,6 +1065,7 @@ function showLoginPrompt(msg){
 document.addEventListener('DOMContentLoaded',()=>{
   attachPopupEvents();
   buildFilterPills();
+  applyFilter(); // Zastosuj filtry od razu (platforma, ocena)
   // Wczytaj dane gościa z localStorage
   if(IS_GUEST){
     const gd = guestLoad();
