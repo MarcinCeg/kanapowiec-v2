@@ -3,7 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{% block title %}seriale.fun{% endblock %}</title>
+<title>{% block title %}Seriale.fun{% endblock %}</title>
+<meta property="og:title" content="Seriale.fun — Tracker seriali">
+<meta property="og:description" content="Śledź seriale, odkrywaj nowości i planuj wieczory z serialami.">
+<meta property="og:url" content="https://seriale.fun">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -40,6 +45,8 @@ nav{background:var(--s);border-bottom:1px solid var(--border);padding:0 20px;hei
 .nav-tab.ai-tab.active{box-shadow:0 4px 14px rgba(29,158,117,.5)}
 
 .nav-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+
+/* User pill */
 .nav-user-pill{display:flex;align-items:center;gap:7px;background:var(--bg);border:1px solid var(--b);border-radius:20px;padding:4px 12px 4px 5px;cursor:pointer;transition:all .15s;text-decoration:none}
 .nav-user-pill:hover{border-color:var(--b2);background:#e8e8ee}
 .nav-avatar{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0}
@@ -48,6 +55,11 @@ nav{background:var(--s);border-bottom:1px solid var(--border);padding:0 20px;hei
 .nav-rank{font-size:9px;color:var(--m)}
 .badge-pro{font-size:8px;padding:1px 5px;border-radius:20px;background:linear-gradient(135deg,var(--purple),var(--teal));color:#fff;font-weight:700}
 .badge-free{font-size:8px;padding:1px 5px;border-radius:20px;background:#FEF3C7;color:#92400E;font-weight:700}
+
+/* Jeden przycisk logowania — gradient jak Rejestracja */
+.btn-login{height:32px;padding:0 16px;border-radius:16px;border:none;background:linear-gradient(135deg,var(--purple),var(--teal));color:#fff;font-size:12px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;white-space:nowrap;transition:all .18s;box-shadow:0 2px 8px rgba(83,74,183,.3);flex-shrink:0}
+.btn-login:hover{transform:translateY(-1px);filter:brightness(1.08);box-shadow:0 4px 14px rgba(83,74,183,.4)}
+.btn-login:active{transform:translateY(0)}
 
 .btn{display:inline-flex;align-items:center;gap:5px;height:32px;padding:0 14px;border-radius:20px;border:1px solid var(--border);background:var(--s);color:var(--t);font-size:12px;font-weight:500;cursor:pointer;text-decoration:none;transition:all .15s;white-space:nowrap}
 .btn:hover{border-color:var(--b2);background:var(--bg)}
@@ -265,17 +277,17 @@ main{max-width:1100px;margin:0 auto;padding:16px 20px}
 ═══════════════════════════════════════ */
 @media(max-width:640px){
   :root{--nav-h:50px}
-  nav{padding:0 8px;gap:4px}
+  nav{padding:0 8px;gap:3px}
   main{padding:12px 10px}
   .logo-sub{display:none}
   .logo-text{font-size:12px}
   .logo-icon{width:26px;height:26px;font-size:14px;border-radius:7px}
   .nav-center{gap:3px}
-  .nav-tab{height:28px;padding:0 9px;font-size:10px;border-radius:14px;letter-spacing:0}
+  .nav-tab{height:26px;padding:0 8px;font-size:10px;border-radius:13px;letter-spacing:0}
+  .btn-login{height:26px;padding:0 10px;font-size:10px;border-radius:13px}
   .nav-user-pill{padding:3px 5px 3px 4px}
   .nav-user-info{display:none}
   .nav-avatar{width:26px;height:26px;font-size:9px}
-  .nav-right .btn-sm{height:26px;padding:0 8px;font-size:10px}
   .wgrid{grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px}
   .kgrid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
   .ogrid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
@@ -284,9 +296,25 @@ main{max-width:1100px;margin:0 auto;padding:16px 20px}
   .fpill{height:28px;font-size:11px;padding:0 9px}
   .limit-strip{gap:10px}
   .lbar{width:40px}
+
+  /* Fix kafelków nav-pills na mobile — grid zamiast flex */
+  .nav-pills-strip{
+    display:grid !important;
+    grid-template-columns:repeat(4,1fr) !important;
+    gap:5px !important;
+    overflow:visible !important;
+  }
+  .nav-pill{
+    flex:none !important;
+    min-width:0 !important;
+    padding:8px 6px !important;
+  }
+  .np-label{font-size:9px !important}
+  .np-val{font-size:13px !important}
 }
 @media(max-width:360px){
   .nav-tab{height:24px;padding:0 6px;font-size:9px}
+  .btn-login{height:24px;padding:0 7px;font-size:9px}
   .logo-text{display:none}
 }
 </style>
@@ -323,8 +351,8 @@ main{max-width:1100px;margin:0 auto;padding:16px 20px}
       </div>
     </a>
     {% else %}
-    <a href="/auth/login" class="btn btn-sm">Zaloguj</a>
-    <a href="/auth/register" class="btn btn-sm btn-primary">Rejestracja</a>
+    {# Jeden przycisk — klik otwiera login, w środku link do rejestracji #}
+    <a href="/auth/login" class="btn-login">Zaloguj się</a>
     {% endif %}
   </div>
 </nav>
