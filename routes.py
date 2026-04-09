@@ -279,6 +279,17 @@ def activate_title(title_id):
     return jsonify({"ok": ok})
 
 
+@main_bp.route("/api/stats/recalc", methods=["POST"])
+@login_required
+def recalc_stats():
+    try:
+        from titles_service import recalculate_stats
+        recalculate_stats(current_user)
+        return jsonify({"ok": True})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)})
+
+
 @main_bp.route("/settings")
 @login_required
 def settings():
@@ -313,7 +324,14 @@ def ranking():
 @main_bp.route("/stats")
 @login_required
 def stats():
-    from titles_service import get_all_titles_for_user
+    from titles_service import get_all_titles_for_user, recalculate_stats
+
+    # Zawsze przeliczaj statystyki przy wejściu
+    try:
+        recalculate_stats(current_user)
+    except Exception as e:
+        print(f"[stats] recalc error: {e}")
+
     all_titles = get_all_titles_for_user(current_user)
     stats = current_user.stats
 
