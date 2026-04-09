@@ -145,7 +145,33 @@
       </div>
       {% else %}
       <div id="ogladamEmpty" style="grid-column:1/-1">
-        <div class="empty"><div class="empty-ico">📺</div><p>Dodaj swój pierwszy serial poniżej</p></div>
+        <div style="padding:20px 16px">
+          <div style="font-size:15px;font-weight:700;color:var(--t);margin-bottom:6px;text-align:center">Śledź swoje seriale 📺</div>
+          <div style="font-size:12px;color:var(--m);text-align:center;line-height:1.5;margin-bottom:16px">Dodaj serial i zawsze wiedz kiedy wychodzi nowy odcinek</div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
+            <div style="display:flex;align-items:flex-start;gap:10px;background:var(--bg);border-radius:10px;padding:10px 12px">
+              <div style="width:32px;height:32px;border-radius:10px;background:#E1F5EE;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">🔍</div>
+              <div>
+                <div style="font-size:12px;font-weight:600;color:var(--t);margin-bottom:2px">1. Wyszukaj serial</div>
+                <div style="font-size:11px;color:var(--m);line-height:1.4">Wpisz tytuł poniżej — znajdziemy go automatycznie w bazie TMDB</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:10px;background:var(--bg);border-radius:10px;padding:10px 12px">
+              <div style="width:32px;height:32px;border-radius:10px;background:#EEEDFE;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">🔔</div>
+              <div>
+                <div style="font-size:12px;font-weight:600;color:var(--t);margin-bottom:2px">2. Sprawdzaj nowe odcinki</div>
+                <div style="font-size:11px;color:var(--m);line-height:1.4">Kliknij ⟳ Odśwież odcinki — zobaczysz kiedy wyszedł ostatni i czy jest nowy</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:10px;background:var(--bg);border-radius:10px;padding:10px 12px">
+              <div style="width:32px;height:32px;border-radius:10px;background:#fff0f0;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">✅</div>
+              <div>
+                <div style="font-size:12px;font-weight:600;color:var(--t);margin-bottom:2px">3. Oznaczaj jako obejrzane</div>
+                <div style="font-size:11px;color:var(--m);line-height:1.4">Śledź postęp, zbieraj statystyki i wspinaj się w rankingu!</div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       {% endfor %}
     </div>
