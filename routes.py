@@ -413,6 +413,69 @@ def export_csv():
     )
 
 
+
+
+# ── Admin Panel ───────────────────────────────────────────────────────────────
+ADMIN_EMAIL = "mg.ceglinski@gmail.com"
+
+@main_bp.route("/admin")
+@login_required
+def admin():
+    if current_user.email != ADMIN_EMAIL:
+        return redirect("/app")
+    from models import User, Serial, Watching, Watched, Candidate, GlobalNowosci, UserStats
+    from sqlalchemy import func
+    from datetime import date
+
+    users = User.query.order_by(User.created_at.desc()).all()
+
+    # Overview stats
+    total_users    = User.query.count()
+    pro_users      = User.query.filter_by(is_pro=True).count()
+    total_serials  = Serial.query.count()
+    total_nowosci  = GlobalNowosci.query.count()
+    total_watching = Watching.query.count()
+    total_watched  = Watched.query.count()
+    total_candidates = Candidate.query.count()
+
+    today = date.today().strftime("%Y-%m-%d")
+    active_today = User.query.filter(
+        User.last_seen >= today
+    ).count()
+
+    # Top seriale w oglądam
+    top_watching = (db.session.query(Serial, func.count(Watching.id).label('cnt'))
+        .join(Watching, Watching.serial_id == Serial.id)
+        .group_by(Serial.id)
+        .order_by(func.count(Watching.id).desc())
+        .limit(10).all())
+
+    # Top seriale obejrzane
+    top_watched = (db.session.query(Serial, func.count(Watched.id).label('cnt'))
+        .join(Watched, Watched.serial_id == Serial.id)
+        .group_by(Serial.id)
+        .order_by(func.count(Watched.id).desc())
+        .limit(10).all())
+
+    stats = {
+        "total_users": total_users,
+        "pro_users": pro_users,
+        "active_today": active_today,
+        "total_serials": total_serials,
+        "total_nowosci": total_nowosci,
+        "total_watching": total_watching,
+        "total_watched": total_watched,
+        "total_candidates": total_candidates,
+    }
+
+    from datetime import datetime
+    return render_template("admin.html",
+        users=users, stats=stats,
+        top_watching=top_watching,
+        top_watched=top_watched,
+        now=datetime.now().strftime("%d.%m.%Y %H:%M"),
+    )
+
 def _recalc_bg(user_id):
     from app import create_app
     app = create_app()
