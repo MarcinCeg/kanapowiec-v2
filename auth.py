@@ -35,7 +35,7 @@ def random_color():
 def send_reset_email(email, token):
     """Wysyła email z linkiem do resetu hasła przez Resend."""
     try:
-        import httpx
+        import requests as req_lib
         api_key = current_app.config.get("RESEND_API_KEY")
         if not api_key:
             current_app.logger.error("RESEND_API_KEY not set")
@@ -64,7 +64,7 @@ def send_reset_email(email, token):
         </div>
         """
 
-        r = httpx.post(
+        r = req_lib.post(
             "https://api.resend.com/emails",
             headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
             json={
