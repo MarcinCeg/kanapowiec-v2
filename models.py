@@ -33,7 +33,6 @@ COUNTRY_NAMES = {
     "DK":"Dania","NO":"Norwegia","AU":"Australia","CA":"Kanada","TR":"Turcja",
 }
 
-# Śmieszne tytuły — (id, nazwa, opis, ikona, warunek_typ, warunek_wartość)
 TITLES = [
     ("kanapowiec",    "Kanapowiec",        "Zarejestrowany użytkownik",          "🛋️",  "register",   0),
     ("pierwsze10",    "Pierwsze kroki",    "Obejrzał 10 odcinków",               "👣",  "episodes",   10),
@@ -60,22 +59,25 @@ class User(UserMixin, db.Model):
     id            = db.Column(db.Integer, primary_key=True)
     email         = db.Column(db.String(255), unique=True, nullable=False, index=True)
     username      = db.Column(db.String(40), unique=True, nullable=False, index=True)
-    password_hash = db.Column(db.String(255), nullable=True)   # None = OAuth only
+    password_hash = db.Column(db.String(255), nullable=True)
     google_id     = db.Column(db.String(255), unique=True, nullable=True)
     avatar_color  = db.Column(db.String(7), default="#534AB7")
     is_pro        = db.Column(db.Boolean, default=False)
-    stripe_customer_id    = db.Column(db.String(255), nullable=True)
-    stripe_subscription_id= db.Column(db.String(255), nullable=True)
+    stripe_customer_id     = db.Column(db.String(255), nullable=True)
+    stripe_subscription_id = db.Column(db.String(255), nullable=True)
     created_at    = db.Column(db.DateTime, default=datetime.utcnow)
     last_seen     = db.Column(db.DateTime, default=datetime.utcnow)
+    # Reset hasła
+    reset_token         = db.Column(db.String(100), nullable=True)
+    reset_token_expires = db.Column(db.DateTime, nullable=True)
 
     # Relacje
-    watching    = db.relationship("Watching",   back_populates="user", cascade="all, delete-orphan")
-    watched     = db.relationship("Watched",    back_populates="user", cascade="all, delete-orphan")
-    candidates  = db.relationship("Candidate",  back_populates="user", cascade="all, delete-orphan")
+    watching    = db.relationship("Watching",     back_populates="user", cascade="all, delete-orphan")
+    watched     = db.relationship("Watched",      back_populates="user", cascade="all, delete-orphan")
+    candidates  = db.relationship("Candidate",    back_populates="user", cascade="all, delete-orphan")
     platforms   = db.relationship("UserPlatform", back_populates="user", cascade="all, delete-orphan")
-    titles      = db.relationship("UserTitle",  back_populates="user", cascade="all, delete-orphan")
-    stats       = db.relationship("UserStats",  back_populates="user", uselist=False, cascade="all, delete-orphan")
+    titles      = db.relationship("UserTitle",    back_populates="user", cascade="all, delete-orphan")
+    stats       = db.relationship("UserStats",    back_populates="user", uselist=False, cascade="all, delete-orphan")
 
     def set_password(self, password):
         self.password_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
@@ -94,7 +96,6 @@ class User(UserMixin, db.Model):
 
     @property
     def active_title(self):
-        """Zwraca aktywny tytuł użytkownika."""
         t = UserTitle.query.filter_by(user_id=self.id, is_active=True).first()
         if t:
             for tid, name, desc, ico, *_ in TITLES:
@@ -113,25 +114,21 @@ class User(UserMixin, db.Model):
 
     def can_add_watching(self):
         from flask import current_app
-        if self.is_pro:
-            return True
+        if self.is_pro: return True
         return self.watching_count() < current_app.config["FREE_WATCHING_LIMIT"]
 
     def can_add_watched(self):
         from flask import current_app
-        if self.is_pro:
-            return True
+        if self.is_pro: return True
         return self.watched_count() < current_app.config["FREE_WATCHED_LIMIT"]
 
     def can_add_candidate(self):
         from flask import current_app
-        if self.is_pro:
-            return True
+        if self.is_pro: return True
         return self.candidates_count() < current_app.config["FREE_CANDIDATES_LIMIT"]
 
 
 class Serial(db.Model):
-    """Cache danych o serialu z TMDB — współdzielony między użytkownikami."""
     __tablename__ = "serials"
     id              = db.Column(db.Integer, primary_key=True)
     tmdb_id         = db.Column(db.Integer, unique=True, nullable=True, index=True)
@@ -140,12 +137,12 @@ class Serial(db.Model):
     imdb_url        = db.Column(db.String(500), default="")
     imdb_rating     = db.Column(db.Float, nullable=True)
     imdb_desc       = db.Column(db.Text, default="")
-    genres          = db.Column(db.String(255), default="")   # CSV
-    countries       = db.Column(db.String(255), default="")   # CSV
+    genres          = db.Column(db.String(255), default="")
+    countries       = db.Column(db.String(255), default="")
     episodes_count  = db.Column(db.Integer, default=0)
     seasons_count   = db.Column(db.Integer, default=0)
-    episode_runtime = db.Column(db.Integer, default=45)       # minuty
-    status          = db.Column(db.String(50), default="")    # Ended/Returning Series
+    episode_runtime = db.Column(db.Integer, default=45)
+    status          = db.Column(db.String(50), default="")
     first_air_date  = db.Column(db.String(20), default="")
     updated_at      = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -164,16 +161,16 @@ class Serial(db.Model):
 
 class Watching(db.Model):
     __tablename__ = "watching"
-    id          = db.Column(db.Integer, primary_key=True)
-    user_id     = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False, index=True)
-    serial_id   = db.Column(db.Integer, db.ForeignKey("serials.id"), nullable=False)
-    platforma   = db.Column(db.String(30), default="")
-    last_title  = db.Column(db.String(255), default="")
-    last_link   = db.Column(db.String(500), default="#")
-    last_date   = db.Column(db.String(30), default="")
-    date_label  = db.Column(db.String(50), default="")
-    is_new_today= db.Column(db.Boolean, default=False)
-    added_at    = db.Column(db.DateTime, default=datetime.utcnow)
+    id           = db.Column(db.Integer, primary_key=True)
+    user_id      = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False, index=True)
+    serial_id    = db.Column(db.Integer, db.ForeignKey("serials.id"), nullable=False)
+    platforma    = db.Column(db.String(30), default="")
+    last_title   = db.Column(db.String(255), default="")
+    last_link    = db.Column(db.String(500), default="#")
+    last_date    = db.Column(db.String(30), default="")
+    date_label   = db.Column(db.String(50), default="")
+    is_new_today = db.Column(db.Boolean, default=False)
+    added_at     = db.Column(db.DateTime, default=datetime.utcnow)
 
     user   = db.relationship("User", back_populates="watching")
     serial = db.relationship("Serial")
@@ -181,12 +178,12 @@ class Watching(db.Model):
 
 class Watched(db.Model):
     __tablename__ = "watched"
-    id          = db.Column(db.Integer, primary_key=True)
-    user_id     = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False, index=True)
-    serial_id   = db.Column(db.Integer, db.ForeignKey("serials.id"), nullable=False)
-    platforma   = db.Column(db.String(30), default="")
+    id            = db.Column(db.Integer, primary_key=True)
+    user_id       = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False, index=True)
+    serial_id     = db.Column(db.Integer, db.ForeignKey("serials.id"), nullable=False)
+    platforma     = db.Column(db.String(30), default="")
     date_finished = db.Column(db.String(20), default="")
-    finished_at = db.Column(db.DateTime, default=datetime.utcnow)
+    finished_at   = db.Column(db.DateTime, default=datetime.utcnow)
 
     user   = db.relationship("User", back_populates="watched")
     serial = db.relationship("Serial")
@@ -225,7 +222,6 @@ class UserTitle(db.Model):
 
 
 class UserStats(db.Model):
-    """Zagregowane statystyki użytkownika — aktualizowane asynchronicznie."""
     __tablename__ = "user_stats"
     id              = db.Column(db.Integer, primary_key=True)
     user_id         = db.Column(db.Integer, db.ForeignKey("users.id"), unique=True, nullable=False)
@@ -242,28 +238,26 @@ class UserStats(db.Model):
 
 
 class GlobalNowosci(db.Model):
-    """Cache nowości z TMDB — współdzielony, odświeżany co godzinę."""
     __tablename__ = "global_nowosci"
-    id          = db.Column(db.Integer, primary_key=True)
-    platform    = db.Column(db.String(30), nullable=False, index=True)
-    serial_id   = db.Column(db.Integer, db.ForeignKey("serials.id"), nullable=False)
-    date_added  = db.Column(db.String(20), default="")
-    date_label  = db.Column(db.String(50), default="")
-    refreshed_at= db.Column(db.DateTime, default=datetime.utcnow)
+    id           = db.Column(db.Integer, primary_key=True)
+    platform     = db.Column(db.String(30), nullable=False, index=True)
+    serial_id    = db.Column(db.Integer, db.ForeignKey("serials.id"), nullable=False)
+    date_added   = db.Column(db.String(20), default="")
+    date_label   = db.Column(db.String(50), default="")
+    refreshed_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     serial = db.relationship("Serial")
 
 
 class RankingCache(db.Model):
-    """Cache rankingu — przeliczany raz na godzinę."""
     __tablename__ = "ranking_cache"
-    id          = db.Column(db.Integer, primary_key=True)
-    period      = db.Column(db.String(20), nullable=False)   # week/month/all
-    user_id     = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
-    position    = db.Column(db.Integer, nullable=False)
-    score       = db.Column(db.Float, default=0.0)
-    episodes    = db.Column(db.Integer, default=0)
-    hours       = db.Column(db.Float, default=0.0)
-    updated_at  = db.Column(db.DateTime, default=datetime.utcnow)
+    id         = db.Column(db.Integer, primary_key=True)
+    period     = db.Column(db.String(20), nullable=False)
+    user_id    = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    position   = db.Column(db.Integer, nullable=False)
+    score      = db.Column(db.Float, default=0.0)
+    episodes   = db.Column(db.Integer, default=0)
+    hours      = db.Column(db.Float, default=0.0)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     user = db.relationship("User")
