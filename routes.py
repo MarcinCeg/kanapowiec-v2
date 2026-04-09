@@ -225,39 +225,49 @@ def set_platformy():
 
 
 @main_bp.route("/api/refresh/odcinki", methods=["POST"])
-@login_required
 def refresh_all_odcinki():
+    if not current_user.is_authenticated:
+        return jsonify({"ok": False, "error": "guest"})
     def _task(user_id):
         from app import create_app
         app = create_app()
         with app.app_context():
             from models import User, Watching
+            from tmdb_service import get_last_episode
             user = User.query.get(user_id)
             if not user: return
             for w in user.watching:
-                ep = get_last_episode(w.serial)
-                if ep:
-                    w.last_title   = ep["title"]
-                    w.last_link    = ep["link"]
-                    w.last_date    = ep["date_raw"]
-                    w.date_label   = ep["date_label"]
-                    w.is_new_today = ep["is_new"]
+                try:
+                    ep = get_last_episode(w.serial)
+                    if ep:
+                        w.last_title   = ep["title"]
+                        w.last_link    = ep["link"]
+                        w.last_date    = ep["date_raw"]
+                        w.date_label   = ep["date_label"]
+                        w.is_new_today = ep["is_new"]
+                except Exception as e:
+                    print(f"[refresh] error for {w.serial_id}: {e}")
             db.session.commit()
     threading.Thread(target=_task, args=(current_user.id,), daemon=True).start()
     return jsonify({"ok": True})
 
 
 @main_bp.route("/api/refresh/nowosci", methods=["POST"])
-@login_required
 def refresh_nowosci():
-    user_platforms = get_user_platforms()
+    if not current_user.is_authenticated:
+        platforms = DEFAULT_PLATFORMS
+    else:
+        platforms = get_user_platforms() or DEFAULT_PLATFORMS
     def _task(platforms):
         from app import create_app
         app = create_app()
         with app.app_context():
             from tmdb_service import refresh_nowosci_for_platform
             for p in platforms:
-                refresh_nowosci_for_platform(p)
+                try:
+                    refresh_nowosci_for_platform(p)
+                except Exception as e:
+                    print(f"[nowosci] error for {p}: {e}")
     threading.Thread(target=_task, args=(user_platforms,), daemon=True).start()
     return jsonify({"ok": True})
 
