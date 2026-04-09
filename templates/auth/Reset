@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Nowe hasło — seriale.fun{% endblock %}
+{% block content %}
+<div style="max-width:400px;margin:48px auto;background:#fff;border:1px solid var(--b);border-radius:16px;padding:32px">
+  <div style="text-align:center;margin-bottom:24px">
+    <div style="font-size:36px;margin-bottom:8px">🔒</div>
+    <h1 style="font-size:20px;font-weight:700;color:var(--t);margin-bottom:4px">Nowe hasło</h1>
+    <p style="font-size:13px;color:var(--m)">Ustaw nowe hasło do swojego konta</p>
+  </div>
+
+  {% if error %}
+  <div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:10px;padding:14px;margin-bottom:16px;font-size:13px;color:#DC2626;text-align:center">
+    ⚠️ {{ error }}
+    {% if not token %}
+    <br><br><a href="/auth/forgot" style="color:#534AB7;font-weight:600;text-decoration:none">Poproś o nowy link →</a>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {% if token %}
+  <form method="POST">
+    <div style="margin-bottom:14px">
+      <label style="font-size:12px;color:var(--m);display:block;margin-bottom:5px">Nowe hasło</label>
+      <input type="password" name="password" placeholder="Min. 8 znaków" required minlength="8" autofocus
+        style="width:100%;height:38px;padding:0 12px;border:1px solid var(--b);border-radius:var(--r8);font-size:13px;outline:none;color:var(--t);transition:border-color .15s"
+        onfocus="this.style.borderColor='#534AB7'" onblur="this.style.borderColor='var(--b)'">
+    </div>
+    <div style="margin-bottom:20px">
+      <label style="font-size:12px;color:var(--m);display:block;margin-bottom:5px">Powtórz hasło</label>
+      <input type="password" name="password2" placeholder="••••••••" required
+        style="width:100%;height:38px;padding:0 12px;border:1px solid var(--b);border-radius:var(--r8);font-size:13px;outline:none;color:var(--t);transition:border-color .15s"
+        onfocus="this.style.borderColor='#534AB7'" onblur="this.style.borderColor='var(--b)'">
+    </div>
+    <button type="submit" class="btn btn-primary" style="width:100%;height:40px;border-radius:var(--r8);font-size:13px;justify-content:center">
+      Zapisz nowe hasło
+    </button>
+  </form>
+  {% endif %}
+</div>
+{% endblock %}
