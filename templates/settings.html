@@ -87,18 +87,22 @@
     <div style="border:1px solid var(--b);border-radius:var(--r12);padding:16px">
       <div style="font-size:13px;font-weight:600;margin-bottom:3px">Free (teraz)</div>
       <div style="font-size:11px;color:var(--m);margin-bottom:12px">Twój aktualny plan</div>
+      {% set w_used = current_user.watching_count() %}
+      {% set o_used = current_user.watched_count() %}
+      {% set k_used = current_user.candidates_count() %}
       {% for label, used, max in [
-        ('Oglądam', current_user.watching_count(), 10),
-        ('Obejrzane', current_user.watched_count(), 30),
-        ('Kandydaci', current_user.candidates_count(), 10),
+        ('Oglądam', w_used, 10),
+        ('Obejrzane', o_used, 30),
+        ('Kandydaci', k_used, 10),
       ] %}
+      {% set pct = ((used * 100) // max) %}
       <div style="margin-bottom:8px">
         <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px">
           <span style="color:var(--m)">{{ label }}</span>
           <span style="font-weight:600;color:{{ 'var(--red)' if used>=max else 'var(--t)' }}">{{ used }}/{{ max }}</span>
         </div>
         <div style="height:4px;background:var(--b);border-radius:2px;overflow:hidden">
-          <div style="width:{{ (used/max*100)|round|int }}%;height:100%;background:{{ '#E24B4A' if used>=max else '#BA7517' if used/max >= .8 else '#534AB7' }};border-radius:2px"></div>
+          <div style="width:{{ pct }}%;height:100%;background:{{ '#E24B4A' if used>=max else '#BA7517' if pct >= 80 else '#534AB7' }};border-radius:2px"></div>
         </div>
       </div>
       {% endfor %}
