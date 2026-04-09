@@ -126,12 +126,12 @@
         <div class="wimg">
           {% if s.cover %}<img src="{{ s.cover }}" alt="{{ s.nazwa }}" onerror="this.parentElement.innerHTML='🎬'">{% else %}🎬{% endif %}
           {% if w.platforma %}<span class="wplat" style="background:{{ pcolors.get(w.platforma,'#888') }}">{{ pnames.get(w.platforma,'') }}</span>{% endif %}
-          {% if '🔥' in w.date_label %}<span class="wnew">DZIŚ</span>{% elif w.is_new_today %}<span class="wnew" style="animation:none">NOWY</span>{% endif %}
+          {% if '🔥' in (w.date_label or '') %}<span class="wnew">DZIŚ</span>{% elif w.is_new_today %}<span class="wnew" style="animation:none">NOWY</span>{% endif %}
         </div>
         <div class="wbody">
           <div class="wname">{{ s.nazwa }}</div>
           {% if w.last_title %}
-          <div class="wep {{ 'orange' if w.is_new_today and '🔥' not in w.date_label else 'gray' if not w.is_new_today else '' }}">
+          <div class="wep {{ 'orange' if w.is_new_today and '🔥' not in (w.date_label or '') else 'gray' if not w.is_new_today else '' }}">
             <div class="wep-num"><a href="{{ w.last_link }}" target="_blank" style="color:var(--blue);text-decoration:none;font-size:10px">{{ w.last_title[:48] }}</a></div>
             {% if w.date_label %}<div class="wep-date {{ 'today' if '🔥' in w.date_label else 'recent' if w.is_new_today else '' }}">{{ w.date_label }}</div>{% endif %}
           </div>
