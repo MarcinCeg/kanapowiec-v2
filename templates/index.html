@@ -122,7 +122,7 @@
     <div class="wgrid" id="ogladamGrid">
       {% for w in ogladam %}
       {% set s = w.serial %}
-      <div class="wcard {{ 'new-today' if '🔥' in w.date_label else 'new-recent' if w.is_new_today else '' }}" data-platform="{{ w.platforma }}" data-id="{{ s.id }}">
+      <div class="wcard {{ 'new-today' if '🔥' in (w.date_label or '') else 'new-recent' if w.is_new_today else '' }}" data-platform="{{ w.platforma }}" data-id="{{ s.id }}">
         <div class="wimg">
           {% if s.cover %}<img src="{{ s.cover }}" alt="{{ s.nazwa }}" onerror="this.parentElement.innerHTML='🎬'">{% else %}🎬{% endif %}
           {% if w.platforma %}<span class="wplat" style="background:{{ pcolors.get(w.platforma,'#888') }}">{{ pnames.get(w.platforma,'') }}</span>{% endif %}
