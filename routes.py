@@ -268,7 +268,7 @@ def refresh_nowosci():
                     refresh_nowosci_for_platform(p)
                 except Exception as e:
                     print(f"[nowosci] error for {p}: {e}")
-    threading.Thread(target=_task, args=(user_platforms,), daemon=True).start()
+    threading.Thread(target=_task, args=(platforms,), daemon=True).start()
     return jsonify({"ok": True})
 
 
