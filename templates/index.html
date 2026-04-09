@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Tracker — Kanapowy Leniwiec{% endblock %}
+{% block title %}Seriale Fun - tracker serialowy {% endblock %}
 
 {% block content %}
 <main>
@@ -11,51 +11,63 @@
 <div class="nav-pills-strip">
   <a href="#sec-ogladam" class="nav-pill nav-pill-green">
     <span class="np-ico">📺</span>
-    <span class="np-label">Oglądam</span>
-    <span class="np-val {{ 'np-warn' if w_pct >= 80 else '' }} {{ 'np-full' if w_pct >= 100 else '' }}">{{ limits.watching.used }}{% if limits.watching.max %}/{{ limits.watching.max }}{% endif %}</span>
-    <div class="np-bar"><div class="np-fill {{ 'warn' if w_pct >= 80 else '' }} {{ 'full' if w_pct >= 100 else '' }}" style="width:{{ w_pct if limits.watching.max else 20 }}%"></div></div>
-  </a>
-  <a href="#sec-obejrzane" class="nav-pill nav-pill-gray">
-    <span class="np-ico">✅</span>
-    <span class="np-label">Obejrzane</span>
-    <span class="np-val {{ 'np-warn' if o_pct >= 80 else '' }}">{{ limits.watched.used }}{% if limits.watched.max %}/{{ limits.watched.max }}{% endif %}</span>
-    <div class="np-bar"><div class="np-fill {{ 'warn' if o_pct >= 80 else '' }}" style="width:{{ o_pct if limits.watched.max else 20 }}%"></div></div>
+    <div class="np-body">
+      <span class="np-label">Oglądam</span>
+      <span class="np-val {{ 'np-warn' if w_pct >= 80 else '' }} {{ 'np-full' if w_pct >= 100 else '' }}">{{ limits.watching.used }}{% if limits.watching.max %}<span style="font-size:11px;font-weight:500;color:var(--m)">/{{ limits.watching.max }}</span>{% endif %}</span>
+      <div class="np-bar"><div class="np-fill {{ 'warn' if w_pct >= 80 else '' }} {{ 'full' if w_pct >= 100 else '' }}" style="width:{{ w_pct if limits.watching.max else 20 }}%"></div></div>
+    </div>
   </a>
   <a href="#sec-kandydaci" class="nav-pill nav-pill-blue">
     <span class="np-ico">🚩</span>
-    <span class="np-label">Kandydaci</span>
-    <span class="np-val {{ 'np-warn' if k_pct >= 80 else '' }}">{{ limits.candidates.used }}{% if limits.candidates.max %}/{{ limits.candidates.max }}{% endif %}</span>
-    <div class="np-bar"><div class="np-fill {{ 'warn' if k_pct >= 80 else '' }}" style="width:{{ k_pct if limits.candidates.max else 20 }}%"></div></div>
+    <div class="np-body">
+      <span class="np-label">Kandydaci</span>
+      <span class="np-val {{ 'np-warn' if k_pct >= 80 else '' }}">{{ limits.candidates.used }}{% if limits.candidates.max %}<span style="font-size:11px;font-weight:500;color:var(--m)">/{{ limits.candidates.max }}</span>{% endif %}</span>
+      <div class="np-bar"><div class="np-fill {{ 'warn' if k_pct >= 80 else '' }}" style="width:{{ k_pct if limits.candidates.max else 20 }}%"></div></div>
+    </div>
+  </a>
+  <a href="#sec-obejrzane" class="nav-pill nav-pill-gray">
+    <span class="np-ico">✅</span>
+    <div class="np-body">
+      <span class="np-label">Obejrzane</span>
+      <span class="np-val {{ 'np-warn' if o_pct >= 80 else '' }}">{{ limits.watched.used }}{% if limits.watched.max %}<span style="font-size:11px;font-weight:500;color:var(--m)">/{{ limits.watched.max }}</span>{% endif %}</span>
+      <div class="np-bar"><div class="np-fill {{ 'warn' if o_pct >= 80 else '' }}" style="width:{{ o_pct if limits.watched.max else 20 }}%"></div></div>
+    </div>
   </a>
   {% if not is_pro %}
   <a href="/settings#upgrade" class="nav-pill nav-pill-pro">
-    <span class="np-ico">⬆️</span>
-    <span class="np-label">Pro</span>
-    <span class="np-val" style="color:var(--purple);font-size:9px">5 zł/mies</span>
+    <span class="np-ico">⭐</span>
+    <div class="np-body">
+      <span class="np-label">Odblokuj Pro</span>
+      <span class="np-val" style="font-size:13px;color:var(--purple)">5 zł<span style="font-size:10px;font-weight:500;color:var(--m)">/mies</span></span>
+    </div>
   </a>
   {% endif %}
 </div>
 
 <style>
-.nav-pills-strip{display:flex;gap:8px;margin-bottom:14px;flex-wrap:nowrap;overflow-x:auto;padding-bottom:2px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.nav-pills-strip{display:flex;gap:8px;margin-bottom:16px;flex-wrap:nowrap;overflow-x:auto;padding-bottom:2px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .nav-pills-strip::-webkit-scrollbar{display:none}
-.nav-pill{display:flex;flex-direction:column;align-items:center;gap:3px;background:var(--s);border:1.5px solid var(--border);border-radius:12px;padding:10px 12px;min-width:80px;flex:1;text-decoration:none;cursor:pointer;transition:all .15s;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.nav-pill{display:flex;flex-direction:row;align-items:center;gap:10px;background:var(--s);border:1.5px solid var(--border);border-radius:14px;padding:10px 14px;min-width:0;flex:1;text-decoration:none;cursor:pointer;transition:all .15s;box-shadow:0 1px 3px rgba(0,0,0,.05);position:relative;overflow:hidden}
 .nav-pill:hover{transform:translateY(-1px);box-shadow:0 3px 10px rgba(0,0,0,.1)}
 .nav-pill:active{transform:translateY(0);box-shadow:none}
 .nav-pill-green{border-color:#bbf7d0}
 .nav-pill-green:hover{border-color:#16a34a;background:#f0fdf4}
+.nav-pill-green .np-fill{background:#16a34a}
 .nav-pill-blue{border-color:#bfdbfe}
-.nav-pill-blue:hover{border-color:#2563eb;background:#eff6ff}
+.nav-pill-blue:hover{border-color:#534AB7;background:#EEEDFE}
+.nav-pill-blue .np-fill{background:#534AB7}
 .nav-pill-gray{border-color:var(--b2)}
 .nav-pill-gray:hover{border-color:var(--m);background:var(--bg)}
+.nav-pill-gray .np-fill{background:var(--m)}
 .nav-pill-pro{border-color:#DDD6FE;background:linear-gradient(135deg,#EEEDFE,#E0F7F1)}
 .nav-pill-pro:hover{border-color:var(--purple)}
-.np-ico{font-size:18px;line-height:1}
-.np-label{font-size:10px;font-weight:600;color:var(--m)}
-.np-val{font-size:12px;font-weight:800;color:var(--t)}
+.np-ico{font-size:20px;line-height:1;flex-shrink:0}
+.np-body{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}
+.np-label{font-size:10px;font-weight:600;color:var(--m);white-space:nowrap}
+.np-val{font-size:16px;font-weight:800;color:var(--t);line-height:1}
 .np-warn{color:var(--orange)}
 .np-full{color:var(--red)}
-.np-bar{width:100%;height:3px;background:var(--bg);border-radius:2px;overflow:hidden;margin-top:1px}
+.np-bar{width:100%;height:3px;background:var(--bg);border-radius:2px;overflow:hidden;margin-top:2px}
 .np-fill{height:100%;border-radius:2px;background:#16a34a;transition:width .3s}
 .np-fill.warn{background:var(--orange)}
 .np-fill.full{background:var(--red)}
@@ -494,10 +506,18 @@ function togglePlatform(p){
   const el = document.getElementById('psb-'+p);
   if(selPlat.includes(p)){ selPlat = selPlat.filter(x=>x!==p); el.classList.remove('on3'); }
   else { selPlat.push(p); el.classList.add('on3'); }
-  if(document.querySelector('.nav-user-pill') || document.querySelector('.nav-avatar')){
+  if(!IS_GUEST){
     fetch('/api/platformy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({platformy:selPlat})});
   }
   updatePlatSummary();
+  // Odśwież nowości gdy zmieniamy platformy
+  clearTimeout(window._platDebounce);
+  window._platDebounce = setTimeout(()=>{
+    const btn = document.getElementById('refreshNowosciBtn');
+    if(btn && selPlat.length > 0){
+      refreshNowosci();
+    }
+  }, 800);
 }
 
 // ── Filtry ──
@@ -507,7 +527,16 @@ function applyFilter(){
     const cg = (card.dataset.genres||'').split(',').filter(Boolean);
     const genreOk = activeGenres.size===0 || cg.some(g=>activeGenres.has(g));
     const cc = (card.dataset.countries||'').split(',').filter(Boolean);
-    const countryOk = activeCountries.size===0 || cc.some(c=>activeCountries.has(c));
+    // Sprawdź czy karta pasuje do aktywnych krajów/grup
+    const countryOk = activeCountries.size===0 || cc.some(c=>{
+      // Sprawdź bezpośrednie dopasowanie
+      if(activeCountries.has(c)) return true;
+      // Sprawdź czy kraj jest w aktywnej grupie
+      for(const [group, codes] of Object.entries(COUNTRY_GROUPS)){
+        if(activeCountries.has(group) && codes.includes(c)) return true;
+      }
+      return false;
+    });
     card.style.display = (ratingOk && genreOk && countryOk) ? '' : 'none';
   });
   updateFilterSummary();
@@ -528,16 +557,37 @@ function toggleCountry(c,btn){
   btn.className='fpill'+(activeCountries.has(c)?' fpill-country-on':'');
   applyFilter();
 }
+function toggleCountryGroup(group, btn){
+  const codes = COUNTRY_GROUPS[group] || [group];
+  const isActive = btn.classList.contains('fpill-country-on');
+  if(isActive){
+    codes.forEach(c=>activeCountries.delete(c));
+    btn.className='fpill';
+  } else {
+    codes.forEach(c=>activeCountries.add(c));
+    btn.className='fpill fpill-country-on';
+  }
+  applyFilter();
+}
+// Mapowanie grup krajów na kody w data-countries
+const COUNTRY_GROUPS = {
+  'USA':           ['USA','US'],
+  'Europa':        ['Wielka Brytania','GB','Francja','FR','Niemcy','DE','Włochy','IT','Hiszpania','ES','Belgia','BE','Holandia','NL','Szwajcaria','CH','Austria','AT','Polska','PL','Czechy','CZ','Węgry','HU','Rumunia','RO','Portugalia','PT','Grecja','GR','Turcja','TR'],
+  'Polskie':       ['Polska','PL'],
+  'Skandynawskie': ['Norwegia','NO','Szwecja','SE','Dania','DK','Finlandia','FI','Islandia','IS'],
+  'Japonia/Korea': ['Japonia','JP','Korea','KR'],
+};
+
 function buildFilterPills(){
-  const gs=new Set(), cs=new Set();
+  const gs=new Set();
   document.querySelectorAll('.ocard').forEach(card=>{
     (card.dataset.genres||'').split(',').filter(Boolean).forEach(g=>gs.add(g));
-    (card.dataset.countries||'').split(',').filter(Boolean).forEach(c=>cs.add(c));
   });
   const gBox=document.getElementById('genreFilters');
   const cBox=document.getElementById('countryFilters');
   if(gBox) gBox.innerHTML=[...gs].sort().map(g=>`<button class="fpill" onclick="toggleGenre('${g}',this)">${g}</button>`).join('');
-  if(cBox) cBox.innerHTML=[...cs].sort().map(c=>`<button class="fpill" onclick="toggleCountry('${c}',this)">${c}</button>`).join('');
+  // Stałe grupy krajów
+  if(cBox) cBox.innerHTML=Object.keys(COUNTRY_GROUPS).map(g=>`<button class="fpill" onclick="toggleCountryGroup('${g}',this)">${g}</button>`).join('');
   updatePlatSummary();
 }
 function updateFilterSummary(){
