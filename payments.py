@@ -34,7 +34,7 @@ def create_subscription_checkout():
 
         session = stripe.checkout.Session.create(
             customer=customer_id,
-            payment_method_types=["card", "blik", "p24"],
+            
             line_items=[{
                 "price": STRIPE_PRICE_MONTHLY,
                 "quantity": 1,
@@ -68,7 +68,7 @@ def create_onetime_checkout():
 
         session = stripe.checkout.Session.create(
             customer=customer_id,
-            payment_method_types=["card", "blik", "p24"],
+            
             line_items=[{
                 "price": STRIPE_PRICE_ONETIME,
                 "quantity": 1,
