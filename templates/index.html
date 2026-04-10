@@ -34,13 +34,44 @@
     </div>
   </a>
   {% if not is_pro %}
-  <a href="/settings#upgrade" class="nav-pill nav-pill-pro">
-    <span class="np-ico">⭐</span>
-    <div class="np-body">
-      <span class="np-label">Odblokuj Pro</span>
-      <span class="np-val" style="font-size:13px;color:var(--purple)">5 zł<span style="font-size:10px;font-weight:500;color:var(--m)">/mies</span></span>
+  <div class="nav-pill-pro-wrap" id="proPillWrap">
+    <a href="/settings#upgrade" class="nav-pill nav-pill-pro" id="proPill"
+       onmouseenter="showProPopup()" onmouseleave="scheduleHideProPopup()">
+      <span class="np-ico">⭐</span>
+      <div class="np-body">
+        <span class="np-label">Odblokuj Pro</span>
+        <span class="np-val" style="font-size:13px;color:var(--purple)">5 zł<span style="font-size:10px;font-weight:500;color:var(--m)">/mies</span></span>
+      </div>
+    </a>
+    <div class="pro-popup" id="proPopup"
+         onmouseenter="cancelHideProPopup()" onmouseleave="scheduleHideProPopup()">
+      <div class="pro-popup-header">
+        <div class="pro-popup-star">⭐</div>
+        <div>
+          <div class="pro-popup-title">Kanapowiec <span class="pro-badge">PRO</span></div>
+          <div class="pro-popup-sub">Odblokuj pełen potencjał trackera</div>
+        </div>
+      </div>
+      <div class="pro-features">
+        <div class="pro-feat"><span class="pro-feat-ico">📋</span><div><div class="pro-feat-name">Nieograniczone listy</div><div class="pro-feat-desc">Oglądam, Obejrzane i Kandydaci bez limitu</div></div></div>
+        <div class="pro-feat"><span class="pro-feat-ico">📊</span><div><div class="pro-feat-name">Zaawansowane wykresy</div><div class="pro-feat-desc">Aktywność tygodniowa, gatunki, platformy, trendy</div></div></div>
+        <div class="pro-feat"><span class="pro-feat-ico">👥</span><div><div class="pro-feat-name">Moduł społecznościowy</div><div class="pro-feat-desc">Znajomi, polecenia, komentarze do seriali</div></div></div>
+        <div class="pro-feat"><span class="pro-feat-ico">🏆</span><div><div class="pro-feat-name">System osiągnięć</div><div class="pro-feat-desc">16 tytułów do odblokowania, ranking globalny</div></div></div>
+        <div class="pro-feat"><span class="pro-feat-ico">📤</span><div><div class="pro-feat-name">Eksport danych</div><div class="pro-feat-desc">Pobierz swoją historię w CSV lub JSON</div></div></div>
+        <div class="pro-feat"><span class="pro-feat-ico">🤖</span><div><div class="pro-feat-name">AI Sommelier bez limitu</div><div class="pro-feat-desc">Nieograniczone rekomendacje od AI</div></div></div>
+      </div>
+      <div class="pro-pricing">
+        <div class="pro-price-row">
+          <div>
+            <div class="pro-price">5,99 zł<span>/mies</span></div>
+            <div class="pro-price-sub">lub 9,99 zł jednorazowo</div>
+          </div>
+          <a href="/settings#upgrade" class="pro-cta-btn">Odblokuj →</a>
+        </div>
+      </div>
+      <div class="pro-footer">🔒 Płatności Stripe · BLIK · Karta · Przelewy24</div>
     </div>
-  </a>
+  </div>
   {% endif %}
 </div>
 
@@ -105,6 +136,41 @@
   min-height:30px;box-sizing:border-box;line-height:1.3;white-space:nowrap
 }
 .wbtn-serial:hover{background:#16a34a;color:#fff}
+
+/* ── Pro Pill Wrap + Popup ── */
+.nav-pill-pro-wrap{position:relative;flex:1;min-width:0}
+.nav-pill-pro-wrap .nav-pill-pro{width:100%;box-sizing:border-box}
+.pro-popup{
+  display:none;position:absolute;top:calc(100% + 8px);right:0;width:290px;
+  background:var(--card,#fff);border:1.5px solid #534AB7;border-radius:16px;
+  box-shadow:0 8px 40px rgba(83,74,183,.18),0 2px 8px rgba(0,0,0,.08);
+  z-index:8000;overflow:hidden;
+  animation:proPopupIn .18s cubic-bezier(.34,1.56,.64,1)
+}
+.pro-popup.visible{display:block}
+@keyframes proPopupIn{
+  from{opacity:0;transform:translateY(-6px) scale(.97)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+.pro-popup-header{display:flex;align-items:center;gap:10px;padding:14px 16px 10px;background:linear-gradient(135deg,#1a1a2e,#16213e)}
+.pro-popup-star{font-size:22px;line-height:1}
+.pro-popup-title{font-size:14px;font-weight:800;color:#fff;display:flex;align-items:center;gap:6px}
+.pro-badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;background:linear-gradient(135deg,#534AB7,#1D9E75);color:#fff;letter-spacing:.5px}
+.pro-popup-sub{font-size:10px;color:#a0a0c0;margin-top:1px}
+.pro-features{padding:10px 14px;display:flex;flex-direction:column;gap:8px}
+.pro-feat{display:flex;align-items:flex-start;gap:9px}
+.pro-feat-ico{font-size:15px;line-height:1;flex-shrink:0;margin-top:1px}
+.pro-feat-name{font-size:11px;font-weight:700;color:var(--t);line-height:1.3}
+.pro-feat-desc{font-size:10px;color:var(--m);line-height:1.4;margin-top:1px}
+.pro-pricing{margin:4px 14px 10px;background:linear-gradient(135deg,#EEEDFE,#E0F7F1);border-radius:10px;padding:10px 12px}
+.pro-price-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.pro-price{font-size:18px;font-weight:900;color:#534AB7;line-height:1}
+.pro-price span{font-size:11px;font-weight:500;color:var(--m)}
+.pro-price-sub{font-size:10px;color:var(--m);margin-top:2px}
+.pro-cta-btn{display:inline-block;padding:8px 14px;border-radius:8px;background:linear-gradient(135deg,#534AB7,#1D9E75);color:#fff;font-size:12px;font-weight:700;text-decoration:none;white-space:nowrap;transition:opacity .15s}
+.pro-cta-btn:hover{opacity:.85}
+.pro-footer{text-align:center;font-size:9px;color:var(--h);padding:6px 14px 10px;border-top:1px solid var(--border)}
+@media(max-width:600px){.pro-popup{display:none !important}}
 </style>
 
 {# ── OGLĄDAM ── #}
@@ -1084,6 +1150,23 @@ document.addEventListener('DOMContentLoaded',()=>{
     autoLoadNowosci();
   }
 });
+
+// ── Pro popup hover ──
+let proPopupHideTimer = null;
+function showProPopup(){
+  clearTimeout(proPopupHideTimer);
+  const p = document.getElementById('proPopup');
+  if(p) p.classList.add('visible');
+}
+function scheduleHideProPopup(){
+  proPopupHideTimer = setTimeout(()=>{
+    const p = document.getElementById('proPopup');
+    if(p) p.classList.remove('visible');
+  }, 250);
+}
+function cancelHideProPopup(){
+  clearTimeout(proPopupHideTimer);
+}
 
 async function autoLoadNowosci(){
   const emptyTxt = document.getElementById('nowosc-empty-txt');
