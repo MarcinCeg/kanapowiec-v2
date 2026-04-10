@@ -81,14 +81,15 @@
 .ps3-name{display:block;font-size:9px;color:var(--m);text-align:center;padding:3px 4px 5px;font-weight:500;background:var(--bg);border-top:1px solid var(--border)}
 .ps3.on3 .ps3-name{color:var(--t);font-weight:700;background:color-mix(in srgb,var(--pc) 8%,white)}
 
-/* ── Dwa przyciski akcji na karcie ── */
+/* ── POPRAWKA 2: Dwa przyciski akcji na karcie — jednakowa wysokość ── */
 .wactions{padding:4px 8px 8px;display:flex;flex-direction:column;gap:4px}
 .wbtn-ep{
   width:100%;padding:5px 8px;border-radius:6px;
   border:1px solid #2563eb;background:transparent;
   color:#2563eb;font-size:10px;font-weight:600;
   cursor:pointer;transition:background .15s,color .15s;
-  display:flex;align-items:center;justify-content:center;gap:4px
+  display:flex;align-items:center;justify-content:center;gap:4px;
+  min-height:30px;box-sizing:border-box;line-height:1.3;white-space:nowrap
 }
 .wbtn-ep:hover{background:#2563eb;color:#fff}
 .wbtn-ep.done{
@@ -100,7 +101,8 @@
   border:1px solid #16a34a;background:transparent;
   color:#16a34a;font-size:10px;font-weight:600;
   cursor:pointer;transition:background .15s,color .15s;
-  display:flex;align-items:center;justify-content:center;gap:4px
+  display:flex;align-items:center;justify-content:center;gap:4px;
+  min-height:30px;box-sizing:border-box;line-height:1.3;white-space:nowrap
 }
 .wbtn-serial:hover{background:#16a34a;color:#fff}
 </style>
@@ -122,6 +124,7 @@
     <div class="wgrid" id="ogladamGrid">
       {% for w in ogladam %}
       {% set s = w.serial %}
+      {# POPRAWKA 3: brak hover popupu na wcard — nazwa serialu to link do TMDB #}
       <div class="wcard {{ 'new-today' if '🔥' in (w.date_label or '') else 'new-recent' if w.is_new_today else '' }}" data-platform="{{ w.platforma }}" data-id="{{ s.id }}">
         <div class="wimg">
           {% if s.cover %}<img src="{{ s.cover }}" alt="{{ s.nazwa }}" onerror="this.parentElement.innerHTML='🎬'">{% else %}🎬{% endif %}
@@ -129,7 +132,14 @@
           {% if '🔥' in (w.date_label or '') %}<span class="wnew">DZIŚ</span>{% elif w.is_new_today %}<span class="wnew" style="animation:none">NOWY</span>{% endif %}
         </div>
         <div class="wbody">
-          <div class="wname">{{ s.nazwa }}</div>
+          {# POPRAWKA 3: nazwa = link do TMDB zamiast hover popup #}
+          <div class="wname">
+            {% if s.imdb_url and s.imdb_url != '#' %}
+              <a href="{{ s.imdb_url }}" target="_blank" style="color:var(--t);text-decoration:none">{{ s.nazwa }}</a>
+            {% else %}
+              {{ s.nazwa }}
+            {% endif %}
+          </div>
           {% if w.last_title %}
           <div class="wep {{ 'orange' if w.is_new_today and '🔥' not in (w.date_label or '') else 'gray' if not w.is_new_today else '' }}">
             <div class="wep-num"><a href="{{ w.last_link }}" target="_blank" style="color:var(--blue);text-decoration:none;font-size:10px">{{ w.last_title[:48] }}</a></div>
@@ -138,10 +148,9 @@
           {% else %}
           <div class="wep gray"><div class="wep-num" style="color:var(--h);font-weight:400">Kliknij ⟳ odśwież</div></div>
           {% endif %}
-          {% if s.imdb_rating %}<div class="wimdb">⭐ {{ s.imdb_rating }} · <a href="{{ s.imdb_url }}" target="_blank">TMDB</a></div>{% endif %}
+          {% if s.imdb_rating %}<div class="wimdb">⭐ {{ s.imdb_rating }} · {% if s.imdb_url and s.imdb_url != '#' %}<a href="{{ s.imdb_url }}" target="_blank">TMDB</a>{% else %}TMDB{% endif %}</div>{% endif %}
         </div>
         <div class="wactions">
-          {# Przycisk odcinek — pokazuj tylko jeśli jest date_label (nowy odcinek) #}
           {% if w.last_title %}
           <button class="wbtn-ep" id="ep-btn-{{ s.id }}"
             onclick="markOdcinek({{ s.id }}, this)">
@@ -307,6 +316,7 @@
         <div class="filter-acc-body open" id="body-acc2">
           <div style="font-size:11px;color:var(--m);margin-bottom:10px;font-weight:500">Zaznacz platformy które masz:</div>
           <div class="pgrid3">
+            {# POPRAWKA 1: player.pl zamiast player #}
             {% set pdata = {
               'netflix':     {'logo':'NETFLIX',     'color':'#E50914'},
               'hbo':         {'logo':'HBO',          'color':'#8B5CF6'},
@@ -315,7 +325,7 @@
               'appletv':     {'logo':'Apple TV+',    'color':'#444'},
               'skyshowtime': {'logo':'SKY Show',     'color':'#0070C9'},
               'canalplus':   {'logo':'CANAL+',       'color':'#003366'},
-              'player':      {'logo':'▶ player',     'color':'#E4002B'},
+              'player':      {'logo':'▶ player.pl',  'color':'#E4002B'},
               'polsat':      {'logo':'POLSAT BOX',   'color':'#E31E24'},
               'tvpvod':      {'logo':'TVP VOD',      'color':'#003F87'},
             } %}
@@ -510,20 +520,15 @@ function togglePlatform(p){
     fetch('/api/platformy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({platformy:selPlat})});
   }
   updatePlatSummary();
-  applyFilter(); // Filtruj karty natychmiast
+  applyFilter();
 }
 
 // ── Filtry ──
 function applyFilter(){
   document.querySelectorAll('.ocard').forEach(card=>{
-    // Filtr oceny
     const ratingOk = parseFloat(card.dataset.rating||0) >= curRating;
-
-    // Filtr gatunku
     const cg = (card.dataset.genres||'').split(',').filter(Boolean);
     const genreOk = activeGenres.size===0 || cg.some(g=>activeGenres.has(g));
-
-    // Filtr krajów (grupy)
     const cc = (card.dataset.countries||'').split(',').filter(Boolean);
     const countryOk = activeCountries.size===0 || cc.some(c=>{
       if(activeCountries.has(c)) return true;
@@ -532,20 +537,13 @@ function applyFilter(){
       }
       return false;
     });
-
-    // Filtr platformy — jeśli zaznaczono jakieś platformy, pokaż tylko ich karty
     const cardPlat = card.dataset.platform || '';
     const platOk = selPlat.length===0 || selPlat.includes(cardPlat);
-
     card.style.display = (ratingOk && genreOk && countryOk && platOk) ? '' : 'none';
   });
-
-  // Pokaż info ile widocznych
   const visible = document.querySelectorAll('.ocard:not([style*="none"])').length;
-  const total = document.querySelectorAll('.ocard').length;
   const countEl = document.getElementById('nowosciCount');
   if(countEl) countEl.textContent = visible;
-
   updateFilterSummary();
 }
 function filterRating(min,btn){
@@ -576,7 +574,6 @@ function toggleCountryGroup(group, btn){
   }
   applyFilter();
 }
-// Mapowanie grup krajów na kody w data-countries
 const COUNTRY_GROUPS = {
   'USA':           ['USA','US'],
   'Europa':        ['Wielka Brytania','GB','Francja','FR','Niemcy','DE','Włochy','IT','Hiszpania','ES','Belgia','BE','Holandia','NL','Szwajcaria','CH','Austria','AT','Polska','PL','Czechy','CZ','Węgry','HU','Rumunia','RO','Portugalia','PT','Grecja','GR','Turcja','TR'],
@@ -593,7 +590,6 @@ function buildFilterPills(){
   const gBox=document.getElementById('genreFilters');
   const cBox=document.getElementById('countryFilters');
   if(gBox) gBox.innerHTML=[...gs].sort().map(g=>`<button class="fpill" onclick="toggleGenre('${g}',this)">${g}</button>`).join('');
-  // Stałe grupy krajów
   if(cBox) cBox.innerHTML=Object.keys(COUNTRY_GROUPS).map(g=>`<button class="fpill" onclick="toggleCountryGroup('${g}',this)">${g}</button>`).join('');
   updatePlatSummary();
 }
@@ -654,21 +650,19 @@ async function addSerial(nazwa){
   else if(d.error==='limit') alert(d.msg);
 }
 
-
-// ── Oznacz ODCINEK jako obejrzany (serial zostaje w Oglądam) ──
+// ── Oznacz ODCINEK jako obejrzany ──
 async function markOdcinek(id, btn){
   btn.disabled = true;
   const r = await fetch(`/api/ogladam/${id}/odcinek`, {method:'POST'});
   const d = await r.json();
   if(d.ok){
-    // Usuń przycisk odcinka — serial zostaje
     btn.remove();
   } else {
     btn.disabled = false;
   }
 }
 
-// ── Oznacz CAŁY SERIAL jako obejrzany — przenosi do Obejrzanych ──
+// ── Oznacz CAŁY SERIAL jako obejrzany ──
 let pendingWatchedId = null;
 function markSerialObejrzany(id, nazwa){
   pendingWatchedId = id;
@@ -700,7 +694,7 @@ async function delOgladam(id){
   if(!confirm('Usunąć serial z Oglądam?')) return;
   if(IS_GUEST){
     const card = document.querySelector(`#ogladamGrid .wcard[data-id="${id}"]`);
-    const nazwa = card?.querySelector('.wname')?.textContent||'';
+    const nazwa = card?.querySelector('.wname')?.textContent?.trim()||'';
     guestDelOgladam(nazwa);
     card?.remove();
     const cnt=document.getElementById('ogladamCount');
@@ -722,7 +716,6 @@ async function promoteKandydat(id, btn){
   btn.disabled=true; btn.textContent='⏳...';
 
   if(IS_GUEST){
-    // Znajdź kartę po data-id (string matching)
     const kcard = [...document.querySelectorAll('#kandydaciGrid .kcard')].find(c=>c.dataset.id==id);
     if(!kcard){ btn.disabled=false; btn.textContent='▶ Oglądam'; return; }
     const nazwa = kcard.querySelector('.kname')?.textContent?.trim()||'';
@@ -730,7 +723,6 @@ async function promoteKandydat(id, btn){
     const cover = (imgEl && imgEl.src && !imgEl.src.endsWith('/')) ? imgEl.src : '';
     const ratingTxt = kcard.querySelector('.krating')?.textContent||'';
     const rating = ratingTxt.match(/[\d.]+/)?.[0]||'';
-    // Przesuń w localStorage
     const gd = guestLoad();
     gd.kandydaci = gd.kandydaci.filter(s => String(s.id) !== String(id) && s.nazwa !== nazwa);
     if(!gd.ogladam.find(s=>s.nazwa===nazwa)){
@@ -772,7 +764,6 @@ async function promoteKandydat(id, btn){
       </div>
       <button class="wdel" onclick="delOgladam(${id})">×</button>`;
     document.getElementById('ogladamGrid').appendChild(card);
-    attachPopupEvents();
     const wcnt=document.getElementById('ogladamCount');
     if(wcnt) wcnt.textContent=document.querySelectorAll('#ogladamGrid .wcard').length;
     fetch('/api/ogladam/'+id+'/refresh',{method:'POST'}).then(r=>r.json()).then(d=>{
@@ -781,7 +772,6 @@ async function promoteKandydat(id, btn){
         if(wcard){
           const ep=wcard.querySelector('.wep');
           if(ep) ep.innerHTML=`<div class="wep-num"><a href="${d.ep.link}" target="_blank" style="color:var(--blue);text-decoration:none;font-size:10px">${d.ep.title?.slice(0,48)||''}</a></div><div class="wep-date">${d.ep.date_label||''}</div>`;
-          // Dodaj przycisk odcinka jeśli jest tytuł
           const actions = wcard.querySelector('.wactions');
           if(actions && d.ep.title){
             const epBtn = document.createElement('button');
@@ -812,7 +802,6 @@ async function flagSerial(btn,serial_id,nazwa,platform){
   if(btn.classList.contains('flagged')) return;
 
   if(IS_GUEST){
-    // Gość — zapisz lokalnie
     const s = {id:'g_'+Date.now(), nazwa, cover: btn.closest('.ocard')?.querySelector('img')?.src||'', imdb_rating:null};
     guestAddKandydat(s, platform);
     btn.classList.add('flagged'); btn.textContent='✓ Dodano';
@@ -861,7 +850,6 @@ async function refreshOdcinki(){
     const d = await r.json();
     if(d.error==='guest'){ clearInterval(tick); btn.disabled=false; btn.textContent='⟳ Odśwież odcinki'; return; }
   } catch(e){}
-  // Czekaj aż backend skończy — max 30 sek
   let waited = 0;
   const poll = setInterval(()=>{
     waited += 3000;
@@ -887,7 +875,7 @@ async function refreshNowosci(){
   }, 20000);
 }
 
-// ── Popup hover ──
+// ── Popup hover (tylko ocard i kcard, NIE wcard) ──
 const popup=document.getElementById('cardPopup');
 const popupInner=document.getElementById('popupInner');
 const actorPopup=document.getElementById('actorPopup');
@@ -950,11 +938,12 @@ function renderPopup(d,tmdb){
     </div></div>`:''}`;
 }
 async function showPopup(card){
-  const isO=card.classList.contains('ocard'),isK=card.classList.contains('kcard'),isW=card.classList.contains('wcard');
+  // POPRAWKA 3: wcard nie dostaje popupu
+  const isO=card.classList.contains('ocard'),isK=card.classList.contains('kcard');
+  if(!isO && !isK) return;
   let title='',rating='',desc='',img='',platform='';
   if(isO){title=card.querySelector('.oname')?.textContent||'';rating=card.dataset.rating||'';desc=card.querySelector('.odesc')?.textContent||'';img=card.querySelector('img')?.src||'';platform=card.dataset.platform||'';}
   else if(isK){title=card.querySelector('.kname')?.textContent||'';rating=card.querySelector('.krating')?.textContent?.replace(/[^\d.]/g,'')||'';desc=card.querySelector('.kdesc')?.textContent||'';img=card.querySelector('img')?.src||'';platform=card.dataset.platform||'';}
-  else if(isW){title=card.querySelector('.wname')?.textContent||'';img=card.querySelector('img')?.src||'';platform=card.dataset.platform||'';}
   if(!title) return;
   const d={title,rating,desc,img,platform};
   positionPopup(card);
@@ -967,10 +956,9 @@ function hidePopup(){
   popup.classList.remove('visible');
   clearTimeout(popupTimer);
 }
-// Ukryj popup gdy mysz wychodzi poza obszar kart
 document.addEventListener('mousemove', e=>{
   if(!popup.classList.contains('visible')) return;
-  const onCard = e.target.closest('.ocard,.kcard,.wcard');
+  const onCard = e.target.closest('.ocard,.kcard');
   const onPopup = e.target.closest('#cardPopup');
   if(!onCard && !onPopup){
     clearTimeout(hideTimer);
@@ -1002,8 +990,9 @@ async function showActorPopup(e,name,character,photo,personId){
 function closeActorPopup(){actorPopup.classList.remove('visible');}
 document.addEventListener('click',e=>{if(!e.target.closest('#actorPopup')&&!e.target.closest('.popup-actor'))closeActorPopup();});
 
+// POPRAWKA 3: attachPopupEvents — tylko ocard i kcard, bez wcard
 function attachPopupEvents(){
-  document.querySelectorAll('.ocard,.kcard,.wcard').forEach(card=>{
+  document.querySelectorAll('.ocard,.kcard').forEach(card=>{
     if(card._popupAttached) return; card._popupAttached=true;
     card.addEventListener('mouseenter',()=>{clearTimeout(hideTimer);popupTimer=setTimeout(()=>showPopup(card),900);});
     card.addEventListener('mouseleave',()=>{clearTimeout(popupTimer);hideTimer=setTimeout(hidePopup,200);});
@@ -1021,12 +1010,15 @@ function addWatchingCard(s){
   card.dataset.platform='';
   card.dataset.id=String(s.id);
   const nazwa = s.nazwa||'';
+  const tmdbLink = s.imdb_url && s.imdb_url !== '#'
+    ? `<a href="${s.imdb_url}" target="_blank" style="color:var(--t);text-decoration:none">${nazwa}</a>`
+    : nazwa;
   card.innerHTML=`
     <div class="wimg">
       ${s.cover?`<img src="${s.cover}" alt="${nazwa}" onerror="this.parentElement.innerHTML='🎬'">`:'🎬'}
     </div>
     <div class="wbody">
-      <div class="wname">${nazwa}</div>
+      <div class="wname">${tmdbLink}</div>
       <div class="wep gray"><div class="wep-num" style="color:var(--h);font-weight:400">Kliknij ⟳ odśwież</div></div>
       ${s.imdb_rating?`<div class="wimdb">⭐ ${s.imdb_rating}</div>`:''}
     </div>
@@ -1036,7 +1028,7 @@ function addWatchingCard(s){
     <button class="wdel" onclick="delOgladam('${String(s.id)}')">×</button>`;
   const grid = document.getElementById('ogladamGrid');
   if(grid) grid.appendChild(card);
-  attachPopupEvents();
+  // Bez attachPopupEvents — wcard celowo nie dostaje popupu
   const cnt=document.getElementById('ogladamCount');
   if(cnt) cnt.textContent=document.querySelectorAll('#ogladamGrid .wcard').length;
 }
@@ -1078,8 +1070,7 @@ function showLoginPrompt(msg){
 document.addEventListener('DOMContentLoaded',()=>{
   attachPopupEvents();
   buildFilterPills();
-  applyFilter(); // Zastosuj filtry od razu (platforma, ocena)
-  // Wczytaj dane gościa z localStorage
+  applyFilter();
   if(IS_GUEST){
     const gd = guestLoad();
     gd.ogladam.forEach(s => addWatchingCard(s));
@@ -1087,7 +1078,6 @@ document.addEventListener('DOMContentLoaded',()=>{
     if(gd.ogladam.length > 0) document.getElementById('ogladamEmpty')?.remove();
     if(gd.kandydaci.length > 0) document.getElementById('kandydaciEmpty')?.remove();
   }
-  // Auto-load nowości jeśli brak
   const grid = document.querySelector('.ogrid');
   const empty = document.getElementById('nowosc-empty');
   if(empty && !grid){
@@ -1095,13 +1085,10 @@ document.addEventListener('DOMContentLoaded',()=>{
   }
 });
 
-// Auto-load nowości z domyślnych platform przy starcie
 async function autoLoadNowosci(){
   const emptyTxt = document.getElementById('nowosc-empty-txt');
-  // Jeśli użytkownik ma platformy — odśwież je, jeśli nie — użyj domyślnych
   const platformsToLoad = selPlat.length > 0 ? selPlat : ['netflix','player','disney'];
   try {
-    // Odśwież nowości w tle
     await fetch('/api/refresh/nowosci', {method:'POST'});
     if(emptyTxt) emptyTxt.textContent = 'Pobieram nowości... (~15 sek)';
     setTimeout(()=>{ location.reload(); }, 12000);
