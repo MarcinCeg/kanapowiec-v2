@@ -1,15 +1,12 @@
 {% extends "base.html" %}
 {% block title %}Ustawienia — Kanapowy Leniwiec{% endblock %}
-
 {% block content %}
 <main style="max-width:700px">
-
 <h1 style="font-size:20px;font-weight:700;color:var(--t);margin-bottom:20px">Ustawienia</h1>
 
 {# ── PROFIL ── #}
 <div style="background:var(--s);border:1px solid var(--b);border-radius:var(--r12);padding:20px;margin-bottom:14px">
   <div style="font-size:13px;font-weight:600;color:var(--t);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--b)">👤 Twój profil</div>
-
   <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px">
     <div style="width:52px;height:52px;border-radius:50%;background:{{ current_user.avatar_color }};display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff;flex-shrink:0">{{ current_user.initials }}</div>
     <div>
@@ -25,7 +22,6 @@
       {% endif %}
     </div>
   </div>
-
   <form method="POST" action="/auth/settings/username">
     <div style="margin-bottom:12px">
       <label style="font-size:12px;color:var(--m);display:block;margin-bottom:5px">Zmień login / nick (widoczny w rankingu)</label>
@@ -45,7 +41,6 @@
 <div style="background:var(--s);border:1px solid var(--b);border-radius:var(--r12);padding:20px;margin-bottom:14px">
   <div style="font-size:13px;font-weight:600;color:var(--t);margin-bottom:4px;padding-bottom:10px;border-bottom:1px solid var(--b)">🏅 Aktywny tytuł</div>
   <div style="font-size:12px;color:var(--m);margin-bottom:14px;padding-top:10px">Wybrany tytuł pojawia się przy Twoim nicku w rankingu</div>
-
   <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:8px">
     {% for t in all_titles %}
     <div onclick="{% if t.earned %}activateTitle('{{ t.id }}'){% endif %}"
@@ -68,56 +63,105 @@
   </div>
 </div>
 
-{# ── PLAN I LIMITY ── #}
+{# ── PLAN I PŁATNOŚCI ── #}
 <div style="background:var(--s);border:1px solid var(--b);border-radius:var(--r12);padding:20px;margin-bottom:14px" id="upgrade">
   <div style="font-size:13px;font-weight:600;color:var(--t);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--b)">💳 Twój plan</div>
 
-  {% if current_user.is_pro %}
-  <div style="background:#E1F5EE;border:1px solid #5DCAA5;border-radius:var(--r8);padding:14px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:10px">
-    <div>
-      <div style="font-size:13px;font-weight:600;color:#085041;margin-bottom:2px">✓ Plan Pro aktywny</div>
-      <div style="font-size:12px;color:#0F6E56">Nielimitowane listy · Statystyki · Tytuły · Eksport</div>
-    </div>
-    <form method="POST" action="/payments/portal">
-      <button type="submit" class="btn btn-sm">Zarządzaj subskrypcją</button>
-    </form>
+  {# Komunikaty po powrocie ze Stripe #}
+  <div id="upgrade-msg" style="display:none;background:#f0fdf4;border:1.5px solid #16a34a;border-radius:10px;padding:14px 16px;margin-bottom:16px;font-size:13px;color:#15803d">
+    🎉 <strong>Dziękujemy!</strong> Twoje konto zostało uaktywnione jako Pro. Odśwież stronę jeśli status nie zmienił się od razu.
   </div>
+  <div id="cancel-msg" style="display:none;background:#fff7ed;border:1.5px solid #f97316;border-radius:10px;padding:14px 16px;margin-bottom:16px;font-size:13px;color:#c2410c">
+    ℹ️ Płatność została anulowana. Możesz spróbować ponownie w dowolnym momencie.
+  </div>
+
+  {% if current_user.is_pro %}
+  {# ── JUŻ PRO ── #}
+  <div style="background:linear-gradient(135deg,#1a1a2e,#16213e);border-radius:12px;padding:20px 22px;margin-bottom:16px">
+    <div style="font-size:16px;font-weight:800;color:#fff;margin-bottom:4px">⭐ Masz plan Pro!</div>
+    <div style="font-size:12px;color:#a0a0c0;margin-bottom:16px">Wszystkie funkcje odblokowane. Dziękujemy za wsparcie!</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px">
+      {% for f in ['✓ Nieograniczone listy','✓ Zaawansowane wykresy','✓ Moduł społecznościowy','✓ System osiągnięć','✓ Eksport CSV/JSON','✓ AI bez limitu'] %}
+      <span style="font-size:10px;background:rgba(255,255,255,.1);color:#c0c0d8;padding:3px 8px;border-radius:20px">{{ f }}</span>
+      {% endfor %}
+    </div>
+    <button id="btn-portal" onclick="openPortal()"
+      style="padding:9px 18px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:transparent;color:#a0a0c0;font-size:12px;cursor:pointer;transition:all .15s"
+      onmouseover="this.style.background='rgba(255,255,255,.1)';this.style.color='#fff'"
+      onmouseout="this.style.background='transparent';this.style.color='#a0a0c0'">
+      ⚙️ Zarządzaj subskrypcją
+    </button>
+  </div>
+
   {% else %}
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
-    <div style="border:1px solid var(--b);border-radius:var(--r12);padding:16px">
-      <div style="font-size:13px;font-weight:600;margin-bottom:3px">Free (teraz)</div>
-      <div style="font-size:11px;color:var(--m);margin-bottom:12px">Twój aktualny plan</div>
-      {% set w_used = current_user.watching_count() %}
-      {% set o_used = current_user.watched_count() %}
-      {% set k_used = current_user.candidates_count() %}
-      {% for label, used, max in [
-        ('Oglądam', w_used, 10),
-        ('Obejrzane', o_used, 30),
-        ('Kandydaci', k_used, 10),
-      ] %}
-      {% set pct = ((used * 100) // max) %}
-      <div style="margin-bottom:8px">
-        <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px">
-          <span style="color:var(--m)">{{ label }}</span>
-          <span style="font-weight:600;color:{{ 'var(--red)' if used>=max else 'var(--t)' }}">{{ used }}/{{ max }}</span>
-        </div>
-        <div style="height:4px;background:var(--b);border-radius:2px;overflow:hidden">
-          <div style="width:{{ pct }}%;height:100%;background:{{ '#E24B4A' if used>=max else '#BA7517' if pct >= 80 else '#534AB7' }};border-radius:2px"></div>
-        </div>
+  {# ── FREE — pokazuj opcje upgrade ── #}
+
+  {# Aktualne limity #}
+  <div style="background:var(--bg);border-radius:10px;padding:14px 16px;margin-bottom:14px">
+    <div style="font-size:11px;font-weight:600;color:var(--m);margin-bottom:10px">Twoje aktualne limity (plan Free):</div>
+    {% set w_used = current_user.watching_count() %}
+    {% set o_used = current_user.watched_count() %}
+    {% set k_used = current_user.candidates_count() %}
+    {% for label, used, max in [('Oglądam', w_used, 10),('Obejrzane', o_used, 30),('Kandydaci', k_used, 10)] %}
+    {% set pct = ((used * 100) // max) %}
+    <div style="margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px">
+        <span style="color:var(--m)">{{ label }}</span>
+        <span style="font-weight:600;color:{{ 'var(--red)' if used>=max else 'var(--t)' }}">{{ used }}/{{ max }}</span>
       </div>
-      {% endfor %}
+      <div style="height:4px;background:var(--b2,#e5e7eb);border-radius:2px;overflow:hidden">
+        <div style="width:{{ pct }}%;height:100%;background:{{ '#E24B4A' if used>=max else '#BA7517' if pct >= 80 else '#534AB7' }};border-radius:2px;transition:width .3s"></div>
+      </div>
     </div>
-    <div style="border:2px solid #534AB7;border-radius:var(--r12);padding:16px;position:relative">
-      <div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#534AB7,#1D9E75);color:#fff;font-size:10px;font-weight:700;padding:2px 12px;border-radius:20px">NAJLEPSZY WYBÓR</div>
-      <div style="font-size:13px;font-weight:600;margin-bottom:3px;color:#3C3489">Pro</div>
-      <div style="font-size:22px;font-weight:700;color:#3C3489;margin-bottom:12px">5 zł <span style="font-size:12px;color:var(--m);font-weight:400">/ mies</span></div>
-      {% for f in ['Nielimitowane listy','Statystyki zaawansowane','Tytuły i odznaki','Eksport CSV/JSON'] %}
-      <div style="font-size:11px;color:#3C3489;margin-bottom:5px;display:flex;gap:5px"><span style="color:#1D9E75;font-weight:700">✓</span>{{ f }}</div>
-      {% endfor %}
-      <button onclick="checkout()" class="btn btn-primary" style="width:100%;height:36px;border-radius:var(--r8);font-size:12px;justify-content:center;margin-top:10px">Przejdź na Pro</button>
+    {% endfor %}
+  </div>
+
+  {# Karty planów #}
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+
+    {# Subskrypcja miesięczna #}
+    <div style="background:linear-gradient(135deg,#1a1a2e,#16213e);border-radius:12px;padding:18px;border:2px solid #534AB7;position:relative;overflow:hidden">
+      <div style="position:absolute;top:10px;right:10px;background:linear-gradient(135deg,#534AB7,#1D9E75);color:#fff;font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px">POLECANY</div>
+      <div style="font-size:11px;color:#a0a0c0;margin-bottom:4px">Subskrypcja</div>
+      <div style="font-size:24px;font-weight:900;color:#fff;line-height:1">5,99 zł</div>
+      <div style="font-size:10px;color:#a0a0c0;margin-bottom:14px">miesięcznie · anuluj kiedy chcesz</div>
+      <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:16px">
+        {% for f in ['Nieograniczone listy','Zaawansowane wykresy','Moduł społecznościowy','System osiągnięć','Eksport CSV/JSON','AI Sommelier bez limitu'] %}
+        <div style="font-size:10px;color:#c0c0d8;display:flex;gap:5px"><span style="color:#1D9E75">✓</span>{{ f }}</div>
+        {% endfor %}
+      </div>
+      <button id="btn-subscribe" onclick="startSubscription()"
+        style="width:100%;padding:10px;border-radius:8px;border:none;background:linear-gradient(135deg,#534AB7,#1D9E75);color:#fff;font-size:12px;font-weight:700;cursor:pointer;transition:opacity .15s"
+        onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+        ⭐ Subskrybuj — 5,99 zł/mies
+      </button>
     </div>
+
+    {# Jednorazowy zakup #}
+    <div style="background:var(--s);border-radius:12px;padding:18px;border:1.5px solid var(--b)">
+      <div style="font-size:11px;color:var(--m);margin-bottom:4px">Jednorazowo</div>
+      <div style="font-size:24px;font-weight:900;color:var(--t);line-height:1">9,99 zł</div>
+      <div style="font-size:10px;color:var(--m);margin-bottom:14px">płacisz raz · dostęp na zawsze</div>
+      <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:16px">
+        {% for f in ['Nieograniczone listy','Zaawansowane wykresy','Moduł społecznościowy','System osiągnięć','Eksport CSV/JSON','AI Sommelier bez limitu'] %}
+        <div style="font-size:10px;color:var(--m);display:flex;gap:5px"><span style="color:#16a34a">✓</span>{{ f }}</div>
+        {% endfor %}
+      </div>
+      <button id="btn-onetime" onclick="startOnetime()"
+        style="width:100%;padding:10px;border-radius:8px;border:1.5px solid var(--b);background:transparent;color:var(--t);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s"
+        onmouseover="this.style.background='var(--bg)';this.style.borderColor='#534AB7'"
+        onmouseout="this.style.background='transparent';this.style.borderColor='var(--b)'">
+        💳 Kup dostęp — 9,99 zł
+      </button>
+    </div>
+
+  </div>
+
+  <div style="text-align:center;font-size:10px;color:var(--h)">
+    🔒 Płatności obsługuje Stripe &nbsp;·&nbsp; Obsługujemy BLIK, karty i Przelewy24
   </div>
   {% endif %}
+
 </div>
 
 {# ── NIEBEZPIECZNA STREFA ── #}
@@ -142,10 +186,66 @@ async function activateTitle(id){
   location.reload();
 }
 
-async function checkout(){
-  const r = await fetch('/payments/checkout',{method:'POST'});
-  const d = await r.json();
-  if(d.url) window.location.href = d.url;
+// ── Stripe: subskrypcja miesięczna ──
+async function startSubscription(){
+  const btn = document.getElementById('btn-subscribe');
+  btn.disabled = true;
+  btn.textContent = '⏳ Przekierowuję...';
+  try {
+    const r = await fetch('/api/payments/subscribe', {method:'POST'});
+    const d = await r.json();
+    if(d.ok){
+      window.location.href = d.url;
+    } else {
+      alert('Błąd: ' + (d.error || 'Spróbuj ponownie'));
+      btn.disabled = false;
+      btn.textContent = '⭐ Subskrybuj — 5,99 zł/mies';
+    }
+  } catch(e) {
+    alert('Błąd połączenia. Spróbuj ponownie.');
+    btn.disabled = false;
+    btn.textContent = '⭐ Subskrybuj — 5,99 zł/mies';
+  }
+}
+
+// ── Stripe: jednorazowy zakup ──
+async function startOnetime(){
+  const btn = document.getElementById('btn-onetime');
+  btn.disabled = true;
+  btn.textContent = '⏳ Przekierowuję...';
+  try {
+    const r = await fetch('/api/payments/onetime', {method:'POST'});
+    const d = await r.json();
+    if(d.ok){
+      window.location.href = d.url;
+    } else {
+      alert('Błąd: ' + (d.error || 'Spróbuj ponownie'));
+      btn.disabled = false;
+      btn.textContent = '💳 Kup dostęp — 9,99 zł';
+    }
+  } catch(e) {
+    alert('Błąd połączenia. Spróbuj ponownie.');
+    btn.disabled = false;
+    btn.textContent = '💳 Kup dostęp — 9,99 zł';
+  }
+}
+
+// ── Stripe: portal zarządzania subskrypcją ──
+async function openPortal(){
+  const btn = document.getElementById('btn-portal');
+  if(btn){ btn.disabled = true; btn.textContent = '⏳ Ładuję...'; }
+  try {
+    const r = await fetch('/api/payments/portal', {method:'POST'});
+    const d = await r.json();
+    if(d.ok){
+      window.location.href = d.url;
+    } else {
+      alert('Błąd: ' + (d.error || 'Spróbuj ponownie'));
+    }
+  } catch(e) {
+    alert('Błąd połączenia.');
+  }
+  if(btn){ btn.disabled = false; btn.textContent = '⚙️ Zarządzaj subskrypcją'; }
 }
 
 function confirmDelete(){
@@ -153,5 +253,26 @@ function confirmDelete(){
     fetch('/auth/account',{method:'DELETE'}).then(()=>window.location.href='/');
   }
 }
+
+// ── Komunikaty po powrocie ze Stripe ──
+document.addEventListener('DOMContentLoaded', () => {
+  const params = new URLSearchParams(window.location.search);
+  if(params.get('upgraded') === '1'){
+    const msg = document.getElementById('upgrade-msg');
+    if(msg) msg.style.display = 'block';
+    window.history.replaceState({}, '', '/settings');
+    // Scroll do sekcji upgrade
+    document.getElementById('upgrade')?.scrollIntoView({behavior:'smooth'});
+  }
+  if(params.get('cancelled') === '1'){
+    const msg = document.getElementById('cancel-msg');
+    if(msg) msg.style.display = 'block';
+    window.history.replaceState({}, '', '/settings');
+  }
+  // Auto-scroll do #upgrade jeśli w URL
+  if(window.location.hash === '#upgrade'){
+    setTimeout(()=>document.getElementById('upgrade')?.scrollIntoView({behavior:'smooth'}), 200);
+  }
+});
 </script>
 {% endblock %}
