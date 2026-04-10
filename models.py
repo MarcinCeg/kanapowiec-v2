@@ -10,7 +10,7 @@ PLATFORMS = ["netflix","hbo","disney","prime","appletv","skyshowtime",
              "canalplus","player","polsat","tvpvod"]
 PNAMES = {"netflix":"Netflix","hbo":"HBO Max","disney":"Disney+",
           "prime":"Amazon Prime","appletv":"Apple TV+","skyshowtime":"SkyShowtime",
-          "canalplus":"Canal+","player":"Player","polsat":"Polsat Box Go","tvpvod":"TVP VOD"}
+          "canalplus":"Canal+","player":"player.pl","polsat":"Polsat Box Go","tvpvod":"TVP VOD"}
 PCOLORS = {"netflix":"#E50914","hbo":"#8B5CF6","disney":"#113CCF","prime":"#00A8E1",
            "appletv":"#555","skyshowtime":"#0070C9","canalplus":"#003366",
            "player":"#E4002B","polsat":"#E31E24","tvpvod":"#003F87"}
@@ -67,11 +67,9 @@ class User(UserMixin, db.Model):
     stripe_subscription_id = db.Column(db.String(255), nullable=True)
     created_at    = db.Column(db.DateTime, default=datetime.utcnow)
     last_seen     = db.Column(db.DateTime, default=datetime.utcnow)
-    # Reset hasła
     reset_token         = db.Column(db.String(100), nullable=True)
     reset_token_expires = db.Column(db.DateTime, nullable=True)
 
-    # Relacje
     watching    = db.relationship("Watching",     back_populates="user", cascade="all, delete-orphan")
     watched     = db.relationship("Watched",      back_populates="user", cascade="all, delete-orphan")
     candidates  = db.relationship("Candidate",    back_populates="user", cascade="all, delete-orphan")
