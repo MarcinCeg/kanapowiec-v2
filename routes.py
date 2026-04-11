@@ -408,7 +408,7 @@ def stats():
         except Exception:
             global_ranking = []
 
-    earned_count = sum(1 for t in all_titles if t.earned) if all_titles else 0
+    earned_count = sum(1 for t in all_titles if (t.get('earned') if isinstance(t, dict) else getattr(t,'earned',False))) if all_titles else 0
 
     return render_template("stats.html",
         stats=user_stats, all_serials=all_serials, top_by_time=top,
