@@ -804,23 +804,7 @@ function dismissGuestScreen(){
   const hint = document.getElementById('guestTrackerHint');
   if(hint) hint.style.display='block';
 }
-function initGuestScreen(){
-  if(!IS_GUEST) return;
-  const dismissed = sessionStorage.getItem('guestDismissed');
-  if(dismissed){
-    document.getElementById('guestScreen')?.remove();
-    const hint = document.getElementById('guestTrackerHint');
-    if(hint) hint.style.display='block';
-    return;
-  }
-  // Ukryj sekcję Oglądam/Kandydaci/Odkryj gdy guest screen aktywny
-  document.getElementById('sec-ogladam')?.style.setProperty('display','none');
-  document.getElementById('sec-kandydaci')?.style.setProperty('display','none');
-  document.getElementById('sec-obejrzane')?.style.setProperty('display','none');
-  document.querySelectorAll('.section-box').forEach(b=>{
-    if(!b.closest('#guestScreen') && !b.id) b.style.display='none';
-  });
-}
+// initGuestScreen removed - tracker visible for all
 
 // Generuj heatmapę gościa
 function buildGuestHeatmap(){
@@ -1336,14 +1320,13 @@ async function markOdcinek(id, btn){
   const d = await r.json();
   if(d.ok){
     btn.remove();
+    // Zapamiętaj w localStorage że ten odcinek był obejrzany
+    const doneKey = 'ep_done_'+id;
+    localStorage.setItem(doneKey, Date.now().toString());
     // Przesuń kartę na done
     const card = document.querySelector('#ogladamGrid .wcard[data-id="'+id+'"]');
     if(card){
-      card.dataset.priority='done';
-      card.classList.add('priority-done');
-      card.classList.remove('priority-hot','priority-new');
-      const badge = card.querySelector('.wbadge-hot,.wbadge-new');
-      if(badge){badge.className='wbadge-done';badge.textContent='✓ obejrzany';}
+      markCardDone(card);
       sortWatchingCards();
     }
     // Gamifikacja
@@ -1352,6 +1335,34 @@ async function markOdcinek(id, btn){
   } else {
     btn.disabled = false;
   }
+}
+
+function markCardDone(card){
+  card.dataset.priority='done';
+  card.classList.add('priority-done');
+  card.classList.remove('priority-hot','priority-new');
+  const badge = card.querySelector('.wbadge-hot,.wbadge-new');
+  if(badge){badge.className='wbadge-done';badge.textContent='✓ obejrzany';}
+  // Usuń przycisk odcinek jeśli jeszcze jest
+  const epBtn = card.querySelector('.wbtn-ep');
+  if(epBtn) epBtn.remove();
+}
+
+// Przywróć stan 'done' po reloadzie ze localStorage
+function restoreDoneStates(){
+  document.querySelectorAll('#ogladamGrid .wcard').forEach(card=>{
+    const id = card.dataset.id;
+    if(!id) return;
+    const doneTs = localStorage.getItem('ep_done_'+id);
+    if(!doneTs) return;
+    // Tylko jeśli obejrzano w ciągu ostatnich 24h
+    if(Date.now() - parseInt(doneTs) < 24*60*60*1000){
+      markCardDone(card);
+    } else {
+      // Starsze niż 24h - wyczyść
+      localStorage.removeItem('ep_done_'+id);
+    }
+  });
 }
 
 // Wywołaj gamifikację po odcinku
@@ -1832,8 +1843,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   buildFilterPills();
   applyFilter();
   sortWatchingCards();
-  buildGuestHeatmap();
-  initGuestScreen();
+  restoreDoneStates();
   if(IS_GUEST){
     const gd = guestLoad();
     gd.ogladam.forEach(s => addWatchingCard(s));
