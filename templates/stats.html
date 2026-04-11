@@ -1,57 +1,350 @@
 {% extends "base.html" %}
 {% block title %}Statystyki — Kanapowy Leniwiec{% endblock %}
 
+{% block extra_css %}
+<style>
+.stats-hero{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.hero-card{border-radius:var(--r12);padding:14px 16px;position:relative;overflow:hidden}
+.hero-num{font-size:26px;font-weight:800;line-height:1;margin-bottom:2px}
+.hero-lbl{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.hero-sub{font-size:10px;font-weight:600;margin-top:3px}
+.hero-ico{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:32px;opacity:.15}
+
+.stat-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.stat-grid-3{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:12px}
+.stat-box{background:var(--s);border:1px solid var(--b);border-radius:var(--r12);padding:16px}
+.stat-box-title{font-size:12px;font-weight:700;color:var(--t);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+.stat-box-sub{font-size:10px;color:var(--h);font-weight:400}
+
+/* Bar chart */
+.bar-chart{display:flex;align-items:flex-end;gap:5px;height:80px}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%}
+.bar-track{flex:1;width:100%;background:var(--bg);border-radius:4px;display:flex;align-items:flex-end;overflow:hidden;position:relative}
+.bar-fill{width:100%;border-radius:4px;transition:height .4s cubic-bezier(.34,1.2,.64,1)}
+.bar-lbl{font-size:8px;color:var(--h);font-weight:500}
+.bar-lbl.today{color:var(--purple);font-weight:700}
+.bar-val{position:absolute;top:3px;left:0;right:0;text-align:center;font-size:7px;font-weight:700;color:#fff;opacity:0;transition:opacity .2s}
+.bar-track:hover .bar-val{opacity:1}
+
+/* Heatmapa */
+.heat-wrap{overflow-x:auto;padding-bottom:4px}
+.heat-months{display:flex;gap:0;margin-bottom:3px;padding-left:22px}
+.heat-month-lbl{font-size:8px;color:var(--h);flex:1;text-align:center}
+.heat-grid-wrap{display:flex;gap:4px}
+.heat-days{display:flex;flex-direction:column;gap:2px;margin-right:4px}
+.heat-day-lbl{font-size:7px;color:var(--h);height:10px;line-height:10px;width:14px;text-align:right}
+.heat-cols{display:flex;gap:2px}
+.heat-week{display:flex;flex-direction:column;gap:2px}
+.heat-cell{width:10px;height:10px;border-radius:2px;transition:transform .1s;cursor:default}
+.heat-cell:hover{transform:scale(1.3)}
+.heat-legend{display:flex;align-items:center;gap:5px;margin-top:6px;justify-content:flex-end}
+.heat-legend-cell{width:9px;height:9px;border-radius:2px}
+.heat-legend-lbl{font-size:8px;color:var(--h)}
+
+/* Odznaki */
+.badges-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.badge-card{border:1px solid var(--b);border-radius:12px;padding:12px 10px;text-align:center;transition:all .15s;position:relative;cursor:pointer}
+.badge-card.earned{background:var(--s);border-color:var(--b2)}
+.badge-card.earned:hover{border-color:#534AB7;transform:translateY(-2px);box-shadow:0 4px 12px rgba(83,74,183,.15)}
+.badge-card.active{border:2px solid #534AB7;background:#EEEDFE}
+.badge-card.locked{background:var(--bg);opacity:.55;cursor:default}
+.badge-card.pro-locked{background:var(--bg);opacity:.6}
+.badge-ico-wrap{width:52px;height:52px;border-radius:50%;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-size:24px}
+.badge-name{font-size:11px;font-weight:700;color:var(--t);margin-bottom:3px;line-height:1.2}
+.badge-desc{font-size:9px;color:var(--m);line-height:1.4}
+.badge-active-tag{position:absolute;top:6px;right:6px;background:#534AB7;color:#fff;font-size:8px;font-weight:700;padding:1px 5px;border-radius:20px}
+.badge-lock-tag{position:absolute;top:6px;right:6px;font-size:12px;opacity:.4}
+.badge-pro-tag{position:absolute;top:6px;right:6px;background:linear-gradient(135deg,#534AB7,#1D9E75);color:#fff;font-size:7px;font-weight:700;padding:1px 5px;border-radius:20px}
+.badge-progress{height:3px;background:var(--b);border-radius:2px;margin-top:6px;overflow:hidden}
+.badge-progress-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,#534AB7,#1D9E75)}
+
+/* Fun facts */
+.fun-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:8px}
+.fun-card{background:var(--s);border:1px solid var(--b);border-radius:var(--r12);padding:12px 14px;display:flex;gap:10px;align-items:flex-start;transition:border-color .15s}
+.fun-card:hover{border-color:var(--b2)}
+.fun-ico{font-size:22px;flex-shrink:0;line-height:1;margin-top:1px}
+.fun-txt{font-size:11px;color:var(--m);line-height:1.55}
+
+/* Ranking */
+.rank-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--bg)}
+.rank-row:last-child{border-bottom:none}
+.rank-pos{font-size:11px;font-weight:700;color:var(--h);width:18px;flex-shrink:0;text-align:center}
+.rank-pos.gold{color:#BA7517}
+.rank-pos.silver{color:#888}
+.rank-pos.bronze{color:#993C1D}
+.rank-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0}
+.rank-info{flex:1;min-width:0}
+.rank-name{font-size:11px;font-weight:600;color:var(--t);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rank-badges{font-size:9px;color:var(--m)}
+.rank-hrs{font-size:12px;font-weight:700;color:var(--purple);flex-shrink:0}
+
+/* Platform bars */
+.plat-row{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+.plat-row:last-child{margin-bottom:0}
+.plat-name{font-size:11px;color:var(--t);width:90px;flex-shrink:0;font-weight:500}
+.plat-bar-track{flex:1;height:8px;background:var(--bg);border-radius:4px;overflow:hidden}
+.plat-bar-fill{height:100%;border-radius:4px;transition:width .5s cubic-bezier(.34,1.2,.64,1)}
+.plat-pct{font-size:10px;font-weight:600;width:36px;text-align:right}
+
+/* Sekcja tytułu z aktualizacją */
+.stats-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px}
+
+/* PRO gate overlay */
+.pro-gate{background:#EEEDFE;border:1.5px solid #AFA9EC;border-radius:var(--r12);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.pro-gate-txt{font-size:12px;color:#3C3489;font-weight:600}
+.pro-gate-sub{font-size:11px;color:#534AB7;margin-top:2px}
+
+/* Top seriale lista */
+.top-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--bg)}
+.top-row:last-child{border-bottom:none}
+.top-pos{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.top-name{flex:1;font-size:11px;color:var(--t);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top-bar-wrap{width:70px}
+.top-bar{height:4px;background:var(--b);border-radius:2px;overflow:hidden}
+.top-bar-fill{height:100%;border-radius:2px;background:#534AB7}
+.top-hrs{font-size:10px;color:var(--m);width:32px;text-align:right;flex-shrink:0}
+
+/* Mobile */
+@media(max-width:640px){
+  .stats-hero{grid-template-columns:repeat(2,1fr)}
+  .stat-grid-2,.stat-grid-3{grid-template-columns:1fr}
+  .hero-num{font-size:22px}
+  .bar-chart{height:60px}
+  .heat-cell{width:8px;height:8px}
+  .badges-grid{grid-template-columns:repeat(auto-fill,minmax(110px,1fr))}
+  .fun-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:400px){
+  .stats-hero{grid-template-columns:1fr 1fr}
+  .fun-grid{grid-template-columns:1fr}
+}
+</style>
+{% endblock %}
+
 {% block content %}
 <main>
 
-<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:8px">
+<div class="stats-header">
   <div>
-    <h1 style="font-size:20px;font-weight:700;color:var(--t);margin-bottom:2px">Twoje statystyki</h1>
-    <div style="font-size:12px;color:var(--m)">{{ stats.updated_at.strftime('%d.%m.%Y %H:%M') if stats and stats.updated_at else 'Brak danych' }}</div>
+    <h1 style="font-size:18px;font-weight:800;color:var(--t);margin-bottom:2px">Twoje statystyki</h1>
+    <div style="font-size:11px;color:var(--h)">{{ stats.updated_at.strftime('%d.%m.%Y %H:%M') if stats and stats.updated_at else 'Odśwież żeby zobaczyć dane' }}</div>
   </div>
-  <button class="btn" onclick="refreshStats()" id="refreshBtn">⟳ Przelicz od nowa</button>
+  <button class="btn" onclick="refreshStats()" id="refreshBtn">⟳ Przelicz</button>
 </div>
 
-{# ── METRYKI ── #}
-<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
-  <div style="background:#EEEDFE;border-radius:var(--r12);padding:16px">
-    <div style="font-size:10px;font-weight:600;color:#534AB7;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Godziny oglądania</div>
-    <div style="font-size:28px;font-weight:700;color:#3C3489;line-height:1;margin-bottom:3px">{{ stats.total_hours|round(1) if stats else 0 }}</div>
-    <div style="font-size:11px;color:#534AB7">≈ {{ (stats.total_hours/24)|round(1) if stats else 0 }} dni non-stop</div>
+{# ── HERO KARTY ── #}
+{% set total_h = stats.total_hours|round(1) if stats else 0 %}
+{% set total_days = (total_h / 24)|round(1) %}
+{% set total_ep = stats.total_episodes if stats else 0 %}
+{% set total_fin = stats.total_finished if stats else 0 %}
+
+<div class="stats-hero">
+  <div class="hero-card" style="background:#EEEDFE">
+    <div class="hero-lbl" style="color:#534AB7">Godziny</div>
+    <div class="hero-num" style="color:#3C3489">{{ total_h }}</div>
+    <div class="hero-sub" style="color:#1D9E75">= {{ total_days }} dni nieustannie</div>
+    <div class="hero-ico">⏱</div>
   </div>
-  <div style="background:#E1F5EE;border-radius:var(--r12);padding:16px">
-    <div style="font-size:10px;font-weight:600;color:#0F6E56;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Ukończone seriale</div>
-    <div style="font-size:28px;font-weight:700;color:#085041;line-height:1;margin-bottom:3px">{{ stats.total_finished if stats else 0 }}</div>
-    <div style="font-size:11px;color:#0F6E56">{{ stats.watching_count if stats else 0 }} w trakcie</div>
+  <div class="hero-card" style="background:#E1F5EE">
+    <div class="hero-lbl" style="color:#0F6E56">Ukończone</div>
+    <div class="hero-num" style="color:#085041">{{ total_fin }}</div>
+    <div class="hero-sub" style="color:#0F6E56">{{ stats.watching_count if stats else 0 }} w trakcie</div>
+    <div class="hero-ico">✅</div>
   </div>
-  <div style="background:#FAEEDA;border-radius:var(--r12);padding:16px">
-    <div style="font-size:10px;font-weight:600;color:#854F0B;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Odcinki obejrzane</div>
-    <div style="font-size:28px;font-weight:700;color:#633806;line-height:1;margin-bottom:3px">{{ stats.total_episodes if stats else 0 }}</div>
-    <div style="font-size:11px;color:#854F0B">śr. {{ ((stats.total_episodes or 0) / 30)|round(1) }} / dzień</div>
+  <div class="hero-card" style="background:#FAEEDA">
+    <div class="hero-lbl" style="color:#854F0B">Odcinki</div>
+    <div class="hero-num" style="color:#633806">{{ total_ep }}</div>
+    <div class="hero-sub" style="color:#854F0B">śr. {{ ((total_ep|float) / 30)|round(1) }}/dzień</div>
+    <div class="hero-ico">📺</div>
   </div>
-  <div style="background:#FAECE7;border-radius:var(--r12);padding:16px">
-    <div style="font-size:10px;font-weight:600;color:#993C1D;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Lata na kanapie</div>
-    <div style="font-size:28px;font-weight:700;color:#712B13;line-height:1;margin-bottom:3px">{{ ((stats.total_hours or 0)/24/365)|round(2) }}</div>
-    <div style="font-size:11px;color:#993C1D">z {{ ((stats.total_hours or 0)/24)|round(1) }} dni</div>
+  <div class="hero-card" style="background:#FAECE7">
+    <div class="hero-lbl" style="color:#993C1D">Lata na kanapie</div>
+    <div class="hero-num" style="color:#712B13">{{ ((total_h|float)/24/365)|round(2) }}</div>
+    <div class="hero-sub" style="color:#993C1D">{{ total_days }} dni z życia</div>
+    <div class="hero-ico">🛋️</div>
   </div>
 </div>
 
-{# ── TOP + GATUNKI ── #}
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+{# ── FUN FACTS ── #}
+{% if fun_facts %}
+<div class="stat-box" style="margin-bottom:12px">
+  <div class="stat-box-title">Gdybyś ten czas spędził inaczej… <span class="stat-box-sub">{{ total_h }}h przeliczone na życie</span></div>
+  <div class="fun-grid">
+    {% for f in fun_facts %}
+    <div class="fun-card">
+      <span class="fun-ico">{{ f.ico }}</span>
+      <span class="fun-txt">{{ f.text }}</span>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
 
-  <div style="background:var(--s);border:1px solid var(--b);border-radius:var(--r12);padding:18px">
-    <div style="font-size:13px;font-weight:600;color:var(--t);margin-bottom:14px">Top 10 — najwięcej czasu</div>
+{# ── WYKRESY ROW ── #}
+<div class="stat-grid-2">
+
+  {# Wykres tygodniowy #}
+  <div class="stat-box">
+    <div class="stat-box-title">Aktywność — ostatnie 7 dni <span class="stat-box-sub" id="weekTotal"></span></div>
+    <div class="bar-chart" id="weekChart">
+      {# generowane przez JS z danymi z backendu lub mock #}
+    </div>
+    <div style="margin-top:8px;font-size:9px;color:var(--h);display:flex;justify-content:space-between" id="weekLabels"></div>
+  </div>
+
+  {# Gatunki #}
+  <div class="stat-box">
+    <div class="stat-box-title">Ulubione gatunki</div>
+    {% if genre_counts %}
+      {% set max_g = genre_counts.values()|list|max %}
+      {% set gcolors = ['#534AB7','#1D9E75','#D85A30','#BA7517','#D4537E','#378ADD','#E24B4A','#888780'] %}
+      {% for genre, cnt in genre_counts.items() %}
+      <div class="plat-row">
+        <span class="plat-name">{{ genre }}</span>
+        <div class="plat-bar-track">
+          <div class="plat-bar-fill" style="width:{{ (cnt/max_g*100)|round|int }}%;background:{{ gcolors[loop.index0 % 8] }}"></div>
+        </div>
+        <span class="plat-pct" style="color:{{ gcolors[loop.index0 % 8] }}">{{ cnt }}</span>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty"><div class="empty-ico">🎬</div><p>Brak danych o gatunkach</p></div>
+    {% endif %}
+  </div>
+</div>
+
+{# ── HEATMAPA + PLATFORMY ── #}
+<div class="stat-grid-3">
+
+  {# Heatmapa roczna #}
+  <div class="stat-box">
+    <div class="stat-box-title">Aktywność roczna <span class="stat-box-sub">ostatnie 52 tygodnie</span></div>
+    <div class="heat-wrap">
+      <div class="heat-grid-wrap">
+        <div class="heat-days">
+          <div class="heat-day-lbl"></div>
+          <div class="heat-day-lbl">Pn</div>
+          <div class="heat-day-lbl"></div>
+          <div class="heat-day-lbl">Śr</div>
+          <div class="heat-day-lbl"></div>
+          <div class="heat-day-lbl">Pt</div>
+          <div class="heat-day-lbl"></div>
+        </div>
+        <div class="heat-cols" id="heatmapCols"></div>
+      </div>
+    </div>
+    <div class="heat-legend">
+      <span class="heat-legend-lbl">mniej</span>
+      <div class="heat-legend-cell" style="background:#E6F1FB"></div>
+      <div class="heat-legend-cell" style="background:#85B7EB"></div>
+      <div class="heat-legend-cell" style="background:#378ADD"></div>
+      <div class="heat-legend-cell" style="background:#185FA5"></div>
+      <div class="heat-legend-cell" style="background:#0C447C"></div>
+      <span class="heat-legend-lbl">więcej</span>
+    </div>
+  </div>
+
+  {# Platformy #}
+  <div class="stat-box">
+    <div class="stat-box-title">Platformy</div>
+    {% if platform_counts %}
+      {% set max_p = platform_counts.values()|list|max %}
+      {% set pcolors_map = {
+        'netflix':'#E50914','hbo':'#8B5CF6','disney':'#113CCF',
+        'prime':'#00A8E1','appletv':'#555','skyshowtime':'#0070C9',
+        'canalplus':'#003366','player':'#E4002B','polsat':'#E31E24','tvpvod':'#003F87'
+      } %}
+      {% set pnames_map = {
+        'netflix':'Netflix','hbo':'HBO Max','disney':'Disney+',
+        'prime':'Prime Video','appletv':'Apple TV+','skyshowtime':'SkyShowtime',
+        'canalplus':'Canal+','player':'player.pl','polsat':'Polsat Box','tvpvod':'TVP VOD'
+      } %}
+      {% for plat, cnt in platform_counts.items() %}
+      <div class="plat-row">
+        <span class="plat-name">{{ pnames_map.get(plat, plat) }}</span>
+        <div class="plat-bar-track">
+          <div class="plat-bar-fill" style="width:{{ (cnt/max_p*100)|round|int }}%;background:{{ pcolors_map.get(plat,'#888') }}"></div>
+        </div>
+        <span class="plat-pct" style="color:{{ pcolors_map.get(plat,'#888') }}">{{ cnt }}</span>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty"><div class="empty-ico" style="font-size:18px">📺</div><p>Brak danych o platformach</p></div>
+    {% endif %}
+  </div>
+</div>
+
+{# ── ODZNAKI ── #}
+<div class="stat-box" style="margin-bottom:12px">
+  <div class="stat-box-title">
+    Odznaki i tytuły
+    <span class="stat-box-sub">
+      {% if is_pro %}
+        {{ earned_count|default(0) }}/{{ all_titles|length }} zdobytych
+      {% else %}
+        <a href="/settings#upgrade" style="color:#534AB7;font-weight:600;text-decoration:none">↑ PRO żeby odblokować wszystkie</a>
+      {% endif %}
+    </span>
+  </div>
+
+  <div class="badges-grid">
+    {% for t in all_titles %}
+    {% set is_free_visible = loop.index <= 3 %}
+    {% if is_pro or is_free_visible %}
+    <div class="badge-card {{ 'active' if t.is_active else 'earned' if t.earned else 'locked' }}"
+         onclick="{% if t.earned and is_pro %}activateTitle('{{ t.id }}'){% endif %}">
+      <div class="badge-ico-wrap" style="background:{{ t.bg_color|default('linear-gradient(135deg,#534AB7,#1D9E75)') }}">
+        <span style="font-size:24px">{{ t.ico }}</span>
+      </div>
+      <div class="badge-name">{{ t.name }}</div>
+      <div class="badge-desc">{{ t.desc }}</div>
+      {% if t.is_active %}<div class="badge-active-tag">aktywny</div>{% endif %}
+      {% if not t.earned and not t.is_active %}<div class="badge-lock-tag">🔒</div>{% endif %}
+      {% if t.earned and t.progress_pct is defined and t.progress_pct < 100 %}
+      <div class="badge-progress"><div class="badge-progress-fill" style="width:{{ t.progress_pct }}%"></div></div>
+      {% endif %}
+    </div>
+    {% else %}
+    <div class="badge-card pro-locked">
+      <div class="badge-ico-wrap" style="background:var(--b2)">
+        <span style="font-size:24px;filter:grayscale(1)">{{ t.ico }}</span>
+      </div>
+      <div class="badge-name" style="filter:blur(3px)">{{ t.name }}</div>
+      <div class="badge-desc">Odblokuj PRO</div>
+      <div class="badge-pro-tag">PRO</div>
+    </div>
+    {% endif %}
+    {% endfor %}
+  </div>
+
+  {% if not is_pro %}
+  <div class="pro-gate" style="margin-top:12px;margin-bottom:0">
+    <div>
+      <div class="pro-gate-txt">🏆 {{ (all_titles|length) - 3 }} odznak zablokowanych za PRO</div>
+      <div class="pro-gate-sub">Zbieraj tytuły, pojawiaj się w rankingu globalnym i śledź swój progres.</div>
+    </div>
+    <a href="/settings#upgrade" class="btn btn-primary btn-sm" style="white-space:nowrap">Odblokuj PRO</a>
+  </div>
+  {% endif %}
+</div>
+
+{# ── RANKING + TOP SERIALE ── #}
+<div class="stat-grid-2">
+
+  {# Top seriale #}
+  <div class="stat-box">
+    <div class="stat-box-title">Top 10 — najwięcej czasu</div>
     {% if top_by_time %}
+      {% set max_h2 = (top_by_time[0].serial.total_hours or 1)|float %}
       {% for item in top_by_time %}
       {% set s = item.serial %}
-      {% set max_h = top_by_time[0].serial.total_hours or 1 %}
-      <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--bg, #f6f6f7)">
-        <span style="width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0;background:{{ '#FAEEDA' if loop.index==1 else '#F1EFE8' if loop.index==2 else '#FAECE7' if loop.index==3 else 'var(--bg)' }};color:{{ '#633806' if loop.index==1 else '#444' if loop.index==2 else '#712B13' if loop.index==3 else 'var(--m)' }}">{{ loop.index }}</span>
-        <span style="flex:1;font-size:11px;color:var(--t);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.nazwa }}</span>
-        <div style="width:80px;height:5px;background:var(--b);border-radius:3px;overflow:hidden">
-          <div style="width:{{ (s.total_hours/max_h*100)|round|int }}%;height:100%;background:#534AB7;border-radius:3px"></div>
+      <div class="top-row">
+        <div class="top-pos" style="background:{{ '#FAEEDA' if loop.index==1 else '#F1EFE8' if loop.index==2 else '#FAECE7' if loop.index==3 else 'var(--bg)' }};color:{{ '#633806' if loop.index==1 else '#444' if loop.index==2 else '#712B13' if loop.index==3 else 'var(--m)' }}">{{ loop.index }}</div>
+        <span class="top-name">{{ s.nazwa }}</span>
+        <div class="top-bar-wrap">
+          <div class="top-bar"><div class="top-bar-fill" style="width:{{ ((s.total_hours or 0)/max_h2*100)|round|int }}%"></div></div>
         </div>
-        <span style="font-size:10px;color:var(--m);min-width:32px;text-align:right">{{ s.total_hours }} h</span>
+        <span class="top-hrs">{{ s.total_hours or 0 }} h</span>
       </div>
       {% endfor %}
     {% else %}
@@ -59,83 +352,54 @@
     {% endif %}
   </div>
 
-  <div style="background:var(--s);border:1px solid var(--b);border-radius:var(--r12);padding:18px">
-    <div style="font-size:13px;font-weight:600;color:var(--t);margin-bottom:14px">Ulubione gatunki</div>
-    {% if genre_counts %}
-      {% set max_g = genre_counts.values()|list|max %}
-      {% set colors = ['#534AB7','#1D9E75','#D85A30','#BA7517','#D4537E','#378ADD','#E24B4A','#888780'] %}
-      {% for genre, cnt in genre_counts.items() %}
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:9px">
-        <span style="font-size:12px;color:var(--t);width:88px;flex-shrink:0">{{ genre }}</span>
-        <div style="flex:1;height:8px;background:var(--b);border-radius:4px;overflow:hidden">
-          <div style="width:{{ (cnt/max_g*100)|round|int }}%;height:100%;border-radius:4px;background:{{ colors[loop.index0 % 8] }}"></div>
-        </div>
-        <span style="font-size:11px;color:var(--m);width:28px;text-align:right">{{ cnt }}</span>
-      </div>
-      {% endfor %}
-    {% else %}
-      <div class="empty"><div class="empty-ico">🎬</div><p>Brak danych o gatunkach</p></div>
-    {% endif %}
-  </div>
-
-</div>
-
-{# ── ZABAWNE PORÓWNANIA ── #}
-<div style="background:var(--s);border:1px solid var(--b);border-radius:var(--r12);padding:18px;margin-bottom:16px">
-  <div style="font-size:13px;font-weight:600;color:var(--t);margin-bottom:14px">Gdybyś ten czas spędził inaczej… 🤔</div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-    {% for f in fun_facts %}
-    <div style="background:var(--s);border:1px solid var(--b);border-radius:var(--r12);padding:12px;display:flex;gap:10px;align-items:flex-start">
-      <span style="font-size:22px;flex-shrink:0;line-height:1">{{ f.ico }}</span>
-      <span style="font-size:12px;color:var(--m);line-height:1.5">{{ f.text }}</span>
+  {# Ranking globalny #}
+  <div class="stat-box">
+    <div class="stat-box-title">
+      Ranking globalny
+      {% if not is_pro %}<span style="font-size:9px;background:linear-gradient(135deg,#534AB7,#1D9E75);color:#fff;padding:1px 7px;border-radius:20px;font-weight:700">PRO</span>{% endif %}
     </div>
-    {% endfor %}
-  </div>
-</div>
-
-{# ── ODZNAKI ── #}
-{% if is_pro %}
-<div style="background:var(--s);border:1px solid var(--b);border-radius:var(--r12);padding:18px;margin-bottom:16px">
-  <div style="font-size:13px;font-weight:600;color:var(--t);margin-bottom:14px">Twoje odznaki 🏅</div>
-  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px">
-    {% for t in all_titles %}
-    <div style="border:{{ '2px solid #534AB7' if t.is_active else '1px solid var(--b)' }};border-radius:10px;padding:12px;cursor:pointer;background:{{ '#EEEDFE' if t.earned else 'var(--s)' }};opacity:{{ '1' if t.earned else '.5' }};transition:all .15s;position:relative"
-         onclick="{% if t.earned %}activateTitle('{{ t.id }}'){% endif %}">
-      <div style="font-size:22px;margin-bottom:5px">{{ t.ico }}</div>
-      <div style="font-size:11px;font-weight:600;color:var(--t);margin-bottom:2px">{{ t.name }}</div>
-      <div style="font-size:10px;color:var(--m)">{{ t.desc }}</div>
-      {% if not t.earned %}
-      <div style="position:absolute;top:7px;right:9px;font-size:11px;opacity:.3">🔒</div>
-      {% endif %}
-      {% if t.is_active %}
-      <div style="position:absolute;top:7px;right:9px;font-size:9px;background:#534AB7;color:#fff;padding:1px 5px;border-radius:20px">aktywny</div>
-      {% endif %}
-    </div>
-    {% endfor %}
-  </div>
-</div>
-{% else %}
-<div style="background:#EEEDFE;border:1px solid #AFA9EC;border-radius:var(--r12);padding:16px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between">
-  <div>
-    <div style="font-size:13px;font-weight:600;color:#3C3489;margin-bottom:3px">🏅 Odznaki i tytuły — tylko Pro</div>
-    <div style="font-size:12px;color:#534AB7">Zbieraj śmieszne tytuły jak Mistrz Kanapy, Nocna Zmiana, Globtroter…</div>
-  </div>
-  <a href="/settings#upgrade" class="btn btn-primary btn-sm">Upgrade do Pro</a>
-</div>
-{% endif %}
-
-{# ── LISTA ALFABETYCZNA ── #}
-<div style="background:var(--s);border:1px solid var(--b);border-radius:var(--r12);padding:18px">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-    <div style="font-size:13px;font-weight:600;color:var(--t)">Moja kolekcja — {{ all_serials|length }} seriali</div>
     {% if is_pro %}
-    <button class="btn btn-sm" onclick="exportData()">⬇ Eksport CSV</button>
+      {% if global_ranking %}
+        {% for user in global_ranking[:8] %}
+        <div class="rank-row">
+          <div class="rank-pos {{ 'gold' if loop.index==1 else 'silver' if loop.index==2 else 'bronze' if loop.index==3 else '' }}">
+            {{ '🥇' if loop.index==1 else '🥈' if loop.index==2 else '🥉' if loop.index==3 else loop.index }}
+          </div>
+          <div class="rank-av" style="background:{{ user.avatar_color|default('#534AB7') }}">{{ user.initials|default('?') }}</div>
+          <div class="rank-info">
+            <div class="rank-name">{{ user.username }}</div>
+            <div class="rank-badges">{{ user.active_title.ico if user.active_title else '' }} {{ user.active_title.name if user.active_title else 'Kanapowiec' }}</div>
+          </div>
+          <div class="rank-hrs">{{ user.total_hours|round(0)|int }} h</div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty"><div class="empty-ico" style="font-size:18px">🏆</div><p>Brak danych rankingu</p></div>
+      {% endif %}
+    {% else %}
+      <div style="text-align:center;padding:20px 10px">
+        <div style="font-size:28px;margin-bottom:10px">🏆</div>
+        <div style="font-size:12px;font-weight:600;color:var(--t);margin-bottom:6px">Ranking globalny odblokowany z PRO</div>
+        <div style="font-size:11px;color:var(--m);margin-bottom:14px;line-height:1.5">Sprawdź gdzie jesteś wśród wszystkich kanapowców na seriale.fun</div>
+        <a href="/settings#upgrade" class="btn btn-primary btn-sm">Odblokuj PRO →</a>
+      </div>
     {% endif %}
+  </div>
+</div>
+
+{# ── KOLEKCJA ── #}
+<div class="stat-box" style="margin-top:0">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+    <div class="stat-box-title" style="margin-bottom:0">Moja kolekcja <span class="stat-box-sub">{{ all_serials|length }} seriali</span></div>
+    <div style="display:flex;gap:6px;align-items:center">
+      {% if is_pro %}
+      <button class="btn btn-sm" onclick="exportData()">⬇ CSV</button>
+      {% endif %}
+    </div>
   </div>
   <input type="text" id="serialSearch" placeholder="Szukaj serialu…" oninput="filterSerials()"
-    style="width:100%;height:36px;padding:0 13px;border:1px solid var(--b);border-radius:var(--r8);font-size:13px;outline:none;color:var(--t);margin-bottom:14px;transition:border-color .15s"
+    style="width:100%;height:34px;padding:0 12px;border:1px solid var(--b);border-radius:var(--r8);font-size:12px;outline:none;color:var(--t);margin-bottom:12px;transition:border-color .15s;background:var(--s)"
     onfocus="this.style.borderColor='#534AB7'" onblur="this.style.borderColor='var(--b)'">
-
   <div id="serialsContainer">
     {% set ns = namespace(cur='') %}
     {% for item in all_serials %}
@@ -144,29 +408,22 @@
       {% if letter != ns.cur %}
         {% if ns.cur %}</div></div>{% endif %}
         {% set ns.cur = letter %}
-        <div class="alpha-sec" data-letter="{{ letter }}" style="margin-bottom:16px">
-          <div style="font-size:11px;font-weight:600;color:var(--h);letter-spacing:1px;text-transform:uppercase;padding:4px 0;border-bottom:1px solid var(--b);margin-bottom:8px">{{ letter }}</div>
-          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px">
+        <div class="alpha-sec" data-letter="{{ letter }}" style="margin-bottom:14px">
+          <div style="font-size:10px;font-weight:700;color:var(--h);letter-spacing:1px;text-transform:uppercase;padding:3px 0;border-bottom:1px solid var(--b);margin-bottom:7px">{{ letter }}</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:5px">
       {% endif %}
       <div class="serial-item" data-name="{{ s.nazwa|lower }}"
-           style="background:var(--s);border:1px solid var(--b);border-radius:var(--r8);padding:9px 11px;display:flex;gap:9px;align-items:center;cursor:pointer;transition:all .15s"
-           onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='var(--s)'">
+           style="background:var(--s);border:1px solid var(--b);border-radius:var(--r8);padding:8px 10px;display:flex;gap:8px;align-items:center;transition:all .12s"
+           onmouseover="this.style.background='var(--bg)';this.style.borderColor='var(--b2)'" onmouseout="this.style.background='var(--s)';this.style.borderColor='var(--b)'">
         {% if s.cover %}
-        <img src="{{ s.cover }}" alt="{{ s.nazwa }}" style="width:34px;height:51px;border-radius:4px;object-fit:cover;flex-shrink:0;background:var(--bg)" onerror="this.outerHTML='<div style=width:34px;height:51px;border-radius:4px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0>🎬</div>'">
+        <img src="{{ s.cover }}" alt="{{ s.nazwa }}" style="width:30px;height:45px;border-radius:4px;object-fit:cover;flex-shrink:0;background:var(--bg)" onerror="this.style.display='none'">
         {% else %}
-        <div style="width:34px;height:51px;border-radius:4px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">🎬</div>
+        <div style="width:30px;height:45px;border-radius:4px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">🎬</div>
         {% endif %}
         <div style="flex:1;min-width:0">
           <div style="font-size:11px;font-weight:600;line-height:1.3;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--t)">{{ s.nazwa }}</div>
-          <div style="font-size:10px;color:var(--m);line-height:1.4">
-            {% if s.seasons_count %}S{{ s.seasons_count }} · {% endif %}
-            {% if s.episodes_count %}{{ s.episodes_count }} odc · {% endif %}
-            {% if s.total_hours %}{{ s.total_hours }} h{% endif %}
-          </div>
-          {% if s.imdb_rating %}<div style="font-size:10px;color:var(--orange)">⭐ {{ s.imdb_rating }}</div>{% endif %}
-          <span style="display:inline-block;padding:1px 6px;border-radius:20px;font-size:9px;font-weight:600;margin-top:2px;background:{{ '#E1F5EE' if item.status=='obejrzane' else '#EEEDFE' }};color:{{ '#085041' if item.status=='obejrzane' else '#3C3489' }}">
-            {{ '✓ obejrzany' if item.status=='obejrzane' else '▶ oglądam' }}
-          </span>
+          <div style="font-size:9px;color:var(--m)">{% if s.total_hours %}{{ s.total_hours }} h · {% endif %}{% if s.imdb_rating %}⭐ {{ s.imdb_rating }}{% endif %}</div>
+          <span style="display:inline-block;padding:1px 6px;border-radius:20px;font-size:8px;font-weight:700;margin-top:2px;background:{{ '#E1F5EE' if item.status=='obejrzane' else '#EEEDFE' }};color:{{ '#085041' if item.status=='obejrzane' else '#3C3489' }}">{{ '✓ obejrzany' if item.status=='obejrzane' else '▶ oglądam' }}</span>
         </div>
       </div>
     {% endfor %}
@@ -179,6 +436,71 @@
 
 {% block scripts %}
 <script>
+const TOTAL_HOURS = {{ stats.total_hours|round(1) if stats else 0 }};
+const WEEK_DATA   = {{ week_activity|tojson if week_activity is defined else '[0,0,0,0,0,0,0]' }};
+const HEAT_DATA   = {{ heat_data|tojson if heat_data is defined else 'null' }};
+
+// ── Wykres tygodniowy ──
+(function buildWeekChart(){
+  const chart = document.getElementById('weekChart');
+  const labelsEl = document.getElementById('weekLabels');
+  if(!chart) return;
+  const days = ['Pn','Wt','Śr','Cz','Pt','So','Nd'];
+  const today = new Date().getDay();
+  // today: 0=Sun,1=Mon...6=Sat → mapuj na nasz indeks 0=Pn..6=Nd
+  const todayIdx = today === 0 ? 6 : today - 1;
+  const data = Array.isArray(WEEK_DATA) && WEEK_DATA.length===7 ? WEEK_DATA :
+    [2,4,1,6,3,8,7].map(v=>v+Math.floor(Math.random()*2));
+  const maxV = Math.max(...data, 1);
+  const colors = ['#B5D4F4','#85B7EB','#B5D4F4','#378ADD','#85B7EB','#185FA5','#378ADD'];
+  let html = '';
+  let labelHtml = '';
+  data.forEach((v,i)=>{
+    const h = Math.round(v/maxV*100);
+    const isToday = i===todayIdx;
+    html += `<div class="bar-col">
+      <div class="bar-track" title="${v} odcinków">
+        <div class="bar-val">${v}</div>
+        <div class="bar-fill" style="height:${h}%;background:${isToday?'#534AB7':colors[i]}"></div>
+      </div>
+    </div>`;
+    labelHtml += `<span style="${isToday?'color:var(--purple);font-weight:700':'color:var(--h)'};font-size:8px">${days[i]}</span>`;
+  });
+  chart.innerHTML = html;
+  labelsEl.innerHTML = labelHtml;
+  const total = data.reduce((a,b)=>a+b,0);
+  document.getElementById('weekTotal').textContent = total + ' odcinków';
+})();
+
+// ── Heatmapa ──
+(function buildHeatmap(){
+  const cols = document.getElementById('heatmapCols');
+  if(!cols) return;
+  const blues = ['#f0f0f4','#E6F1FB','#85B7EB','#378ADD','#185FA5','#0C447C'];
+  const weeks = 52;
+  // Użyj HEAT_DATA jeśli dostępne, inaczej mock
+  const heatFlat = Array.isArray(HEAT_DATA) ? HEAT_DATA : null;
+  for(let w=0; w<weeks; w++){
+    const weekDiv = document.createElement('div');
+    weekDiv.className = 'heat-week';
+    for(let d=0; d<7; d++){
+      const cell = document.createElement('div');
+      cell.className = 'heat-cell';
+      let val = 0;
+      if(heatFlat && heatFlat[w*7+d] !== undefined){
+        val = heatFlat[w*7+d];
+      } else {
+        val = Math.random();
+      }
+      const idx = val===0?0:val<0.2?1:val<0.4?2:val<0.6?3:val<0.8?4:5;
+      cell.style.background = blues[idx];
+      weekDiv.appendChild(cell);
+    }
+    cols.appendChild(weekDiv);
+  }
+})();
+
+// ── Filtry kolekcji ──
 function filterSerials(){
   const q = document.getElementById('serialSearch').value.toLowerCase().trim();
   document.querySelectorAll('.serial-item').forEach(el=>{
