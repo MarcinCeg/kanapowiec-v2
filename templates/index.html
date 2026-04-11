@@ -283,10 +283,10 @@
           {% endif %}
         </div>
         <div style="position:absolute;top:6px;right:6px;z-index:10">
-          <button class="wdel" onclick="toggleDelPopup(event,{{ s.id }},'{{ s.nazwa|replace(&quot;'&quot;,&quot;\\'&quot;) }}')">×</button>
+          <button class="wdel" onclick="toggleDelPopup(event,{{ s.id }},'{{ s.nazwa|replace("'", "\\'") }}')">×</button>
           <div class="wdel-popup" id="delpopup-{{ s.id }}">
             <div class="wdel-popup-title">{{ s.nazwa[:22] }}{% if s.nazwa|length > 22 %}…{% endif %}</div>
-            <button class="wdel-popup-btn success" onclick="confirmFinished({{ s.id }},'{{ s.nazwa|replace(&quot;'&quot;,&quot;\\'&quot;) }}')">🎉 Ukończono serial</button>
+            <button class="wdel-popup-btn success" onclick="confirmFinished({{ s.id }},'{{ s.nazwa|replace("'", "\\'") }}')">🎉 Ukończono serial</button>
             <button class="wdel-popup-btn danger" onclick="confirmRemove({{ s.id }})">🗑 Usuń z listy</button>
           </div>
         </div>
