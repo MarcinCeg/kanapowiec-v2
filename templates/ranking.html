@@ -4,6 +4,81 @@
 {% block content %}
 <main>
 
+{% if is_guest %}
+{# ══ SNEAK PEEK rankingu dla gościa ══ #}
+<style>
+.sneak-btn-reg{display:block;padding:13px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--purple),var(--teal));color:#fff;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:8px;text-decoration:none;text-align:center}
+.sneak-btn-log{display:block;padding:11px;border-radius:12px;border:1.5px solid var(--border);background:transparent;color:var(--t);font-size:13px;font-weight:600;text-decoration:none;text-align:center}
+</style>
+
+<div style="background:var(--s);border:1px solid var(--border);border-radius:var(--r12);padding:24px 20px;text-align:center;margin-bottom:16px">
+  <div style="font-size:38px;margin-bottom:10px">🏆</div>
+  <div style="font-size:18px;font-weight:800;color:var(--t);margin-bottom:6px">Ranking kanapowców</div>
+  <div style="font-size:12px;color:var(--m);line-height:1.6;margin-bottom:18px">
+    Sprawdź gdzie jesteś wśród wszystkich użytkowników.<br>
+    Zbieraj godziny, zdobywaj odznaki i wspinaj się w rankingu.
+  </div>
+  <a href="/auth/register" class="sneak-btn-reg">🚀 Zarejestruj się za darmo</a>
+  <a href="/auth/login" class="sneak-btn-log">Mam już konto — zaloguj się</a>
+</div>
+
+{# Widoczna góra rankingu #}
+<div style="background:var(--s);border:1px solid var(--b);border-radius:var(--r12);overflow:hidden;margin-bottom:4px">
+  <div style="padding:10px 14px;border-bottom:1px solid var(--border);font-size:12px;font-weight:600;color:var(--t);display:flex;align-items:center;gap:7px">
+    <span>Top widzowie</span>
+    <span style="font-size:10px;color:var(--h);font-weight:400">— ten tydzień</span>
+  </div>
+  {% for r in [
+    ('MK','#534AB7','Marek K.','⚡ Binge Sprinter','1 240 h','🥇'),
+    ('AW','#1D9E75','Ania W.','🌙 Nocna Zmiana','987 h','🥈'),
+    ('PZ','#D85A30','Piotrek Z.','🏆 Mistrz Kanapy','843 h','🥉'),
+  ] %}
+  <div style="display:flex;align-items:center;gap:10px;padding:11px 18px;border-bottom:1px solid var(--border)">
+    <span style="font-size:16px;width:28px;text-align:center">{{ r[5] }}</span>
+    <div style="width:34px;height:34px;border-radius:50%;background:{{ r[1] }};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0">{{ r[0] }}</div>
+    <div style="flex:1">
+      <div style="font-size:13px;font-weight:600;color:var(--t)">{{ r[2] }}</div>
+      <div style="font-size:11px;color:var(--m)">{{ r[3] }}</div>
+    </div>
+    <div style="font-size:14px;font-weight:600;color:var(--purple)">{{ r[4] }}</div>
+  </div>
+  {% endfor %}
+</div>
+
+{# Zablokowane pozycje — blurowane #}
+<div style="filter:blur(5px);pointer-events:none;user-select:none;opacity:.7;background:var(--s);border:1px solid var(--b);border-radius:var(--r12);overflow:hidden;margin-bottom:14px">
+  {% for r in [
+    ('KN','#D4537E','Kasia N.','🎬 Kinoman','721 h','4'),
+    ('TB','#185FA5','Tomek B.','🚀 Maraton','654 h','5'),
+    ('RW','#BA7517','Rafał W.','📚 Encyklopedia','598 h','6'),
+    ('MS','#0F6E56','Marta S.','Kanapowiec','441 h','7'),
+  ] %}
+  <div style="display:flex;align-items:center;gap:10px;padding:11px 18px;border-bottom:1px solid var(--border)">
+    <span style="font-size:13px;font-weight:700;width:28px;text-align:center;color:var(--h)">#{{ r[5] }}</span>
+    <div style="width:34px;height:34px;border-radius:50%;background:{{ r[1] }};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0">{{ r[0] }}</div>
+    <div style="flex:1">
+      <div style="font-size:13px;font-weight:600;color:var(--t)">{{ r[2] }}</div>
+      <div style="font-size:11px;color:var(--m)">{{ r[3] }}</div>
+    </div>
+    <div style="font-size:14px;font-weight:600;color:var(--purple)">{{ r[4] }}</div>
+  </div>
+  {% endfor %}
+</div>
+
+{# Twoja pozycja placeholder #}
+<div style="background:#EEEDFE;border:1px solid #AFA9EC;border-radius:var(--r12);padding:14px 18px;display:flex;align-items:center;gap:12px">
+  <span style="font-size:18px;font-weight:700;color:#534AB7;min-width:36px">#?</span>
+  <div style="width:34px;height:34px;border-radius:50%;background:var(--b2);display:flex;align-items:center;justify-content:center;font-size:16px">👤</div>
+  <div style="flex:1">
+    <div style="font-size:13px;font-weight:600;color:#3C3489">Twoje miejsce</div>
+    <div style="font-size:11px;color:#534AB7">Zarejestruj się żeby dołączyć do rankingu</div>
+  </div>
+  <a href="/auth/register" style="background:#534AB7;color:#fff;padding:7px 14px;border-radius:20px;font-size:11px;font-weight:700;text-decoration:none;white-space:nowrap">Dołącz →</a>
+</div>
+
+{% else %}
+{# ══ PEŁNY RANKING dla zalogowanych ══ #}
+
 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:8px">
   <div>
     <h1 style="font-size:20px;font-weight:700;color:var(--t);margin-bottom:2px">Ranking widzów 🏆</h1>
@@ -16,7 +91,6 @@
   </div>
 </div>
 
-{# ── MOJA POZYCJA (jeśli nie w top 10) ── #}
 {% if my_pos and my_pos > 10 %}
 <div style="background:#EEEDFE;border:1px solid #AFA9EC;border-radius:var(--r12);padding:14px 18px;margin-bottom:14px;display:flex;align-items:center;gap:12px">
   <span style="font-size:18px;font-weight:700;color:#534AB7;min-width:36px">#{{ my_pos }}</span>
@@ -34,46 +108,35 @@
 </div>
 {% endif %}
 
-{# ── LISTA RANKINGOWA ── #}
 <div style="background:var(--s);border:1px solid var(--b);border-radius:var(--r12);overflow:hidden">
   {% for row in ranking %}
   <div style="display:flex;align-items:center;gap:10px;padding:11px 18px;border-bottom:1px solid {{ '#f0f0f2' if not row.is_me else 'transparent' }};background:{{ '#EEEDFE' if row.is_me else 'transparent' }};transition:background .1s"
        onmouseover="if(!{{ 'true' if row.is_me else 'false' }})this.style.background='var(--bg)'"
        onmouseout="this.style.background='{{ '#EEEDFE' if row.is_me else 'transparent' }}'">
-
-    {# POZYCJA #}
     <span style="font-size:14px;font-weight:700;width:28px;text-align:center;flex-shrink:0;color:{{ '#BA7517' if row.pos==1 else '#888780' if row.pos==2 else '#993C1D' if row.pos==3 else '#534AB7' if row.is_me else 'var(--h)' }}">
       {{ '🥇' if row.pos==1 else '🥈' if row.pos==2 else '🥉' if row.pos==3 else '#'+row.pos|string }}
     </span>
-
-    {# AVATAR #}
     <div style="width:34px;height:34px;border-radius:50%;background:{{ 'linear-gradient(135deg,#534AB7,#1D9E75)' if row.is_me else row.user.avatar_color }};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0">
       {{ row.user.initials }}
     </div>
-
-    {# NICK + TYTUŁ #}
     <div style="flex:1;min-width:0">
       <div style="font-size:13px;font-weight:600;color:var(--t);display:flex;align-items:center;gap:5px">
         {{ row.user.username }}
         {% if row.is_me %}<span style="font-size:9px;background:#534AB7;color:#fff;padding:1px 5px;border-radius:20px">TY</span>{% endif %}
-        {% if row.user.is_pro %}<span style="font-size:8px;background:linear-gradient(135deg,#534AB7,#1D9E75);color:#fff;padding:1px 5px;border-radius:20px;font-weight:700">PRO</span>{% endif %}
+        {% if row.user.is_pro %}<span style="font-size:8px;background:linear-gradient(135deg,#534AB7,#1D9E75);color:#fff;padding:1px 5px;border-radius:20px">PRO</span>{% endif %}
       </div>
       <div style="font-size:11px;color:var(--m)">{{ row.title.ico }} {{ row.title.name }}</div>
     </div>
-
-    {# STATSY #}
     <div style="text-align:right;flex-shrink:0">
       <div style="font-size:14px;font-weight:600;color:var(--t)">{{ row.stats.total_hours|round(1) if row.stats else '—' }} h</div>
       <div style="font-size:10px;color:var(--m)">{{ row.stats.total_episodes if row.stats else '—' }} odcinków</div>
     </div>
-
   </div>
   {% else %}
   <div class="empty" style="padding:40px"><div class="empty-ico">🏆</div><p>Brak danych rankingowych</p></div>
   {% endfor %}
 </div>
 
-{# ── MOTYWACJA ── #}
 {% if my_pos and my_pos > 1 %}
 {% set prev_row = ranking|selectattr('pos','eq', my_pos-1)|first %}
 {% if prev_row and prev_row.stats and current_user.stats %}
@@ -86,7 +149,6 @@
 {% endif %}
 {% endif %}
 
-{# ── DOSTĘPNE TYTUŁY ── #}
 <div style="margin-top:20px">
   <div style="font-size:13px;font-weight:600;color:var(--t);margin-bottom:10px">Tytuły do zdobycia</div>
   <div style="display:flex;flex-wrap:wrap;gap:6px">
@@ -99,7 +161,7 @@
       ('kraje10','Globtroter','10 krajów','🌍'),
       ('seria30','Żyję na kanapie','30 dni','💪'),
       ('ukonczyl25','Encyklopedia','25 seriali','📚'),
-] %}
+    ] %}
     <span style="padding:4px 10px;border-radius:20px;font-size:11px;font-weight:500;background:var(--bg);border:1px solid var(--b);color:var(--m)">
       {{ ico }} {{ name }} <span style="color:var(--h)">— {{ desc }}</span>
     </span>
@@ -107,5 +169,6 @@
   </div>
 </div>
 
+{% endif %}
 </main>
 {% endblock %}
