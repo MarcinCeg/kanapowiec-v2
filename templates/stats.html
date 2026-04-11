@@ -122,6 +122,88 @@
 {% endblock %}
 
 {% block content %}
+{% if is_guest %}
+{# ══════════════════════════════════════════
+   SNEAK PEEK — Statystyki dla gościa
+══════════════════════════════════════════ #}
+<main>
+<style>
+.sneak-wrap{position:relative;overflow:hidden;border-radius:var(--r12)}
+.sneak-blur{filter:blur(6px);pointer-events:none;user-select:none;opacity:.7}
+.sneak-cta{background:var(--s);border:1px solid var(--border);border-radius:var(--r12);padding:24px 20px;text-align:center;margin-bottom:16px}
+.sneak-cta-ico{font-size:40px;margin-bottom:10px}
+.sneak-cta-title{font-size:18px;font-weight:800;color:var(--t);margin-bottom:6px}
+.sneak-cta-sub{font-size:12px;color:var(--m);line-height:1.6;margin-bottom:18px}
+.sneak-btn-reg{display:block;padding:13px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--purple),var(--teal));color:#fff;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:8px;text-decoration:none;text-align:center}
+.sneak-btn-log{display:block;padding:11px;border-radius:12px;border:1.5px solid var(--border);background:transparent;color:var(--t);font-size:13px;font-weight:600;text-decoration:none;text-align:center}
+</style>
+
+<div class="sneak-cta">
+  <div class="sneak-cta-ico">📊</div>
+  <div class="sneak-cta-title">Twoje statystyki czekają</div>
+  <div class="sneak-cta-sub">
+    Wykresy aktywności, heatmapa roczna, top seriale,<br>
+    ulubione gatunki i odznaki — wszystko w jednym miejscu.
+  </div>
+  <a href="/auth/register" class="sneak-btn-reg">🚀 Zarejestruj się za darmo</a>
+  <a href="/auth/login" class="sneak-btn-log">Mam już konto — zaloguj się</a>
+</div>
+
+{# Blurowany podgląd #}
+<div class="sneak-wrap sneak-blur">
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px">
+    <div style="background:#EEEDFE;border-radius:var(--r12);padding:14px">
+      <div style="font-size:9px;font-weight:600;color:#534AB7;text-transform:uppercase;margin-bottom:4px">Godziny</div>
+      <div style="font-size:26px;font-weight:800;color:#3C3489">847</div>
+      <div style="font-size:10px;font-weight:600;color:#1D9E75">= 35 dni nieustannie</div>
+    </div>
+    <div style="background:#E1F5EE;border-radius:var(--r12);padding:14px">
+      <div style="font-size:9px;font-weight:600;color:#0F6E56;text-transform:uppercase;margin-bottom:4px">Ukończone</div>
+      <div style="font-size:26px;font-weight:800;color:#085041">143</div>
+      <div style="font-size:10px;font-weight:600;color:#0F6E56">12 w trakcie</div>
+    </div>
+    <div style="background:#FAEEDA;border-radius:var(--r12);padding:14px">
+      <div style="font-size:9px;font-weight:600;color:#854F0B;text-transform:uppercase;margin-bottom:4px">Odcinki</div>
+      <div style="font-size:26px;font-weight:800;color:#633806">2 847</div>
+      <div style="font-size:10px;font-weight:600;color:#854F0B">śr. 4.2/dzień</div>
+    </div>
+    <div style="background:#FAECE7;border-radius:var(--r12);padding:14px">
+      <div style="font-size:9px;font-weight:600;color:#993C1D;text-transform:uppercase;margin-bottom:4px">Lata na kanapie</div>
+      <div style="font-size:26px;font-weight:800;color:#712B13">0.09</div>
+      <div style="font-size:10px;font-weight:600;color:#993C1D">35 dni z życia</div>
+    </div>
+  </div>
+
+  <div style="background:var(--s);border:1px solid var(--b);border-radius:var(--r12);padding:16px;margin-bottom:12px">
+    <div style="font-size:12px;font-weight:700;color:var(--t);margin-bottom:12px">Aktywność tygodniowa</div>
+    <div style="display:flex;align-items:flex-end;gap:5px;height:80px">
+      {% for h in [32,58,24,72,48,100,88] %}
+      <div style="flex:1;background:#EEEDFE;border-radius:4px;height:{{ h }}%"></div>
+      {% endfor %}
+    </div>
+    <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:8px;color:var(--h)">
+      <span>Pn</span><span>Wt</span><span>Śr</span><span>Cz</span><span>Pt</span><span>So</span><span>Nd</span>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(26,1fr);gap:2px;padding:12px 16px;background:var(--s);border:1px solid var(--b);border-radius:var(--r12);margin-bottom:12px">
+    {% for i in range(182) %}
+    <div style="aspect-ratio:1;border-radius:1px;background:{{ '#185FA5' if i%7==0 else '#85B7EB' if i%3==0 else '#E6F1FB' }}"></div>
+    {% endfor %}
+  </div>
+
+  <div style="background:var(--s);border:1px solid var(--b);border-radius:var(--r12);padding:16px">
+    <div style="font-size:12px;font-weight:700;color:var(--t);margin-bottom:10px">Odznaki</div>
+    <div style="display:flex;gap:8px">
+      {% for ico in ['⚡','🌙','🎬','🏆','🚀','🎭'] %}
+      <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#534AB7,#1D9E75);display:flex;align-items:center;justify-content:center;font-size:20px">{{ ico }}</div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+</main>
+
+{% else %}
 <main>
 
 <div class="stats-header">
@@ -432,6 +514,8 @@
 </div>
 
 </main>
+</main>
+{% endif %}
 {% endblock %}
 
 {% block scripts %}
