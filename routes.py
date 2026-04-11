@@ -291,11 +291,20 @@ def settings():
 
 @main_bp.route("/ranking")
 def ranking():
-    # Gość widzi sneak peek
+    # Gość - pokaż sneak peek w ranking.html
     if not current_user.is_authenticated:
+        # Generuj przykładowy ranking jako demo
+        demo_ranking = [
+            {"pos":1,"name":"Marek K.","initials":"MK","color":"#534AB7","title":"Mistrz Kanapy","hours":1240},
+            {"pos":2,"name":"Ania W.","initials":"AW","color":"#1D9E75","title":"Binge Sprinter","hours":987},
+            {"pos":3,"name":"Piotrek Z.","initials":"PZ","color":"#D85A30","title":"Nocna Zmiana","hours":843},
+            {"pos":4,"name":"Kasia N.","initials":"KN","color":"#D4537E","title":"Kinoman","hours":721},
+            {"pos":5,"name":"Tomek B.","initials":"TB","color":"#185FA5","title":"Kanapowiec","hours":654},
+        ]
         return render_template("ranking.html",
             ranking=[], period="all", my_pos=None,
-            pnames=PNAMES, pcolors=PCOLORS, is_guest=True)
+            pnames=PNAMES, pcolors=PCOLORS, is_guest=True,
+            demo_ranking=demo_ranking)
 
     from models import UserStats, User, UserTitle, TITLES
     period = request.args.get("period","all")
