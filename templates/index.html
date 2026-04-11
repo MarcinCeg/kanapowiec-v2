@@ -249,7 +249,8 @@
       {% if '🔥' in (w.date_label or '') %}{% set priority = 'hot' %}{% elif w.is_new_today %}{% set priority = 'new' %}{% else %}{% set priority = 'neutral' %}{% endif %}
       <div class="wcard {% if priority == 'hot' %}priority-hot{% elif priority == 'new' %}priority-new{% endif %}"
            data-platform="{{ w.platforma }}" data-id="{{ s.id }}"
-           data-priority="{{ priority }}" data-date="{{ w.last_date or '' }}">
+           data-priority="{{ priority }}" data-date="{{ w.last_date or '' }}"
+           data-nazwa="{{ s.nazwa|e }}">
         <div class="wimg">
           {% if s.cover %}<img src="{{ s.cover }}" alt="{{ s.nazwa }}" onerror="this.parentElement.innerHTML='🎬'">{% else %}🎬{% endif %}
           {% if w.platforma %}<span class="wplat" style="background:{{ pcolors.get(w.platforma,'#888') }}">{{ pnames.get(w.platforma,'') }}</span>{% endif %}
@@ -260,7 +261,7 @@
           {# POPRAWKA 3: nazwa = link do TMDB zamiast hover popup #}
           <div class="wname">
             {% if s.imdb_url and s.imdb_url != '#' %}
-              <a href="{{ s.imdb_url }}" target="_blank" style="color:var(--t);text-decoration:none">{{ s.nazwa }}</a>
+              <a href="https://www.imdb.com/find?q={{ s.nazwa|urlencode }}" target="_blank" style="color:var(--t);text-decoration:none">{{ s.nazwa }}</a>
             {% else %}
               {{ s.nazwa }}
             {% endif %}
@@ -273,7 +274,7 @@
           {% else %}
           <div class="wep gray"><div class="wep-num" style="color:var(--h);font-weight:400">Kliknij ⟳ odśwież</div></div>
           {% endif %}
-          {% if s.imdb_rating %}<div class="wimdb">⭐ {{ s.imdb_rating }} · {% if s.imdb_url and s.imdb_url != '#' %}<a href="{{ s.imdb_url }}" target="_blank">TMDB</a>{% else %}TMDB{% endif %}</div>{% endif %}
+          {% if s.imdb_rating %}<div class="wimdb">⭐ {{ s.imdb_rating }} · {% if s.imdb_url and s.imdb_url != '#' %}<a href="https://www.imdb.com/find?q={{ s.nazwa|urlencode }}" target="_blank">IMDb</a>{% else %}IMDb{% endif %}</div>{% endif %}
         </div>
         <div class="wactions">
           {% if w.last_title %}
@@ -283,10 +284,10 @@
           {% endif %}
         </div>
         <div style="position:absolute;top:6px;right:6px;z-index:10">
-          <button class="wdel" onclick="toggleDelPopup(event,{{ s.id }},'{{ s.nazwa|replace("'", "\\'") }}')">×</button>
+          <button class="wdel" onclick="toggleDelPopup(event,{{ s.id }},this)">×</button>
           <div class="wdel-popup" id="delpopup-{{ s.id }}">
             <div class="wdel-popup-title">{{ s.nazwa[:22] }}{% if s.nazwa|length > 22 %}…{% endif %}</div>
-            <button class="wdel-popup-btn success" onclick="confirmFinished({{ s.id }},'{{ s.nazwa|replace("'", "\\'") }}')">🎉 Ukończono serial</button>
+            <button class="wdel-popup-btn success" onclick="confirmFinished({{ s.id }},this)">🎉 Ukończono serial</button>
             <button class="wdel-popup-btn danger" onclick="confirmRemove({{ s.id }})">🗑 Usuń z listy</button>
           </div>
         </div>
@@ -370,7 +371,7 @@
         <button class="kdel" onclick="delKandydat({{ s.id }})">×</button>
         <div class="kbody">
           <div class="kname">{{ s.nazwa }}</div>
-          {% if s.imdb_rating %}<div class="krating">⭐ {{ s.imdb_rating }} {% if s.imdb_url %}<a href="{{ s.imdb_url }}" target="_blank">TMDB</a>{% endif %}</div>{% endif %}
+          {% if s.imdb_rating %}<div class="krating">⭐ {{ s.imdb_rating }} {% if s.imdb_url %}<a href="https://www.imdb.com/find?q={{ s.nazwa|urlencode }}" target="_blank">IMDb</a>{% endif %}</div>{% endif %}
           {% if s.imdb_desc %}<div class="kdesc">{{ s.imdb_desc }}</div>{% endif %}
         </div>
         <button class="kpromote" onclick="promoteKandydat({{ s.id }}, this)">▶ Oglądam</button>
@@ -488,7 +489,7 @@
         {% if row.platform %}<span class="oplat" style="background:{{ pcolors.get(row.platform,'#888') }}">{{ pnames.get(row.platform,'') }}</span>{% endif %}
         <div class="obody">
           <div class="oname">{{ s.nazwa[:45] }}</div>
-          {% if s.imdb_rating %}<div class="orating">⭐ {{ s.imdb_rating }} {% if s.imdb_url %}<a href="{{ s.imdb_url }}" target="_blank">TMDB</a>{% endif %}</div>{% endif %}
+          {% if s.imdb_rating %}<div class="orating">⭐ {{ s.imdb_rating }} {% if s.imdb_url %}<a href="https://www.imdb.com/find?q={{ s.nazwa|urlencode }}" target="_blank">IMDb</a>{% endif %}</div>{% endif %}
           {% if s.genres_list or s.countries_list %}
           <div class="otags">
             {% for g in s.genres_list[:2] %}<span class="otag otag-genre">{{ g }}</span>{% endfor %}
@@ -843,7 +844,7 @@ document.addEventListener('click',e=>{
 
 // ── Mini popup × ──
 let activeDelPopup=null;
-function toggleDelPopup(e,id,nazwa){
+function toggleDelPopup(e,id,ref){
   e.stopPropagation();
   const popup=document.getElementById('delpopup-'+id);
   if(!popup)return;
@@ -859,9 +860,11 @@ document.addEventListener('click',e=>{
 
 // ── Ukończono serial (zastępuje markSerialObejrzany) ──
 let pendingFinishedId=null;
-function confirmFinished(id,nazwa){
+function confirmFinished(id,ref){
   if(activeDelPopup){activeDelPopup.classList.remove('open');activeDelPopup=null;}
   pendingFinishedId=id;
+  const card=document.querySelector(`#ogladamGrid .wcard[data-id="${id}"]`);
+  const nazwa=card?.dataset?.nazwa||card?.querySelector('.wname')?.textContent?.trim()||'Ten serial';
   document.getElementById('finishedPopupTitle').textContent=`"${nazwa}" — ukończony?`;
   document.getElementById('finishedPopup').style.display='flex';
   document.getElementById('finishedConfirmBtn').onclick=async()=>{
@@ -1030,7 +1033,7 @@ async function promoteKandydat(id, btn){
       <div class="wbody">
         <div class="wname">${nazwa}</div>
         <div class="wep gray"><div class="wep-num" style="color:var(--h);font-weight:400">Kliknij ⟳ odśwież</div></div>
-        ${rating?`<div class="wimdb">⭐ ${rating} · TMDB</div>`:''}
+        ${rating?`<div class="wimdb">⭐ ${rating} · IMDb</div>`:''}
       </div>
       <div class="wactions"></div>
       <div style="position:absolute;top:6px;right:6px;z-index:10">
@@ -1279,7 +1282,7 @@ async function showActorPopup(e,name,character,photo,personId){
       const dept=p.known_for_department==='Acting'?'Aktor/ka':(p.known_for_department||'');
       const bday=p.birthday?p.birthday.slice(0,4):'';
       const bio=(p.biography||'').slice(0,140);
-      known.innerHTML=`<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:4px">${dept?`<span style="font-size:9px;background:var(--bg);padding:1px 6px;border-radius:20px;color:var(--m)">${dept}</span>`:''} ${bday?`<span style="font-size:9px;background:var(--bg);padding:1px 6px;border-radius:20px;color:var(--m)">ur. ${bday}</span>`:''}</div>${bio?`<div style="font-size:10px;color:var(--m);line-height:1.5;margin-bottom:4px">${bio}${bio.length===140?'…':''}</div>`:''}<a href="https://www.tmdb.org/person/${pid}" target="_blank" style="color:var(--blue);font-size:9px;text-decoration:none">→ profil TMDB</a>`;
+      known.innerHTML=`<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:4px">${dept?`<span style="font-size:9px;background:var(--bg);padding:1px 6px;border-radius:20px;color:var(--m)">${dept}</span>`:''} ${bday?`<span style="font-size:9px;background:var(--bg);padding:1px 6px;border-radius:20px;color:var(--m)">ur. ${bday}</span>`:''}</div>${bio?`<div style="font-size:10px;color:var(--m);line-height:1.5;margin-bottom:4px">${bio}${bio.length===140?'…':''}</div>`:''}<a href="https://www.imdb.com/find?q=${encodeURIComponent(name)}" target="_blank" style="color:var(--blue);font-size:9px;text-decoration:none">→ profil IMDb</a>`;
     }
   }
 }
