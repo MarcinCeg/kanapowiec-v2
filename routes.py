@@ -1,4 +1,5 @@
-from flask import Blueprint, render_template, request, jsonify, redirect, url_for, flash
+from flask import Blueprint, render_template, request, jsonify, redirect, url_for, flash, session
+import uuid
 from flask_login import login_required, current_user
 from models import (db, Serial, Watching, Watched, Candidate, UserPlatform,
                     GlobalNowosci, PLATFORMS, PNAMES, PCOLORS)
@@ -9,6 +10,36 @@ from collections import defaultdict, Counter
 import threading
 
 main_bp = Blueprint("main", __name__)
+
+def _ensure_analytics_table(db):
+    """Utwórz tabelę analityki jeśli nie istnieje (SQLAlchemy 2.x)."""
+    try:
+        with db.engine.connect() as conn:
+            conn.execute(db.text("""
+                CREATE TABLE IF NOT EXISTS user_events (
+                    id SERIAL PRIMARY KEY,
+                    user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+                    session_id VARCHAR(64),
+                    event_type VARCHAR(64) NOT NULL,
+                    page VARCHAR(255),
+                    referrer VARCHAR(255),
+                    data JSONB,
+                    ip_hash VARCHAR(16),
+                    user_agent VARCHAR(500),
+                    device_type VARCHAR(20),
+                    browser VARCHAR(50),
+                    os VARCHAR(50),
+                    duration_ms INTEGER,
+                    created_at TIMESTAMP DEFAULT NOW()
+                )
+            """))
+            conn.execute(db.text("CREATE INDEX IF NOT EXISTS idx_ue_user ON user_events(user_id)"))
+            conn.execute(db.text("CREATE INDEX IF NOT EXISTS idx_ue_type ON user_events(event_type)"))
+            conn.execute(db.text("CREATE INDEX IF NOT EXISTS idx_ue_ts ON user_events(created_at)"))
+            conn.execute(db.text("CREATE INDEX IF NOT EXISTS idx_ue_sess ON user_events(session_id)"))
+            conn.commit()
+    except Exception as e:
+        print(f"[analytics] table init: {e}")
 
 DEFAULT_PLATFORMS = ['netflix', 'player', 'disney']
 
@@ -29,6 +60,21 @@ def date_sort_key(w):
 
 @main_bp.route("/app")
 def index():
+    # Utwórz tabelę analityki jeśli nie istnieje (raz)
+    if not getattr(main_bp, '_analytics_ready', False):
+        _ensure_analytics_table(db)
+        main_bp._analytics_ready = True
+
+    # Loguj pageview
+    try:
+        from analytics_model import log_event
+        uid = current_user.id if current_user.is_authenticated else None
+        # Zapewnij session ID
+        if 'sid' not in session:
+            session['sid'] = str(uuid.uuid4())[:16]
+        log_event(db, uid, 'pageview', request.path, request.referrer, request=request)
+    except Exception: pass
+
     # Tryb gościa — tracker dostępny normalnie
     if not current_user.is_authenticated:
         nowosci = []
@@ -102,6 +148,11 @@ def add_ogladam():
     if not Watching.query.filter_by(user_id=current_user.id, serial_id=serial.id).first():
         db.session.add(Watching(user_id=current_user.id, serial_id=serial.id))
         db.session.commit()
+    try:
+        from analytics_model import log_event
+        log_event(db, current_user.id, 'add_serial', '/app',
+                  data={'serial_id': serial.id, 'nazwa': serial.nazwa}, request=request)
+    except Exception: pass
     return jsonify({"ok": True, "serial": {
         "id": serial.id, "nazwa": serial.nazwa,
         "cover": serial.cover, "imdb_rating": serial.imdb_rating,
@@ -133,6 +184,11 @@ def mark_odcinek(serial_id):
     w.date_label   = None
     w.is_new_today = False
     db.session.commit()
+    try:
+        from analytics_model import log_event
+        log_event(db, current_user.id, 'mark_episode', '/app',
+                  data={'serial_id': serial_id}, request=request)
+    except Exception: pass
     return jsonify({"ok": True})
 
 
@@ -189,6 +245,11 @@ def promote_kandydat(serial_id):
     if not Watching.query.filter_by(user_id=current_user.id, serial_id=serial_id).first():
         db.session.add(Watching(user_id=current_user.id, serial_id=serial_id, platforma=c.platform))
     db.session.commit()
+    try:
+        from analytics_model import log_event
+        log_event(db, current_user.id, 'promote_candidate', '/app',
+                  data={'serial_id': serial_id}, request=request)
+    except Exception: pass
     return jsonify({"ok": True})
 
 
@@ -362,47 +423,31 @@ def stats():
     total_min = (user_stats.total_hours or 0) * 60 if user_stats else 0
     fun_facts = _fun_facts(total_min, len(all_serials), user_stats.total_episodes or 0 if user_stats else 0)
 
-    # Aktywność tygodniowa
+    # Aktywność tygodniowa - z tabeli Watched (data ukończenia)
     week_activity = [0] * 7
     try:
         today = datetime.utcnow().date()
         for i in range(7):
             day = today - timedelta(days=6-i)
-            count = db.session.execute(
-                db.text("SELECT COUNT(*) FROM episode_history WHERE user_id=:uid AND DATE(watched_at)=:d"),
-                {'uid': current_user.id, 'd': day}
-            ).scalar() or 0
-            week_activity[i] = int(count)
+            day_str = day.strftime('%d.%m.%Y')
+            count = Watched.query.filter_by(user_id=current_user.id)                .filter(Watched.date_finished == day_str).count()
+            week_activity[i] = count
     except Exception:
         week_activity = [0, 0, 0, 0, 0, 0, 0]
 
-    # Heatmapa roczna
+    # Heatmapa roczna - mock (tabela episode_history może nie istnieć)
     heat_data = None
-    try:
-        today = datetime.utcnow().date()
-        start = today - timedelta(weeks=52)
-        heat_counts = defaultdict(int)
-        rows_h = db.session.execute(
-            db.text("SELECT DATE(watched_at) as d, COUNT(*) as c FROM episode_history WHERE user_id=:uid AND watched_at>=:start GROUP BY d"),
-            {'uid': current_user.id, 'start': start}
-        ).fetchall()
-        for row in rows_h:
-            heat_counts[str(row.d)] = row.c
-        max_c = max(heat_counts.values(), default=1)
-        heat_data = []
-        for w in range(52):
-            for d in range(7):
-                day = start + timedelta(weeks=w, days=d)
-                v = heat_counts.get(str(day), 0)
-                heat_data.append(round(v / max_c, 2) if max_c > 0 else 0)
-    except Exception:
-        heat_data = None
 
     # Platformy
     platform_counts = {}
     try:
-        plat_list = [w.platforma for w in current_user.watching if w.platforma]
-        plat_list += [w.platforma for w in current_user.watched if hasattr(w,'platforma') and w.platforma]
+        plat_list = []
+        for w in current_user.watching:
+            if getattr(w, 'platforma', None):
+                plat_list.append(w.platforma)
+        for w in current_user.watched:
+            if getattr(w, 'platforma', None):
+                plat_list.append(w.platforma)
         platform_counts = dict(Counter(plat_list).most_common(8))
     except Exception:
         platform_counts = {}
@@ -524,14 +569,16 @@ def admin():
     from sqlalchemy import func
     from datetime import date
 
+    days = int(request.args.get('days', 30))
+
     users = User.query.order_by(User.created_at.desc()).all()
 
-    total_users    = User.query.count()
-    pro_users      = User.query.filter_by(is_pro=True).count()
-    total_serials  = Serial.query.count()
-    total_nowosci  = GlobalNowosci.query.count()
-    total_watching = Watching.query.count()
-    total_watched  = Watched.query.count()
+    total_users      = User.query.count()
+    pro_users        = User.query.filter_by(is_pro=True).count()
+    total_serials    = Serial.query.count()
+    total_nowosci    = GlobalNowosci.query.count()
+    total_watching   = Watching.query.count()
+    total_watched    = Watched.query.count()
     total_candidates = Candidate.query.count()
 
     today = date.today().strftime("%Y-%m-%d")
@@ -550,20 +597,24 @@ def admin():
         .limit(10).all())
 
     stats = {
-        "total_users": total_users,
-        "pro_users": pro_users,
-        "active_today": active_today,
-        "total_serials": total_serials,
-        "total_nowosci": total_nowosci,
-        "total_watching": total_watching,
-        "total_watched": total_watched,
-        "total_candidates": total_candidates,
+        "total_users": total_users, "pro_users": pro_users,
+        "active_today": active_today, "total_serials": total_serials,
+        "total_nowosci": total_nowosci, "total_watching": total_watching,
+        "total_watched": total_watched, "total_candidates": total_candidates,
     }
+
+    # Analityka
+    analytics = {}
+    try:
+        from analytics_model import get_analytics_summary
+        analytics = get_analytics_summary(db, days=days)
+    except Exception as e:
+        print(f"[admin] analytics error: {e}")
 
     return render_template("admin.html",
         users=users, stats=stats,
-        top_watching=top_watching,
-        top_watched=top_watched,
+        top_watching=top_watching, top_watched=top_watched,
+        analytics=analytics, days=days,
         now=datetime.now().strftime("%d.%m.%Y %H:%M"),
     )
 
