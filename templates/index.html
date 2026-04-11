@@ -148,6 +148,7 @@
   animation:proPopupIn .18s cubic-bezier(.34,1.56,.64,1)
 }
 .pro-popup.visible{display:block}
+@media(max-width:700px){.pro-popup{display:none !important}}
 @keyframes proPopupIn{
   from{opacity:0;transform:translateY(-6px) scale(.97)}
   to{opacity:1;transform:translateY(0) scale(1)}
@@ -233,10 +234,10 @@
 /* ══════════════════════════════════════
    POPUP GAMIFIKACJI — po odcinku
 ══════════════════════════════════════ */
-#gamPopup{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9500;align-items:flex-end;justify-content:center;padding-bottom:0}
+#gamPopup{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9500;align-items:center;justify-content:center;padding:20px}
 #gamPopup.show{display:flex}
-.gam-box{background:var(--s);border-radius:20px 20px 0 0;padding:0 0 40px;width:100%;max-width:480px;box-shadow:0 -4px 40px rgba(0,0,0,.2);animation:slideUp .3s ease;overflow:hidden}
-@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.gam-box{background:var(--s);border-radius:16px;padding:0 0 24px;width:100%;max-width:440px;max-height:90vh;overflow-y:auto;box-shadow:0 8px 40px rgba(0,0,0,.25);animation:gamFadeIn .25s ease}
+@keyframes gamFadeIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
 .gam-step{display:none}
 .gam-step.active{display:block}
 
@@ -292,6 +293,23 @@
 .gam-prem-btn{display:block;width:100%;padding:13px;border-radius:12px;border:none;background:linear-gradient(135deg,#534AB7,#1D9E75);color:#fff;font-size:14px;font-weight:700;cursor:pointer;text-decoration:none;text-align:center;margin-bottom:8px}
 .gam-prem-skip{display:block;text-align:center;font-size:11px;color:var(--h);cursor:pointer;padding-bottom:4px}
 
+
+/* ── MOBILE FIXES ── */
+@media(max-width:600px){
+  /* Popup TMDB (hover info) - ukryj całkowicie na mobile bo touch tap go otwiera i zasłania */
+  #cardPopup{display:none !important}
+  #actorPopup{display:none !important}
+  /* Wyszukiwarka - wyniki zawsze pełna szerokość */
+  .serial-search-results{left:0;right:0}
+  .ssr-item{padding:10px 12px}
+  .ssr-add{padding:5px 12px;font-size:11px}
+  /* Popup gamifikacji - padding żeby nie był do brzegu */
+  #gamPopup{padding:12px}
+  .gam-box{border-radius:14px}
+  /* Nawigacja pills - mniejsze na małych ekranach */
+  .np-val{font-size:14px}
+  .np-ico{font-size:18px}
+}
 /* ── Nagłówek sekcji Oglądam ── */
 .sec-ogladam-header{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-bottom:1px solid var(--border);background:var(--bg);border-radius:8px 8px 0 0}
 .sec-ogladam-left{display:flex;align-items:center;gap:8px}
@@ -299,20 +317,20 @@
 .btn-add-serial{display:flex;align-items:center;gap:5px;background:var(--t);color:#fff;border:none;border-radius:20px;padding:5px 12px;font-size:11px;font-weight:600;cursor:pointer;transition:opacity .15s;white-space:nowrap}
 .btn-add-serial:hover{opacity:.85}
 /* ── Wyszukiwarka inline ── */
-.serial-search-bar{border-bottom:1px solid var(--border);background:var(--s);display:none}
+.serial-search-bar{border-bottom:1px solid var(--border);background:var(--s);display:none;position:relative}
 .serial-search-bar.open{display:block}
 .serial-search-input{display:flex;align-items:center;gap:8px;padding:8px 12px}
-.serial-search-input input{flex:1;border:none;background:transparent;font-size:13px;color:var(--t);outline:none}
-.serial-search-results{border-top:1px solid var(--border);max-height:240px;overflow-y:auto}
-.ssr-item{display:flex;align-items:center;gap:10px;padding:8px 12px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .1s}
+.serial-search-input input{flex:1;border:none;background:transparent;font-size:13px;color:var(--t);outline:none;min-width:0}
+.serial-search-results{border-top:1px solid var(--border);max-height:260px;overflow-y:auto;position:relative;z-index:100;background:var(--s)}
+.ssr-item{display:flex;align-items:center;gap:10px;padding:8px 12px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .1s;width:100%;box-sizing:border-box}
 .ssr-item:last-child{border-bottom:none}
-.ssr-item:hover{background:var(--bg)}
+.ssr-item:hover,.ssr-item:active{background:var(--bg)}
 .ssr-thumb{width:32px;height:44px;border-radius:4px;background:var(--bg);flex-shrink:0;overflow:hidden;object-fit:cover}
-.ssr-info{flex:1;min-width:0}
-.ssr-name{font-size:12px;font-weight:600;color:var(--t);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ssr-meta{font-size:10px;color:var(--m);margin-top:1px}
+.ssr-info{flex:1;min-width:0;overflow:hidden}
+.ssr-name{font-size:12px;font-weight:600;color:var(--t);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.ssr-meta{font-size:10px;color:var(--m);margin-top:1px;display:block}
 .ssr-add{font-size:10px;color:var(--blue);border:1px solid var(--blue);border-radius:20px;padding:3px 10px;background:transparent;cursor:pointer;white-space:nowrap;flex-shrink:0}
-.ssr-add:hover{background:var(--blue);color:#fff}
+.ssr-add:hover,.ssr-add:active{background:var(--blue);color:#fff}
 .ssr-loading{padding:12px;text-align:center;font-size:11px;color:var(--h)}
 /* ── Sortowanie ── */
 .wcard.priority-hot{border-color:#f97316;box-shadow:0 0 0 1px #f97316}
@@ -1374,14 +1392,20 @@ function triggerGamification(serialName){
     state.hours    = parseFloat(((state.hours||0)+0.5).toFixed(1));
     const h = new Date().getHours();
     if(h>=23||h<3) state.nights=(state.nights||0)+1;
-    // Sprawdź czy nowa odznaka
     const newBadge = checkNewBadge(state);
     if(newBadge && !state.badges.includes(newBadge.id)){
       state.badges.push(newBadge.id);
     }
     saveGamState(state);
-    // Pokaż popup tylko jeśli zalogowany
-    if(!IS_GUEST) showGamPopup(serialName, newBadge);
+    if(IS_GUEST) return;
+    // Pokaż popup TYLKO gdy: nowa odznaka, LUB co 5 odcinków, LUB nie pokazywany >8h
+    const lastShown = parseInt(localStorage.getItem('gamLastShown')||'0');
+    const hoursSince = (Date.now() - lastShown) / 3600000;
+    const shouldShow = newBadge || (state.ep_total % 5 === 0) || hoursSince > 8;
+    if(shouldShow){
+      localStorage.setItem('gamLastShown', Date.now().toString());
+      showGamPopup(serialName, newBadge);
+    }
   }catch(e){ console.log('gam error',e); }
 }
 
@@ -1744,16 +1768,8 @@ function attachPopupEvents(){
   document.querySelectorAll('.ocard,.kcard').forEach(card=>{
     if(card._popupAttached) return; card._popupAttached=true;
     if(isMobile){
-      // Na mobile: tap otwiera popup, tap poza zamyka (obsłużone przez touchstart globalny)
-      card.addEventListener('touchend', e=>{
-        e.preventDefault();
-        if(popup && popup.classList.contains('visible')){
-          const onSameCard = e.target.closest('.ocard,.kcard') === card;
-          if(onSameCard){ hidePopup(); return; }
-        }
-        clearTimeout(popupTimer);
-        showPopup(card);
-      }, {passive: false});
+      // Na mobile: wyłącz popup TMDB całkowicie (zasłania ekran)
+      // Użytkownik może kliknąć na link IMDb bezpośrednio
     } else {
       // Na desktop: hover
       card.addEventListener('mouseenter',()=>{clearTimeout(hideTimer);popupTimer=setTimeout(()=>showPopup(card),900);});
