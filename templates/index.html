@@ -8,102 +8,9 @@
 {% set w_pct = (limits.watching.used / limits.watching.max * 100)|int if limits.watching.max else 0 %}
 {% set k_pct = (limits.candidates.used / limits.candidates.max * 100)|int if limits.candidates.max else 0 %}
 {% set o_pct = (limits.watched.used / limits.watched.max * 100)|int if limits.watched.max else 0 %}
-<div class="nav-pills-strip">
-  <a href="#sec-ogladam" class="nav-pill nav-pill-green">
-    <span class="np-ico">📺</span>
-    <div class="np-body">
-      <span class="np-label">Oglądam</span>
-      <span class="np-val {{ 'np-warn' if w_pct >= 80 else '' }} {{ 'np-full' if w_pct >= 100 else '' }}">{{ limits.watching.used }}{% if limits.watching.max %}<span style="font-size:11px;font-weight:500;color:var(--m)">/{{ limits.watching.max }}</span>{% endif %}</span>
-      <div class="np-bar"><div class="np-fill {{ 'warn' if w_pct >= 80 else '' }} {{ 'full' if w_pct >= 100 else '' }}" style="width:{{ w_pct if limits.watching.max else 20 }}%"></div></div>
-    </div>
-  </a>
-  <a href="#sec-kandydaci" class="nav-pill nav-pill-blue">
-    <span class="np-ico">🚩</span>
-    <div class="np-body">
-      <span class="np-label">Kandydaci</span>
-      <span class="np-val {{ 'np-warn' if k_pct >= 80 else '' }}">{{ limits.candidates.used }}{% if limits.candidates.max %}<span style="font-size:11px;font-weight:500;color:var(--m)">/{{ limits.candidates.max }}</span>{% endif %}</span>
-      <div class="np-bar"><div class="np-fill {{ 'warn' if k_pct >= 80 else '' }}" style="width:{{ k_pct if limits.candidates.max else 20 }}%"></div></div>
-    </div>
-  </a>
-  <a href="#sec-obejrzane" class="nav-pill nav-pill-gray">
-    <span class="np-ico">✅</span>
-    <div class="np-body">
-      <span class="np-label">Obejrzane</span>
-      <span class="np-val {{ 'np-warn' if o_pct >= 80 else '' }}">{{ limits.watched.used }}{% if limits.watched.max %}<span style="font-size:11px;font-weight:500;color:var(--m)">/{{ limits.watched.max }}</span>{% endif %}</span>
-      <div class="np-bar"><div class="np-fill {{ 'warn' if o_pct >= 80 else '' }}" style="width:{{ o_pct if limits.watched.max else 20 }}%"></div></div>
-    </div>
-  </a>
-  {% if not is_pro %}
-  <div class="nav-pill-pro-wrap" id="proPillWrap">
-    <a href="/settings#upgrade" class="nav-pill nav-pill-pro" id="proPill"
-       onmouseenter="showProPopup()" onmouseleave="scheduleHideProPopup()">
-      <span class="np-ico">⭐</span>
-      <div class="np-body">
-        <span class="np-label">Odblokuj Pro</span>
-        <span class="np-val" style="font-size:14px;color:var(--purple);line-height:1">5,99 zł<span style="font-size:9px;font-weight:500;color:var(--m);display:block;margin-top:1px">/mies</span></span>
-      </div>
-    </a>
-    <div class="pro-popup" id="proPopup"
-         onmouseenter="cancelHideProPopup()" onmouseleave="scheduleHideProPopup()">
-      <div class="pro-popup-header">
-        <div class="pro-popup-star">⭐</div>
-        <div>
-          <div class="pro-popup-title">Kanapowiec <span class="pro-badge">PRO</span></div>
-          <div class="pro-popup-sub">Odblokuj pełen potencjał trackera</div>
-        </div>
-      </div>
-      <div class="pro-features">
-        <div class="pro-feat"><span class="pro-feat-ico">📋</span><div><div class="pro-feat-name">Nieograniczone listy</div><div class="pro-feat-desc">Oglądam, Obejrzane i Kandydaci bez limitu</div></div></div>
-        <div class="pro-feat"><span class="pro-feat-ico">📊</span><div><div class="pro-feat-name">Zaawansowane wykresy</div><div class="pro-feat-desc">Aktywność tygodniowa, gatunki, platformy, trendy</div></div></div>
-        <div class="pro-feat"><span class="pro-feat-ico">👥</span><div><div class="pro-feat-name">Moduł społecznościowy</div><div class="pro-feat-desc">Znajomi, polecenia, komentarze do seriali</div></div></div>
-        <div class="pro-feat"><span class="pro-feat-ico">🏆</span><div><div class="pro-feat-name">System osiągnięć</div><div class="pro-feat-desc">16 tytułów do odblokowania, ranking globalny</div></div></div>
-        <div class="pro-feat"><span class="pro-feat-ico">📤</span><div><div class="pro-feat-name">Eksport danych</div><div class="pro-feat-desc">Pobierz swoją historię w CSV lub JSON</div></div></div>
-        <div class="pro-feat"><span class="pro-feat-ico">🤖</span><div><div class="pro-feat-name">AI Sommelier bez limitu</div><div class="pro-feat-desc">Nieograniczone rekomendacje od AI</div></div></div>
-      </div>
-      <div class="pro-pricing">
-        <div class="pro-price-row">
-          <div>
-            <div class="pro-price">5,99 zł<span>/mies</span></div>
-            <div class="pro-price-sub">lub 9,99 zł jednorazowo</div>
-          </div>
-          <a href="/settings#upgrade" class="pro-cta-btn">Odblokuj →</a>
-        </div>
-      </div>
-      <div class="pro-footer">🔒 Płatności Stripe · BLIK · Karta · Przelewy24</div>
-    </div>
-  </div>
-  {% endif %}
-</div>
 
-<style>
-.nav-pills-strip{display:flex;gap:8px;margin-bottom:16px;flex-wrap:nowrap;overflow-x:auto;padding-bottom:2px;-webkit-overflow-scrolling:touch;scrollbar-width:none;align-items:stretch}
-.nav-pills-strip::-webkit-scrollbar{display:none}
-.nav-pill{display:flex;flex-direction:row;align-items:center;gap:10px;background:var(--s);border:1.5px solid var(--border);border-radius:14px;padding:10px 14px;min-width:0;flex:1;text-decoration:none;cursor:pointer;transition:all .15s;box-shadow:0 1px 3px rgba(0,0,0,.05);position:relative;overflow:hidden}
-.nav-pill:hover{transform:translateY(-1px);box-shadow:0 3px 10px rgba(0,0,0,.1)}
-.nav-pill:active{transform:translateY(0);box-shadow:none}
-.nav-pill-green{border-color:#bbf7d0}
-.nav-pill-green:hover{border-color:#16a34a;background:#f0fdf4}
-.nav-pill-green .np-fill{background:#16a34a}
-.nav-pill-blue{border-color:#bfdbfe}
-.nav-pill-blue:hover{border-color:#534AB7;background:#EEEDFE}
-.nav-pill-blue .np-fill{background:#534AB7}
-.nav-pill-gray{border-color:var(--b2)}
-.nav-pill-gray:hover{border-color:var(--m);background:var(--bg)}
-.nav-pill-gray .np-fill{background:var(--m)}
-.nav-pill-pro{border-color:#DDD6FE;background:linear-gradient(135deg,#EEEDFE,#E0F7F1)}
-.nav-pill-pro:hover{border-color:var(--purple)}
-.np-ico{font-size:20px;line-height:1;flex-shrink:0}
-.np-body{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}
-.np-label{font-size:10px;font-weight:600;color:var(--m);white-space:nowrap}
-.np-val{font-size:16px;font-weight:800;color:var(--t);line-height:1}
-.np-warn{color:var(--orange)}
-.np-full{color:var(--red)}
-.np-bar{width:100%;height:3px;background:var(--bg);border-radius:2px;overflow:hidden;margin-top:2px}
-.np-fill{height:100%;border-radius:2px;background:#16a34a;transition:width .3s}
-.np-fill.warn{background:var(--orange)}
-.np-fill.full{background:var(--red)}
 
-/* PLATFORM GRID 3 kolumny */
+<style>/* PLATFORM GRID 3 kolumny */
 .pgrid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .ps3{border:1.5px solid var(--border);border-radius:12px;overflow:hidden;cursor:pointer;transition:all .15s;background:var(--s)}
 .ps3:hover{border-color:var(--pc);transform:translateY(-1px);box-shadow:0 2px 8px rgba(0,0,0,.08)}
@@ -115,17 +22,20 @@
 /* ── POPRAWKA 2: Dwa przyciski akcji na karcie — jednakowa wysokość ── */
 .wactions{padding:4px 8px 8px;display:flex;flex-direction:column;gap:4px}
 .wbtn-ep{
-  width:100%;padding:5px 8px;border-radius:6px;
-  border:1px solid #2563eb;background:transparent;
-  color:#2563eb;font-size:10px;font-weight:600;
+  width:100%;padding:6px 8px;border-radius:6px;
+  border:1.5px solid #2563eb;background:transparent;
+  color:#2563eb;font-size:11px;font-weight:700;
   cursor:pointer;transition:background .15s,color .15s;
   display:flex;align-items:center;justify-content:center;gap:4px;
-  min-height:30px;box-sizing:border-box;line-height:1.3;white-space:nowrap
+  min-height:32px;box-sizing:border-box;line-height:1.3;white-space:nowrap;
+  -webkit-tap-highlight-color:transparent
 }
 .wbtn-ep:hover{background:#2563eb;color:#fff}
+.wbtn-ep:active{background:#1d4ed8;color:#fff}
 .wbtn-ep.done{
   border-color:var(--b2);background:var(--bg);
   color:var(--h);cursor:default;pointer-events:none;
+  font-weight:500;
 }
 .wbtn-serial{
   width:100%;padding:5px 8px;border-radius:6px;
@@ -311,27 +221,32 @@
   .np-ico{font-size:18px}
 }
 /* ── Nagłówek sekcji Oglądam ── */
-.sec-ogladam-header{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-bottom:1px solid var(--border);background:var(--bg);border-radius:8px 8px 0 0}
+.sec-ogladam-header{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid var(--border);background:var(--bg);border-radius:8px 8px 0 0;flex-wrap:wrap;gap:6px}
 .sec-ogladam-left{display:flex;align-items:center;gap:8px}
-.sec-ogladam-right{display:flex;align-items:center;gap:6px}
-.btn-add-serial{display:flex;align-items:center;gap:5px;background:var(--t);color:#fff;border:none;border-radius:20px;padding:5px 12px;font-size:11px;font-weight:600;cursor:pointer;transition:opacity .15s;white-space:nowrap}
+.sec-ogladam-right{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.btn-add-serial{display:flex;align-items:center;gap:5px;background:var(--t);color:#fff;border:none;border-radius:20px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;transition:opacity .15s;white-space:nowrap;-webkit-tap-highlight-color:transparent}
 .btn-add-serial:hover{opacity:.85}
+.btn-add-serial:active{opacity:.7}
+@media(max-width:480px){
+  .sec-ogladam-right .btn.btn-sm{display:none}
+  .btn-add-serial{padding:8px 16px;font-size:13px}
+}
 /* ── Wyszukiwarka inline ── */
-.serial-search-bar{border-bottom:1px solid var(--border);background:var(--s);display:none;position:relative}
+.serial-search-bar{border-bottom:1px solid var(--border);background:var(--s);display:none}
 .serial-search-bar.open{display:block}
-.serial-search-input{display:flex;align-items:center;gap:8px;padding:8px 12px}
-.serial-search-input input{flex:1;border:none;background:transparent;font-size:13px;color:var(--t);outline:none;min-width:0}
-.serial-search-results{border-top:1px solid var(--border);max-height:260px;overflow-y:auto;position:relative;z-index:100;background:var(--s)}
-.ssr-item{display:flex;align-items:center;gap:10px;padding:8px 12px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .1s;width:100%;box-sizing:border-box}
+.serial-search-input{display:flex;align-items:center;gap:8px;padding:10px 12px}
+.serial-search-input input{flex:1;border:none;background:transparent;font-size:14px;color:var(--t);outline:none;min-width:0;-webkit-appearance:none}
+.serial-search-results{border-top:1px solid var(--border);max-height:280px;overflow-y:auto;background:var(--s);width:100%;box-sizing:border-box}
+.ssr-item{display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .1s;width:100%;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 .ssr-item:last-child{border-bottom:none}
 .ssr-item:hover,.ssr-item:active{background:var(--bg)}
-.ssr-thumb{width:32px;height:44px;border-radius:4px;background:var(--bg);flex-shrink:0;overflow:hidden;object-fit:cover}
+.ssr-thumb{width:36px;height:50px;border-radius:5px;background:var(--bg);flex-shrink:0;overflow:hidden;object-fit:cover}
 .ssr-info{flex:1;min-width:0;overflow:hidden}
-.ssr-name{font-size:12px;font-weight:600;color:var(--t);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
-.ssr-meta{font-size:10px;color:var(--m);margin-top:1px;display:block}
-.ssr-add{font-size:10px;color:var(--blue);border:1px solid var(--blue);border-radius:20px;padding:3px 10px;background:transparent;cursor:pointer;white-space:nowrap;flex-shrink:0}
+.ssr-name{font-size:13px;font-weight:600;color:var(--t);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.ssr-meta{font-size:11px;color:var(--m);margin-top:2px;display:block}
+.ssr-add{font-size:11px;color:var(--blue);border:1.5px solid var(--blue);border-radius:20px;padding:5px 12px;background:transparent;cursor:pointer;white-space:nowrap;flex-shrink:0;font-weight:600;-webkit-tap-highlight-color:transparent}
 .ssr-add:hover,.ssr-add:active{background:var(--blue);color:#fff}
-.ssr-loading{padding:12px;text-align:center;font-size:11px;color:var(--h)}
+.ssr-loading{padding:14px;text-align:center;font-size:12px;color:var(--h)}
 /* ── Sortowanie ── */
 .wcard.priority-hot{border-color:#f97316;box-shadow:0 0 0 1px #f97316}
 .wcard.priority-new{border-color:#3b82f6;box-shadow:0 0 0 1px rgba(59,130,246,.3)}
@@ -343,15 +258,15 @@
 .wgrid-sep-line{flex:1;height:1px;background:var(--border)}
 .wgrid-sep-label{font-size:9px;color:var(--h);white-space:nowrap;font-weight:600}
 /* ── Mini popup × ── */
-.wdel-popup{position:absolute;top:30px;right:4px;background:var(--s);border:1px solid var(--b2);border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,.18);z-index:500;min-width:175px;overflow:hidden;display:none}
+.wdel-popup{position:fixed;background:var(--s);border:1px solid var(--b2);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.18);z-index:9000;min-width:185px;overflow:hidden;display:none}
 .wdel-popup.open{display:block;animation:popIn .15s ease}
 @keyframes popIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
-.wdel-popup-title{font-size:10px;color:var(--h);padding:8px 10px 4px;font-weight:600;border-bottom:1px solid var(--border)}
-.wdel-popup-btn{width:100%;padding:9px 10px;border:none;background:transparent;cursor:pointer;font-size:11px;text-align:left;transition:background .1s;display:flex;align-items:center;gap:7px}
-.wdel-popup-btn:hover{background:var(--bg)}
-.wdel-popup-btn+.wdel-popup-btn{border-top:1px solid var(--border)}
+.wdel-popup-title{font-size:10px;color:var(--m);padding:8px 12px 5px;font-weight:700;border-bottom:1px solid var(--b);background:var(--bg)}
+.wdel-popup-btn{width:100%;padding:10px 12px;border:none;background:var(--s);cursor:pointer;font-size:12px;font-weight:600;text-align:left;transition:background .1s;display:flex;align-items:center;gap:8px;color:var(--t);-webkit-tap-highlight-color:transparent}
+.wdel-popup-btn:hover,.wdel-popup-btn:active{background:var(--bg)}
+.wdel-popup-btn+.wdel-popup-btn{border-top:1px solid var(--b)}
 .wdel-popup-btn.success{color:#16a34a}
-.wdel-popup-btn.danger{color:var(--red)}
+.wdel-popup-btn.danger{color:#dc2626}
 </style>
 
 
@@ -1194,9 +1109,24 @@ async function addSerial(nazwa){
 let currentSearchResults = [];
 let searchTimer = null;
 function toggleSearchBar(){
-  const bar=document.getElementById('serialSearchBar');
-  if(bar.classList.contains('open')){closeSearchBar();}
-  else{bar.classList.add('open');setTimeout(()=>document.getElementById('serialSearchInput').focus(),50);}
+  const bar = document.getElementById('serialSearchBar');
+  if(bar.classList.contains('open')){
+    closeSearchBar();
+  } else {
+    bar.classList.add('open');
+    // Scroll do search bara na mobile
+    setTimeout(() => {
+      const input = document.getElementById('serialSearchInput');
+      if(input) {
+        input.focus();
+        // Na mobile przewiń żeby search bar był widoczny nad klawiaturą
+        const rect = bar.getBoundingClientRect();
+        if(rect.top > window.innerHeight * 0.5){
+          bar.scrollIntoView({behavior:'smooth', block:'center'});
+        }
+      }
+    }, 100);
+  }
 }
 function closeSearchBar(){
   document.getElementById('serialSearchBar').classList.remove('open');
@@ -1255,7 +1185,18 @@ function toggleDelPopup(e,id,ref){
   if(!popup)return;
   if(activeDelPopup&&activeDelPopup!==popup){activeDelPopup.classList.remove('open');}
   if(popup.classList.contains('open')){popup.classList.remove('open');activeDelPopup=null;}
-  else{popup.classList.add('open');activeDelPopup=popup;}
+  else{
+    // Pozycjonuj popup relative do przycisku × (fixed)
+    const btn = e.currentTarget || e.target;
+    const r = btn.getBoundingClientRect();
+    popup.style.top = (r.bottom + 4) + 'px';
+    // Upewnij się że nie wychodzi poza prawą krawędź
+    const left = Math.min(r.right - 175, window.innerWidth - 185);
+    popup.style.left = Math.max(8, left) + 'px';
+    popup.style.right = 'auto';
+    popup.classList.add('open');
+    activeDelPopup=popup;
+  }
 }
 document.addEventListener('click',e=>{
   if(activeDelPopup&&!e.target.closest('.wdel-popup')&&!e.target.closest('.wdel')){
@@ -1308,26 +1249,56 @@ async function confirmRemove(id){
 
 // ── Sortowanie kart ──
 function sortWatchingCards(){
-  const grid=document.getElementById('ogladamGrid');if(!grid)return;
-  const cards=[...grid.querySelectorAll('.wcard')];
-  const order={hot:0,new:1,neutral:2,done:3};
-  cards.sort((a,b)=>{
-    const pa=order[a.dataset.priority||'neutral']??2;
-    const pb=order[b.dataset.priority||'neutral']??2;
-    if(pa!==pb)return pa-pb;
-    return(b.dataset.date||'').localeCompare(a.dataset.date||'');
+  const grid = document.getElementById('ogladamGrid');
+  if(!grid) return;
+  const cards = [...grid.querySelectorAll('.wcard')];
+
+  // Priorytet wyświetlania:
+  // 0 = hot (nowy odcinek DZIŚ 🔥)
+  // 1 = new (nowy odcinek w tym tygodniu)
+  // 2 = has_ep (ma odcinek, przycisk aktywny)
+  // 3 = neutral (brak odcinka — czeka na odświeżenie)
+  // 4 = done (odcinek już zaliczony)
+  function getPriority(card){
+    const p = card.dataset.priority || 'neutral';
+    if(p === 'hot') return 0;
+    if(p === 'new') return 1;
+    if(p === 'done') return 4;
+    // neutral — sprawdź czy ma aktywny przycisk odcinek
+    const epBtn = card.querySelector('.wbtn-ep:not(.done)');
+    return epBtn ? 2 : 3;
+  }
+
+  cards.sort((a, b) => {
+    const pa = getPriority(a);
+    const pb = getPriority(b);
+    if(pa !== pb) return pa - pb;
+    return (b.dataset.date || '').localeCompare(a.dataset.date || '');
   });
-  grid.querySelectorAll('.wgrid-sep').forEach(s=>s.remove());
-  let lastGroup=null;
-  const labels={new:'ten tydzień',neutral:'starsze',done:'odcinek obejrzany'};
-  cards.forEach(card=>{
-    const g=card.dataset.priority||'neutral';
-    if(g!==lastGroup&&lastGroup!==null&&g!=='hot'){
-      const sep=document.createElement('div');sep.className='wgrid-sep';
-      sep.innerHTML=`<div class="wgrid-sep-line"></div><div class="wgrid-sep-label">${labels[g]||''}</div><div class="wgrid-sep-line"></div>`;
+
+  // Usuń stare separatory
+  grid.querySelectorAll('.wgrid-sep').forEach(s => s.remove());
+
+  // Wstaw separatory między grupami
+  let lastPriGroup = null;
+  const groupLabels = {
+    0: '🔥 nowy odcinek dziś',
+    1: '✨ nowy w tym tygodniu',
+    2: 'do obejrzenia',
+    3: 'odśwież żeby sprawdzić',
+    4: '✓ odcinek zaliczony'
+  };
+
+  cards.forEach(card => {
+    const pg = getPriority(card);
+    if(lastPriGroup !== null && pg !== lastPriGroup){
+      const sep = document.createElement('div');
+      sep.className = 'wgrid-sep';
+      sep.innerHTML = '<div class="wgrid-sep-line"></div><div class="wgrid-sep-label">' + (groupLabels[pg] || '') + '</div><div class="wgrid-sep-line"></div>';
       grid.appendChild(sep);
     }
-    grid.appendChild(card);lastGroup=g;
+    grid.appendChild(card);
+    lastPriGroup = pg;
   });
 }
 
@@ -1337,7 +1308,10 @@ async function markOdcinek(id, btn){
   const r = await fetch(`/api/ogladam/${id}/odcinek`, {method:'POST'});
   const d = await r.json();
   if(d.ok){
-    btn.remove();
+    // Oznacz jako done (nie usuwaj - potrzebne do sortowania)
+    btn.classList.add('done');
+    btn.textContent = '✓ Zaliczony';
+    btn.disabled = true;
     // Zapamiętaj w localStorage że ten odcinek był obejrzany
     const doneKey = 'ep_done_'+id;
     localStorage.setItem(doneKey, Date.now().toString());
