@@ -558,7 +558,7 @@ def export_csv():
 
 
 # ── Admin Panel ───────────────────────────────────────────────────────────────
-ADMIN_EMAIL = "mg.ceglinski@gmail.com"
+ADMIN_EMAIL = "mgce.glinski@gmail.com"
 
 @main_bp.route("/admin")
 @login_required
