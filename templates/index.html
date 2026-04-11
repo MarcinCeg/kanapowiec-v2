@@ -40,7 +40,7 @@
       <span class="np-ico">⭐</span>
       <div class="np-body">
         <span class="np-label">Odblokuj Pro</span>
-        <span class="np-val" style="font-size:13px;color:var(--purple)">5,99 zł<span style="font-size:10px;font-weight:500;color:var(--m)">/mies</span></span>
+        <span class="np-val" style="font-size:14px;color:var(--purple);line-height:1">5,99 zł<span style="font-size:9px;font-weight:500;color:var(--m);display:block;margin-top:1px">/mies</span></span>
       </div>
     </a>
     <div class="pro-popup" id="proPopup"
@@ -76,7 +76,7 @@
 </div>
 
 <style>
-.nav-pills-strip{display:flex;gap:8px;margin-bottom:16px;flex-wrap:nowrap;overflow-x:auto;padding-bottom:2px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.nav-pills-strip{display:flex;gap:8px;margin-bottom:16px;flex-wrap:nowrap;overflow-x:auto;padding-bottom:2px;-webkit-overflow-scrolling:touch;scrollbar-width:none;align-items:stretch}
 .nav-pills-strip::-webkit-scrollbar{display:none}
 .nav-pill{display:flex;flex-direction:row;align-items:center;gap:10px;background:var(--s);border:1.5px solid var(--border);border-radius:14px;padding:10px 14px;min-width:0;flex:1;text-decoration:none;cursor:pointer;transition:all .15s;box-shadow:0 1px 3px rgba(0,0,0,.05);position:relative;overflow:hidden}
 .nav-pill:hover{transform:translateY(-1px);box-shadow:0 3px 10px rgba(0,0,0,.1)}
@@ -138,8 +138,8 @@
 .wbtn-serial:hover{background:#16a34a;color:#fff}
 
 /* ── Pro Pill Wrap + Popup ── */
-.nav-pill-pro-wrap{position:relative;flex:1;min-width:0}
-.nav-pill-pro-wrap .nav-pill-pro{width:100%;box-sizing:border-box}
+.nav-pill-pro-wrap{position:relative;flex:1;min-width:0;display:flex;flex-direction:column}
+.nav-pill-pro-wrap .nav-pill-pro{width:100%;box-sizing:border-box;flex:1}
 .pro-popup{
   display:none;position:absolute;top:calc(100% + 8px);right:0;width:290px;
   background:var(--card,#fff);border:1.5px solid #534AB7;border-radius:16px;
@@ -171,6 +171,127 @@
 .pro-cta-btn:hover{opacity:.85}
 .pro-footer{text-align:center;font-size:9px;color:var(--h);padding:6px 14px 10px;border-top:1px solid var(--border)}
 @media(max-width:600px){.pro-popup{display:none !important}}
+/* ══════════════════════════════════════
+   EKRAN GOŚCIA — blur overlay
+══════════════════════════════════════ */
+.guest-preview-wrap{position:relative}
+.guest-blur-left{filter:blur(5px);pointer-events:none;user-select:none;opacity:.7}
+.guest-stats-panel{background:var(--s);border:1px solid var(--border);border-radius:var(--r12);overflow:hidden;margin-bottom:14px}
+.guest-stats-header{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:7px}
+.guest-stat-block{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--border)}
+.guest-stat-item{padding:12px 14px;border-right:1px solid var(--border);text-align:center}
+.guest-stat-item:last-child{border-right:none}
+.guest-stat-num{font-size:20px;font-weight:800;line-height:1}
+.guest-stat-lbl{font-size:9px;color:var(--m);margin-top:2px}
+.guest-stat-fun{font-size:8px;font-weight:600;margin-top:1px}
+.guest-chart-wrap{padding:12px 14px}
+.guest-chart-title{font-size:10px;font-weight:600;color:var(--m);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.guest-bars{display:flex;align-items:flex-end;gap:4px;height:52px}
+.guest-bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;height:100%}
+.guest-bar-track{flex:1;width:100%;background:var(--bg);border-radius:3px;display:flex;align-items:flex-end;overflow:hidden}
+.guest-bar-fill{width:100%;border-radius:3px;transition:height .3s}
+.guest-bar-lbl{font-size:7px;color:var(--h)}
+.guest-heatmap{padding:0 14px 12px}
+.guest-heat-grid{display:grid;grid-template-columns:repeat(26,1fr);gap:2px}
+.guest-heat-cell{aspect-ratio:1;border-radius:1px}
+.guest-ranking{padding:0 14px 12px}
+.guest-rank-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border)}
+.guest-rank-row:last-child{border-bottom:none}
+.guest-rank-pos{font-size:10px;font-weight:700;color:var(--h);width:14px;text-align:center;flex-shrink:0}
+.guest-rank-av{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;flex-shrink:0}
+.guest-rank-info{flex:1;min-width:0}
+.guest-rank-name{font-size:11px;font-weight:600;color:var(--t)}
+.guest-rank-title{font-size:9px;color:var(--m)}
+.guest-rank-hrs{font-size:10px;font-weight:700;color:var(--purple);flex-shrink:0}
+.guest-badges-row{padding:0 14px 12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.guest-badge-ico{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px}
+.guest-badge-locked{width:36px;height:36px;border-radius:50%;background:var(--bg);border:1.5px dashed var(--b2);display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--h);opacity:.5}
+.guest-badge-plus{font-size:10px;color:var(--purple);font-weight:700;background:#EEEDFE;padding:3px 8px;border-radius:20px}
+
+/* Overlay CTA */
+.guest-cta-overlay{background:var(--s);border:1px solid var(--border);border-radius:var(--r12);padding:20px 18px 24px;text-align:center;box-shadow:0 -2px 0 var(--border)}
+.guest-cta-logo{width:52px;height:52px;background:linear-gradient(135deg,var(--purple),var(--teal));border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 12px}
+.guest-cta-title{font-size:17px;font-weight:800;color:var(--t);margin-bottom:6px;line-height:1.2}
+.guest-cta-sub{font-size:12px;color:var(--m);line-height:1.6;margin-bottom:14px}
+.guest-social-strip{display:flex;align-items:center;justify-content:center;gap:4px;margin-bottom:14px}
+.guest-soc-av{width:26px;height:26px;border-radius:50%;border:2px solid var(--s);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;margin-left:-5px}
+.guest-soc-av:first-child{margin-left:0}
+.guest-soc-txt{font-size:10px;color:var(--m);margin-left:6px}
+.guest-features-pills{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:16px}
+.guest-feat-pill{background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:4px 10px;font-size:10px;color:var(--m);display:flex;align-items:center;gap:4px}
+.guest-btn-register{width:100%;padding:13px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--purple),var(--teal));color:#fff;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:8px;text-decoration:none;display:block;text-align:center}
+.guest-btn-login{width:100%;padding:11px;border-radius:12px;border:1.5px solid var(--border);background:transparent;color:var(--t);font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;display:block;text-align:center}
+.guest-skip{font-size:11px;color:var(--h);margin-top:10px;cursor:pointer}
+
+/* Mobile layout guest */
+@media(max-width:600px){
+  .guest-stat-num{font-size:17px}
+  .guest-bars{height:44px}
+  .guest-heat-grid{grid-template-columns:repeat(18,1fr)}
+}
+
+/* ══════════════════════════════════════
+   POPUP GAMIFIKACJI — po odcinku
+══════════════════════════════════════ */
+#gamPopup{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9500;align-items:flex-end;justify-content:center;padding-bottom:0}
+#gamPopup.show{display:flex}
+.gam-box{background:var(--s);border-radius:20px 20px 0 0;padding:0 0 40px;width:100%;max-width:480px;box-shadow:0 -4px 40px rgba(0,0,0,.2);animation:slideUp .3s ease;overflow:hidden}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.gam-step{display:none}
+.gam-step.active{display:block}
+
+/* Krok 1: odcinek zaliczony */
+.gam-header-bar{padding:16px 20px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.gam-header-bar h3{font-size:14px;font-weight:700;color:var(--t)}
+.gam-close{background:none;border:none;font-size:20px;color:var(--h);cursor:pointer;line-height:1}
+.gam-ep-hero{padding:20px;text-align:center}
+.gam-ep-ico{font-size:40px;margin-bottom:8px;display:block}
+.gam-ep-title{font-size:16px;font-weight:800;color:var(--t);margin-bottom:4px}
+.gam-ep-sub{font-size:12px;color:var(--m);margin-bottom:18px}
+.gam-progress-list{padding:0 20px;display:flex;flex-direction:column;gap:10px;margin-bottom:20px}
+.gam-prog-item{background:var(--bg);border-radius:10px;padding:10px 12px}
+.gam-prog-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.gam-prog-name{font-size:11px;font-weight:600;color:var(--t);display:flex;align-items:center;gap:6px}
+.gam-prog-ico{font-size:14px}
+.gam-prog-cnt{font-size:10px;color:var(--m)}
+.gam-prog-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.gam-prog-fill{height:100%;border-radius:3px;transition:width .6s cubic-bezier(.34,1.56,.64,1)}
+.gam-btn-ok{display:block;width:calc(100% - 40px);margin:0 20px;padding:12px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--purple),var(--teal));color:#fff;font-size:14px;font-weight:700;cursor:pointer}
+
+/* Krok 2: nowa odznaka */
+.gam-badge-reveal{padding:24px 20px 20px;text-align:center}
+.gam-badge-circle{width:88px;height:88px;border-radius:50%;margin:0 auto 14px;display:flex;align-items:center;justify-content:center;font-size:40px;position:relative;animation:badgePop .5s cubic-bezier(.34,1.56,.64,1)}
+@keyframes badgePop{from{transform:scale(0) rotate(-20deg)}to{transform:scale(1) rotate(0)}}
+.gam-badge-check{position:absolute;bottom:-2px;right:-2px;width:26px;height:26px;background:#16a34a;border-radius:50%;border:3px solid var(--s);display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff}
+.gam-badge-new-tag{display:inline-block;background:#534AB7;color:#fff;font-size:9px;font-weight:700;padding:2px 10px;border-radius:20px;margin-bottom:10px;letter-spacing:.5px;text-transform:uppercase}
+.gam-badge-name{font-size:18px;font-weight:800;color:var(--t);margin-bottom:5px}
+.gam-badge-desc{font-size:12px;color:var(--m);line-height:1.5;margin-bottom:16px}
+.gam-next-hint{background:var(--bg);border-radius:10px;padding:10px 14px;margin:0 20px 16px;text-align:left}
+.gam-next-hint-lbl{font-size:9px;color:var(--h);font-weight:600;margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
+.gam-next-hint-name{font-size:11px;font-weight:600;color:var(--t);margin-bottom:5px}
+.gam-next-hint-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+.gam-next-hint-fill{height:100%;border-radius:2px;background:var(--teal)}
+.gam-share-btn{display:block;width:calc(100% - 40px);margin:0 20px 8px;padding:11px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--purple),var(--teal));color:#fff;font-size:13px;font-weight:700;cursor:pointer}
+.gam-all-btn{display:block;width:calc(100% - 40px);margin:0 20px;padding:10px;border-radius:12px;border:1.5px solid var(--border);background:transparent;color:var(--t);font-size:12px;font-weight:600;cursor:pointer;text-decoration:none;text-align:center}
+
+/* Krok 3: premium nudge po 3 odznakach */
+.gam-premium-wrap{padding:20px 20px 0}
+.gam-premium-badges{display:flex;gap:10px;justify-content:center;margin-bottom:16px}
+.gam-prem-badge{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;position:relative}
+.gam-prem-badge-check{position:absolute;bottom:-2px;right:-2px;width:18px;height:18px;background:#16a34a;border-radius:50%;border:2px solid var(--s);display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff}
+.gam-premium-title{font-size:16px;font-weight:800;color:var(--t);text-align:center;margin-bottom:6px}
+.gam-premium-sub{font-size:12px;color:var(--m);text-align:center;line-height:1.6;margin-bottom:16px}
+.gam-premium-box{background:#EEEDFE;border-radius:12px;padding:14px;margin-bottom:16px}
+.gam-premium-box-title{font-size:11px;font-weight:700;color:#3C3489;margin-bottom:8px}
+.gam-premium-feats{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.gam-prem-feat{font-size:11px;color:#534AB7;display:flex;align-items:center;gap:7px}
+.gam-prem-feat::before{content:'✓';font-weight:700;color:#1D9E75}
+.gam-premium-price{text-align:center}
+.gam-prem-price-num{font-size:22px;font-weight:900;color:#534AB7}
+.gam-prem-price-sub{font-size:10px;color:#534AB7;margin-top:2px}
+.gam-prem-btn{display:block;width:100%;padding:13px;border-radius:12px;border:none;background:linear-gradient(135deg,#534AB7,#1D9E75);color:#fff;font-size:14px;font-weight:700;cursor:pointer;text-decoration:none;text-align:center;margin-bottom:8px}
+.gam-prem-skip{display:block;text-align:center;font-size:11px;color:var(--h);cursor:pointer;padding-bottom:4px}
+
 /* ── Nagłówek sekcji Oglądam ── */
 .sec-ogladam-header{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-bottom:1px solid var(--border);background:var(--bg);border-radius:8px 8px 0 0}
 .sec-ogladam-left{display:flex;align-items:center;gap:8px}
@@ -214,6 +335,184 @@
 .wdel-popup-btn.success{color:#16a34a}
 .wdel-popup-btn.danger{color:var(--red)}
 </style>
+
+
+{% if not current_user.is_authenticated %}
+{# ══════════════════════════════════════════
+   EKRAN GOŚCIA — preview + CTA
+══════════════════════════════════════════ #}
+<div id="guestScreen">
+
+  {# Statystyki + wykresy — widoczne bez logowania #}
+  <div class="guest-stats-panel">
+    <div class="guest-stats-header">
+      <div class="dot8" style="background:var(--purple)"></div>
+      <span style="font-size:12px;font-weight:700;color:var(--t)">seriale.fun — co Cię czeka</span>
+    </div>
+
+    {# 3 liczby hero #}
+    <div class="guest-stat-block">
+      <div class="guest-stat-item">
+        <div class="guest-stat-num" style="color:var(--purple)" id="guestStatUsers">2 847</div>
+        <div class="guest-stat-lbl">użytkowników</div>
+        <div class="guest-stat-fun" style="color:var(--teal)">dołącz do nich!</div>
+      </div>
+      <div class="guest-stat-item" style="border-right:1px solid var(--border)">
+        <div class="guest-stat-num" style="color:var(--teal)">18 431</div>
+        <div class="guest-stat-lbl">godzin obejrzanych</div>
+        <div class="guest-stat-fun" style="color:var(--purple)">= 2104 lat razem</div>
+      </div>
+      <div class="guest-stat-item">
+        <div class="guest-stat-num" style="color:var(--orange)">341</div>
+        <div class="guest-stat-lbl">seriali w trackingu</div>
+        <div class="guest-stat-fun" style="color:var(--orange)">dziś dodano 12 nowych</div>
+      </div>
+    </div>
+
+    {# Wykres aktywności tygodniowej #}
+    <div class="guest-chart-wrap">
+      <div class="guest-chart-title">
+        <span>aktywność społeczności — ostatnie 7 dni</span>
+        <span style="color:var(--purple);font-weight:700">⬆ 23% vs tydzień temu</span>
+      </div>
+      <div class="guest-bars">
+        <div class="guest-bar-col"><div class="guest-bar-track"><div class="guest-bar-fill" style="height:32%;background:#B5D4F4"></div></div><div class="guest-bar-lbl">Pn</div></div>
+        <div class="guest-bar-col"><div class="guest-bar-track"><div class="guest-bar-fill" style="height:58%;background:#85B7EB"></div></div><div class="guest-bar-lbl">Wt</div></div>
+        <div class="guest-bar-col"><div class="guest-bar-track"><div class="guest-bar-fill" style="height:24%;background:#B5D4F4"></div></div><div class="guest-bar-lbl">Śr</div></div>
+        <div class="guest-bar-col"><div class="guest-bar-track"><div class="guest-bar-fill" style="height:72%;background:#378ADD"></div></div><div class="guest-bar-lbl">Cz</div></div>
+        <div class="guest-bar-col"><div class="guest-bar-track"><div class="guest-bar-fill" style="height:48%;background:#85B7EB"></div></div><div class="guest-bar-lbl">Pt</div></div>
+        <div class="guest-bar-col"><div class="guest-bar-track"><div class="guest-bar-fill" style="height:100%;background:#185FA5"></div></div><div class="guest-bar-lbl" style="font-weight:700;color:var(--t)">So</div></div>
+        <div class="guest-bar-col"><div class="guest-bar-track"><div class="guest-bar-fill" style="height:88%;background:#378ADD"></div></div><div class="guest-bar-lbl">Nd</div></div>
+      </div>
+    </div>
+
+    {# Heatmapa roczna #}
+    <div class="guest-heatmap">
+      <div class="guest-chart-title" style="margin-bottom:6px">
+        <span>aktywność roczna</span>
+        <span style="display:flex;gap:4px;align-items:center">
+          <span style="width:8px;height:8px;border-radius:1px;background:#E6F1FB;display:inline-block"></span>
+          <span style="width:8px;height:8px;border-radius:1px;background:#85B7EB;display:inline-block"></span>
+          <span style="width:8px;height:8px;border-radius:1px;background:#185FA5;display:inline-block"></span>
+        </span>
+      </div>
+      <div class="guest-heat-grid" id="guestHeatGrid"></div>
+    </div>
+
+    {# Ranking top widzów #}
+    <div class="guest-ranking">
+      <div class="guest-chart-title" style="margin-bottom:6px">ranking — top widzowie tygodnia</div>
+      <div class="guest-rank-row">
+        <div class="guest-rank-pos">1</div>
+        <div class="guest-rank-av" style="background:#534AB7">MK</div>
+        <div class="guest-rank-info"><div class="guest-rank-name">Marek K.</div><div class="guest-rank-title">⚡ Binge Sprinter · 🌙 Nocna Zmiana</div></div>
+        <div class="guest-rank-hrs">1 240 h</div>
+      </div>
+      <div class="guest-rank-row">
+        <div class="guest-rank-pos">2</div>
+        <div class="guest-rank-av" style="background:#1D9E75">AW</div>
+        <div class="guest-rank-info"><div class="guest-rank-name">Ania W.</div><div class="guest-rank-title">🎬 Kinoman · ⚡ Binge Sprinter</div></div>
+        <div class="guest-rank-hrs">987 h</div>
+      </div>
+      <div class="guest-rank-row">
+        <div class="guest-rank-pos">3</div>
+        <div class="guest-rank-av" style="background:#D85A30">PZ</div>
+        <div class="guest-rank-info"><div class="guest-rank-name">Piotrek Z.</div><div class="guest-rank-title">🏆 Mistrz Kanapy</div></div>
+        <div class="guest-rank-hrs">843 h</div>
+      </div>
+      <div class="guest-rank-row" style="opacity:.5">
+        <div class="guest-rank-pos">?</div>
+        <div class="guest-rank-av" style="background:var(--b2)">TY</div>
+        <div class="guest-rank-info"><div class="guest-rank-name" style="color:var(--m)">Twoje miejsce</div><div class="guest-rank-title">zarejestruj się żeby dołączyć</div></div>
+        <div class="guest-rank-hrs" style="color:var(--h)">— h</div>
+      </div>
+    </div>
+
+    {# Odznaki preview #}
+    <div class="guest-badges-row">
+      <div class="guest-badge-ico" style="background:linear-gradient(135deg,#534AB7,#1D9E75)">⚡</div>
+      <div class="guest-badge-ico" style="background:linear-gradient(135deg,#D85A30,#BA7517)">🌙</div>
+      <div class="guest-badge-ico" style="background:linear-gradient(135deg,#185FA5,#0C447C)">🎬</div>
+      <div class="guest-badge-ico" style="background:linear-gradient(135deg,#993556,#D4537E)">🏆</div>
+      <div class="guest-badge-locked">?</div>
+      <div class="guest-badge-locked">?</div>
+      <div class="guest-badge-locked">?</div>
+      <div class="guest-badge-plus">+12 odznak do zdobycia</div>
+    </div>
+  </div>
+
+  {# Preview trackera — rozmyty #}
+  <div class="section-box guest-preview-wrap" style="margin-bottom:14px">
+    <div class="sec-div guest-blur-left" style="border-left-color:#16a34a;margin-bottom:0;border-radius:8px 8px 0 0">
+      <div class="sec-div-l">
+        <div class="dot8" style="background:#16a34a"></div>
+        <span class="sec-div-title">Oglądam teraz</span>
+        <span class="sec-div-n">12</span>
+      </div>
+    </div>
+    <div class="section-body guest-blur-left">
+      <div class="wgrid" style="pointer-events:none">
+        {% for demo in [
+          {'name':'The Bear','color':'#534AB7,#1D9E75','ep':'S03E08 · dziś'},
+          {'name':'White Lotus','color':'#D85A30,#D4537E','ep':'S03E05 · wczoraj'},
+          {'name':'Severance','color':'#185FA5,#534AB7','ep':'S02E06 · 3 dni temu'},
+          {'name':'The Boys','color':'#0F6E56,#1D9E75','ep':'S05E02 · tydzień temu'},
+          {'name':'Andor','color':'#993556,#D4537E','ep':'S02E04 · 2 tygodnie'},
+          {'name':'Dark','color':'#0C447C,#378ADD','ep':'S03E06 · miesiąc temu'},
+        ] %}
+        <div class="wcard" style="pointer-events:none">
+          <div class="wimg" style="background:linear-gradient(135deg,{{ demo.color }});font-size:9px;font-weight:700;color:rgba(255,255,255,.8);display:flex;align-items:center;justify-content:center;text-align:center;padding:4px">{{ demo.name }}</div>
+          <div class="wbody">
+            <div class="wname" style="color:var(--t)">{{ demo.name }}</div>
+            <div class="wep"><div class="wep-num" style="font-size:9px;color:var(--blue)">{{ demo.ep }}</div></div>
+          </div>
+          <div class="wactions">
+            <button class="wbtn-ep" style="pointer-events:none;opacity:.6">✓ Odcinek obejrzany</button>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  {# CTA — zaproszenie #}
+  <div class="guest-cta-overlay">
+    <div class="guest-cta-logo">🛋️</div>
+    <div class="guest-cta-title">Twoja historia oglądania<br>czeka na Ciebie</div>
+    <div class="guest-cta-sub">
+      Dołącz do <strong>2 847 osób</strong> które już śledzą seriale,<br>
+      zbierają odznaki i rywalizują w rankingu.
+    </div>
+
+    <div class="guest-social-strip">
+      <div class="guest-soc-av" style="background:#534AB7">MK</div>
+      <div class="guest-soc-av" style="background:#1D9E75">AW</div>
+      <div class="guest-soc-av" style="background:#D85A30">PZ</div>
+      <div class="guest-soc-av" style="background:#D4537E">KN</div>
+      <div class="guest-soc-av" style="background:#185FA5">TB</div>
+      <div class="guest-soc-txt">i 2 842 innych</div>
+    </div>
+
+    <div class="guest-features-pills">
+      <div class="guest-feat-pill">📺 tracker odcinków</div>
+      <div class="guest-feat-pill">📊 wykresy aktywności</div>
+      <div class="guest-feat-pill">🏆 odznaki i ranking</div>
+      <div class="guest-feat-pill">🤖 AI sommelier</div>
+    </div>
+
+    <a href="/auth/register" class="guest-btn-register">🚀 Zarejestruj się za darmo</a>
+    <a href="/auth/login" class="guest-btn-login">Mam już konto — zaloguj się</a>
+    <div class="guest-skip" onclick="dismissGuestScreen()">tylko przeglądaj, nie teraz →</div>
+  </div>
+</div>
+
+<div id="guestTrackerHint" style="display:none">
+  <div style="background:#EEEDFE;border:1px solid #AFA9EC;border-radius:12px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:10px">
+    <div style="font-size:11px;color:#3C3489">👀 Przeglądasz w trybie gościa — <a href="/auth/register" style="color:#534AB7;font-weight:700;text-decoration:none">zarejestruj się</a> żeby zapisać swoje seriale</div>
+    <button onclick="this.parentElement.parentElement.style.display='none'" style="background:none;border:none;color:#AFA9EC;cursor:pointer;font-size:16px;flex-shrink:0">×</button>
+  </div>
+</div>
+{% endif %}
 
 {# ── OGLĄDAM ── #}
 <div class="section-box" id="sec-ogladam">
@@ -577,6 +876,88 @@
   </div>
 </div>
 
+
+{# ══════════════════════════════════════════
+   POPUP GAMIFIKACJI — po odcinku/odznace
+══════════════════════════════════════════ #}
+<div id="gamPopup">
+  <div class="gam-box" id="gamBox">
+
+    {# KROK 1: Odcinek zaliczony + progress #}
+    <div class="gam-step active" id="gamStep1">
+      <div class="gam-header-bar">
+        <h3>Odcinek zaliczony!</h3>
+        <button class="gam-close" onclick="closeGamPopup()">×</button>
+      </div>
+      <div class="gam-ep-hero">
+        <span class="gam-ep-ico">✅</span>
+        <div class="gam-ep-title" id="gamEpTitle">Odcinek obejrzany</div>
+        <div class="gam-ep-sub" id="gamEpSub">Tak trzymać!</div>
+      </div>
+      <div class="gam-progress-list" id="gamProgressList"></div>
+      <button class="gam-btn-ok" onclick="gamNextStep()">Super, co dalej! →</button>
+    </div>
+
+    {# KROK 2: Nowa odznaka (jeśli odblokowana) #}
+    <div class="gam-step" id="gamStep2">
+      <div class="gam-header-bar">
+        <h3>Nowa odznaka!</h3>
+        <button class="gam-close" onclick="closeGamPopup()">×</button>
+      </div>
+      <div class="gam-badge-reveal">
+        <div class="gam-badge-new-tag">odblokowano</div>
+        <div class="gam-badge-circle" id="gamBadgeCircle" style="background:linear-gradient(135deg,#534AB7,#1D9E75)">
+          <span id="gamBadgeIco">⚡</span>
+          <div class="gam-badge-check">✓</div>
+        </div>
+        <div class="gam-badge-name" id="gamBadgeName">Binge Sprinter</div>
+        <div class="gam-badge-desc" id="gamBadgeDesc">5 odcinków w 24h — jesteś maszyną do oglądania!</div>
+      </div>
+      <div class="gam-next-hint" id="gamNextHint">
+        <div class="gam-next-hint-lbl">następna odznaka</div>
+        <div class="gam-next-hint-name" id="gamNextName">Nocna Zmiana</div>
+        <div class="gam-next-hint-bar"><div class="gam-next-hint-fill" id="gamNextFill" style="width:25%"></div></div>
+      </div>
+      <button class="gam-share-btn" onclick="closeGamPopup()">🎉 Super, wróć do śledzenia</button>
+      <a href="/stats" class="gam-all-btn">Zobacz wszystkie odznaki →</a>
+    </div>
+
+    {# KROK 3: Po 3 odznakach — premium nudge #}
+    <div class="gam-step" id="gamStep3">
+      <div class="gam-header-bar">
+        <h3>Masz smykałkę do oglądania!</h3>
+        <button class="gam-close" onclick="closeGamPopup()">×</button>
+      </div>
+      <div class="gam-premium-wrap">
+        <div class="gam-premium-badges" id="gamPremBadges">
+          <div class="gam-prem-badge" style="background:linear-gradient(135deg,#534AB7,#1D9E75)">⚡<div class="gam-prem-badge-check">✓</div></div>
+          <div class="gam-prem-badge" style="background:linear-gradient(135deg,#D85A30,#BA7517)">🌙<div class="gam-prem-badge-check">✓</div></div>
+          <div class="gam-prem-badge" style="background:linear-gradient(135deg,#185FA5,#0C447C)">🎬<div class="gam-prem-badge-check">✓</div></div>
+        </div>
+        <div class="gam-premium-title">3 odznaki odblokowane!</div>
+        <div class="gam-premium-sub">Oglądasz serio. Odblokuj PRO żeby zdobyć wszystkie 16 odznak, pojawić się w rankingu globalnym i dostać pełne statystyki.</div>
+        <div class="gam-premium-box">
+          <div class="gam-premium-box-title">Co zyskujesz z PRO:</div>
+          <div class="gam-premium-feats">
+            <div class="gam-prem-feat">16 odznak do odblokowania (ty masz 3)</div>
+            <div class="gam-prem-feat">Ranking globalny — pokaż kto ogląda więcej</div>
+            <div class="gam-prem-feat">Zaawansowane wykresy i heatmapy</div>
+            <div class="gam-prem-feat">Nieograniczone listy Oglądam i Obejrzane</div>
+            <div class="gam-prem-feat">AI Sommelier bez limitu</div>
+          </div>
+          <div class="gam-premium-price">
+            <div class="gam-prem-price-num">5,99 zł<span style="font-size:13px;font-weight:500;color:#7F77DD">/mies</span></div>
+            <div class="gam-prem-price-sub">lub 9,99 zł jednorazowo · anuluj kiedy chcesz</div>
+          </div>
+        </div>
+        <a href="/settings#upgrade" class="gam-prem-btn" onclick="closeGamPopup()">Odblokuj PRO →</a>
+        <span class="gam-prem-skip" onclick="closeGamPopup()">może później, wróć do trackera</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 {% endblock %}
 
 {% block scripts %}
@@ -590,6 +971,205 @@ let curRating = 6;
 let activeGenres = new Set();
 let activeCountries = new Set();
 
+
+// ══════════════════════════════════════════
+// EKRAN GOŚCIA
+// ══════════════════════════════════════════
+function dismissGuestScreen(){
+  sessionStorage.setItem('guestDismissed','1');
+  document.getElementById('guestScreen')?.remove();
+  const hint = document.getElementById('guestTrackerHint');
+  if(hint) hint.style.display='block';
+}
+function initGuestScreen(){
+  if(!IS_GUEST) return;
+  const dismissed = sessionStorage.getItem('guestDismissed');
+  if(dismissed){
+    document.getElementById('guestScreen')?.remove();
+    const hint = document.getElementById('guestTrackerHint');
+    if(hint) hint.style.display='block';
+    return;
+  }
+  // Ukryj sekcję Oglądam/Kandydaci/Odkryj gdy guest screen aktywny
+  document.getElementById('sec-ogladam')?.style.setProperty('display','none');
+  document.getElementById('sec-kandydaci')?.style.setProperty('display','none');
+  document.getElementById('sec-obejrzane')?.style.setProperty('display','none');
+  document.querySelectorAll('.section-box').forEach(b=>{
+    if(!b.closest('#guestScreen') && !b.id) b.style.display='none';
+  });
+}
+
+// Generuj heatmapę gościa
+function buildGuestHeatmap(){
+  const hg = document.getElementById('guestHeatGrid');
+  if(!hg) return;
+  const blues = ['#E6F1FB','#B5D4F4','#85B7EB','#378ADD','#185FA5','#0C447C'];
+  const cells = window.innerWidth < 500 ? 72 : 104;
+  for(let i=0;i<cells;i++){
+    const d = document.createElement('div');
+    d.className='guest-heat-cell';
+    const w = Math.random();
+    const idx = w<0.42?0:w<0.62?1:w<0.76?2:w<0.87?3:w<0.95?4:5;
+    d.style.background = blues[idx];
+    hg.appendChild(d);
+  }
+}
+
+// ══════════════════════════════════════════
+// GAMIFIKACJA — popup po odcinku
+// ══════════════════════════════════════════
+
+// Definicje odznak
+const BADGES = [
+  {id:'binge',   ico:'⚡', name:'Binge Sprinter',  desc:'5 odcinków w 24h — jesteś maszyną do oglądania!',      color:'linear-gradient(135deg,#534AB7,#1D9E75)', threshold:5,  unit:'odcinki dziś'},
+  {id:'night',   ico:'🌙', name:'Nocna Zmiana',    desc:'Oglądasz po 23:00 — sowy wiedzą lepiej.',              color:'linear-gradient(135deg,#0C447C,#185FA5)', threshold:3,  unit:'wieczory po 23'},
+  {id:'film',    ico:'🎬', name:'Kinoman',         desc:'100 obejrzanych odcinków — prawdziwy maratończyk!',    color:'linear-gradient(135deg,#993C1D,#D85A30)', threshold:100,unit:'obejrzanych'},
+  {id:'champ',   ico:'🏆', name:'Mistrz Kanapy',   desc:'500 godzin na kanapie — Twój fotel Cię zna.',          color:'linear-gradient(135deg,#412402,#BA7517)', threshold:500,unit:'godzin'},
+  {id:'variety', ico:'🎭', name:'Kolekcjoner',     desc:'Seriale z 5 różnych platform — znawca streamingu.',   color:'linear-gradient(135deg,#534AB7,#D4537E)', threshold:5,  unit:'platform'},
+  {id:'fast',    ico:'🚀', name:'Maraton Tygodnia', desc:'7 odcinków w 7 dni — regularność mistrza.',           color:'linear-gradient(135deg,#1D9E75,#0F6E56)', threshold:7,  unit:'dni z rzędu'},
+];
+
+// Stan gamifikacji w localStorage
+function getGamState(){
+  try { return JSON.parse(localStorage.getItem('kgam')||'{"badges":[],"ep_today":0,"ep_total":0,"nights":0,"streak":0,"platforms":[],"hours":0}'); }
+  catch(e){ return {badges:[],ep_today:0,ep_total:0,nights:0,streak:0,platforms:[],hours:0}; }
+}
+function saveGamState(s){ localStorage.setItem('kgam',JSON.stringify(s)); }
+
+// Sprawdź czy nowa odznaka
+function checkNewBadge(state){
+  for(const b of BADGES){
+    if(state.badges.includes(b.id)) continue;
+    if(b.id==='binge'   && state.ep_today >= b.threshold) return b;
+    if(b.id==='film'    && state.ep_total >= b.threshold) return b;
+    if(b.id==='champ'   && state.hours    >= b.threshold) return b;
+    if(b.id==='variety' && (state.platforms||[]).length >= b.threshold) return b;
+    if(b.id==='fast'    && state.streak   >= b.threshold) return b;
+    if(b.id==='night'){
+      const h = new Date().getHours();
+      if(h >= 23 || h < 3) state.nights = (state.nights||0)+1;
+      if(state.nights >= b.threshold) return b;
+    }
+  }
+  return null;
+}
+
+// Progress do kolejnych odznak
+function getBadgeProgress(state){
+  const items = [];
+  for(const b of BADGES){
+    if(state.badges.includes(b.id)) continue;
+    let current=0;
+    if(b.id==='binge')   current=state.ep_today||0;
+    if(b.id==='night')   current=state.nights||0;
+    if(b.id==='film')    current=state.ep_total||0;
+    if(b.id==='champ')   current=state.hours||0;
+    if(b.id==='variety') current=(state.platforms||[]).length;
+    if(b.id==='fast')    current=state.streak||0;
+    const pct = Math.min(100, Math.round(current/b.threshold*100));
+    if(pct > 0 && pct < 100) items.push({...b, current, pct});
+  }
+  return items.slice(0,2);
+}
+
+function showGamPopup(serialName, badgeUnlocked){
+  const state = getGamState();
+  const progress = getBadgeProgress(state);
+
+  // Wypełnij krok 1
+  document.getElementById('gamEpTitle').textContent = serialName ? `✓ Odcinek z "${serialName}"` : '✓ Odcinek zaliczony!';
+  document.getElementById('gamEpSub').textContent = `Ogółem obejrzanych: ${state.ep_total} odcinków`;
+
+  const pList = document.getElementById('gamProgressList');
+  pList.innerHTML = '';
+  if(progress.length === 0){
+    pList.innerHTML = '<div style="text-align:center;font-size:11px;color:var(--m);padding:8px 0">Świetnie — odcinki się zbierają!</div>';
+  } else {
+    progress.forEach(p=>{
+      pList.innerHTML += `
+        <div class="gam-prog-item">
+          <div class="gam-prog-head">
+            <div class="gam-prog-name"><span class="gam-prog-ico">${p.ico}</span>${p.name}</div>
+            <div class="gam-prog-cnt">${p.current}/${p.threshold} ${p.unit}</div>
+          </div>
+          <div class="gam-prog-bar">
+            <div class="gam-prog-fill" style="width:${p.pct}%;background:${p.color.includes('534AB7')?'#534AB7':'#1D9E75'}"></div>
+          </div>
+        </div>`;
+    });
+  }
+
+  // Krok 2 jeśli odznaka
+  const step2 = document.getElementById('gamStep2');
+  if(badgeUnlocked){
+    document.getElementById('gamBadgeCircle').style.background = badgeUnlocked.color;
+    document.getElementById('gamBadgeIco').textContent = badgeUnlocked.ico;
+    document.getElementById('gamBadgeName').textContent = badgeUnlocked.name;
+    document.getElementById('gamBadgeDesc').textContent = badgeUnlocked.desc;
+    // Następna odznaka
+    const nextBadges = BADGES.filter(b=>!state.badges.includes(b.id) && b.id!==badgeUnlocked.id);
+    if(nextBadges.length){
+      const nb = nextBadges[0];
+      document.getElementById('gamNextName').textContent = `${nb.ico} ${nb.name}`;
+      let cur=0;
+      if(nb.id==='binge')  cur=state.ep_today||0;
+      if(nb.id==='film')   cur=state.ep_total||0;
+      document.getElementById('gamNextFill').style.width = Math.min(90,Math.round(cur/nb.threshold*100))+'%';
+    } else {
+      document.getElementById('gamNextHint').style.display='none';
+    }
+  } else {
+    step2.style.display = 'none'; // Schowaj krok 2 jeśli nie ma odznaki
+  }
+
+  // Krok 3 po >= 3 odznakach (raz na sesję)
+  const showPremium = state.badges.length >= 3 && !sessionStorage.getItem('premiumNudgeShown');
+  if(showPremium){
+    sessionStorage.setItem('premiumNudgeShown','1');
+    document.getElementById('gamStep3').style.style; // zostaw
+  } else {
+    document.getElementById('gamStep3').style.display='none';
+  }
+
+  // Reset do kroku 1
+  document.querySelectorAll('.gam-step').forEach(s=>{
+    if(s.id==='gamStep2' && !badgeUnlocked) return;
+    if(s.id==='gamStep3' && !showPremium) return;
+    s.classList.remove('active');
+  });
+  document.getElementById('gamStep1').classList.add('active');
+  document.getElementById('gamPopup').classList.add('show');
+}
+
+let gamCurrentStep = 1;
+function gamNextStep(){
+  gamCurrentStep++;
+  document.querySelectorAll('.gam-step').forEach(s=>s.classList.remove('active'));
+  const next = document.getElementById('gamStep'+gamCurrentStep);
+  if(next && next.style.display!=='none'){
+    next.classList.add('active');
+  } else {
+    // Szukaj następnego widocznego
+    for(let i=gamCurrentStep+1;i<=3;i++){
+      const s = document.getElementById('gamStep'+i);
+      if(s && s.style.display!=='none'){
+        s.classList.add('active');
+        gamCurrentStep = i;
+        return;
+      }
+    }
+    closeGamPopup();
+  }
+}
+function closeGamPopup(){
+  document.getElementById('gamPopup').classList.remove('show');
+  gamCurrentStep=1;
+}
+document.getElementById('gamPopup')?.addEventListener('click',e=>{
+  if(e.target===e.currentTarget) closeGamPopup();
+});
+
+// Podpięcie do markOdcinek — owijamy oryginalną funkcję
 // ── GUEST localStorage system ──
 const GUEST_KEY = 'kanapowiec_guest';
 function guestLoad(){
@@ -933,9 +1513,42 @@ async function markOdcinek(id, btn){
   const d = await r.json();
   if(d.ok){
     btn.remove();
+    // Przesuń kartę na done
+    const card = document.querySelector(`#ogladamGrid .wcard[data-id="${id}"]`);
+    if(card){
+      card.dataset.priority='done';
+      card.classList.add('priority-done');
+      card.classList.remove('priority-hot','priority-new');
+      const badge = card.querySelector('.wbadge-hot,.wbadge-new');
+      if(badge){badge.className='wbadge-done';badge.textContent='✓ obejrzany';}
+      sortWatchingCards();
+    }
+    // Gamifikacja
+    const serialName = card?.dataset?.nazwa || card?.querySelector('.wname')?.textContent?.trim() || '';
+    triggerGamification(serialName);
   } else {
     btn.disabled = false;
   }
+}
+
+// Wywołaj gamifikację po odcinku
+function triggerGamification(serialName){
+  try{
+    const state = getGamState();
+    state.ep_today = (state.ep_today||0)+1;
+    state.ep_total = (state.ep_total||0)+1;
+    state.hours    = parseFloat(((state.hours||0)+0.5).toFixed(1));
+    const h = new Date().getHours();
+    if(h>=23||h<3) state.nights=(state.nights||0)+1;
+    // Sprawdź czy nowa odznaka
+    const newBadge = checkNewBadge(state);
+    if(newBadge && !state.badges.includes(newBadge.id)){
+      state.badges.push(newBadge.id);
+    }
+    saveGamState(state);
+    // Pokaż popup tylko jeśli zalogowany
+    if(!IS_GUEST) showGamPopup(serialName, newBadge);
+  }catch(e){ console.log('gam error',e); }
 }
 
 // ── Oznacz CAŁY SERIAL jako obejrzany ──
@@ -1026,6 +1639,8 @@ async function promoteKandydat(id, btn){
     const card=document.createElement('div');
     card.className='wcard';
     card.dataset.id=id;
+    card.dataset.priority='neutral';
+    card.dataset.nazwa=nazwa;
     card.innerHTML=`
       <div class="wimg">
         ${cover?`<img src="${cover}" alt="${nazwa}" onerror="this.parentElement.innerHTML='🎬'">`:'🎬'}
@@ -1037,13 +1652,13 @@ async function promoteKandydat(id, btn){
       </div>
       <div class="wactions"></div>
       <div style="position:absolute;top:6px;right:6px;z-index:10">
-        <button class="wdel" onclick="toggleDelPopup(event,${id},'${nazwa.replace(/'/g,\"\\'\")}')" >×</button>
+        <button class="wdel" onclick="toggleDelPopup(event,${id},this)">×</button>
         <div class="wdel-popup" id="delpopup-${id}">
           <div class="wdel-popup-title">${nazwa.slice(0,22)}${nazwa.length>22?'…':''}</div>
-          <button class="wdel-popup-btn success" onclick="confirmFinished(${id},'${nazwa.replace(/'/g,\"\\'\")}')">🎉 Ukończono serial</button>
+          <button class="wdel-popup-btn success" onclick="confirmFinished(${id},this)">🎉 Ukończono serial</button>
           <button class="wdel-popup-btn danger" onclick="confirmRemove(${id})">🗑 Usuń z listy</button>
         </div>
-      </div>`;
+      </div>\`;
     document.getElementById('ogladamGrid').appendChild(card);
     const wcnt=document.getElementById('ogladamCount');
     if(wcnt) wcnt.textContent=document.querySelectorAll('#ogladamGrid .wcard').length;
@@ -1323,6 +1938,8 @@ function addWatchingCard(s){
   card.className='wcard';
   card.dataset.platform='';
   card.dataset.id=String(s.id);
+  card.dataset.priority='neutral';
+  card.dataset.nazwa=s.nazwa||'';
   const id=String(s.id);
   const nazwa = s.nazwa||'';
   const tmdbLink = s.imdb_url && s.imdb_url !== '#'
@@ -1339,10 +1956,10 @@ function addWatchingCard(s){
     </div>
     <div class="wactions"></div>
     <div style="position:absolute;top:6px;right:6px;z-index:10">
-      <button class="wdel" onclick="toggleDelPopup(event,'${id}','${nazwa.replace(/'/g,"\\'")}')">×</button>
+      <button class="wdel" onclick="toggleDelPopup(event,'${id}',this)">×</button>
       <div class="wdel-popup" id="delpopup-${id}">
         <div class="wdel-popup-title">${nazwa.slice(0,22)}${nazwa.length>22?'…':''}</div>
-        <button class="wdel-popup-btn success" onclick="confirmFinished('${id}','${nazwa.replace(/'/g,"\\'")}')">🎉 Ukończono serial</button>
+        <button class="wdel-popup-btn success" onclick="confirmFinished('${id}',this)">🎉 Ukończono serial</button>
         <button class="wdel-popup-btn danger" onclick="confirmRemove('${id}')">🗑 Usuń z listy</button>
       </div>
     </div>`;
@@ -1391,6 +2008,9 @@ document.addEventListener('DOMContentLoaded',()=>{
   attachPopupEvents();
   buildFilterPills();
   applyFilter();
+  sortWatchingCards();
+  buildGuestHeatmap();
+  initGuestScreen();
   if(IS_GUEST){
     const gd = guestLoad();
     gd.ogladam.forEach(s => addWatchingCard(s));
