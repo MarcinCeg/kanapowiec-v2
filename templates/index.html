@@ -1658,7 +1658,7 @@ async function promoteKandydat(id, btn){
           <button class="wdel-popup-btn success" onclick="confirmFinished(${id},this)">🎉 Ukończono serial</button>
           <button class="wdel-popup-btn danger" onclick="confirmRemove(${id})">🗑 Usuń z listy</button>
         </div>
-      </div>\`;
+      </div>`;
     document.getElementById('ogladamGrid').appendChild(card);
     const wcnt=document.getElementById('ogladamCount');
     if(wcnt) wcnt.textContent=document.querySelectorAll('#ogladamGrid .wcard').length;
