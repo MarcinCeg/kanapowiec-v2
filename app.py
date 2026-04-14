@@ -3,6 +3,7 @@ from flask_login import LoginManager
 from models import db, User
 from config import Config
 
+
 def create_app(config=None):
     app = Flask(__name__, template_folder="templates", static_folder="static")
     app.config.from_object(config or Config)
@@ -52,7 +53,7 @@ def create_app(config=None):
         except Exception as e:
             print(f"Warning: db.create_all() failed: {e}")
 
-        # Migracja: dodaj kolumny reset hasła jeśli nie istnieją
+        # Migracja: kolumny reset hasła
         try:
             with db.engine.connect() as conn:
                 conn.execute(db.text(
@@ -66,7 +67,39 @@ def create_app(config=None):
         except Exception as e:
             print(f"[migration] Warning: {e}")
 
+        # ── Inicjalizacja tabeli analityki ────────────────────────────────────
+        # Robimy to tutaj (raz przy starcie) zamiast lazy-init w routes.py
+        try:
+            with db.engine.connect() as conn:
+                conn.execute(db.text("""
+                    CREATE TABLE IF NOT EXISTS user_events (
+                        id SERIAL PRIMARY KEY,
+                        user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+                        session_id VARCHAR(64),
+                        event_type VARCHAR(64) NOT NULL,
+                        page VARCHAR(255),
+                        referrer VARCHAR(255),
+                        data JSONB,
+                        ip_hash VARCHAR(16),
+                        user_agent VARCHAR(500),
+                        device_type VARCHAR(20),
+                        browser VARCHAR(50),
+                        os VARCHAR(50),
+                        duration_ms INTEGER,
+                        created_at TIMESTAMP DEFAULT NOW()
+                    )
+                """))
+                conn.execute(db.text("CREATE INDEX IF NOT EXISTS idx_ue_user ON user_events(user_id)"))
+                conn.execute(db.text("CREATE INDEX IF NOT EXISTS idx_ue_type ON user_events(event_type)"))
+                conn.execute(db.text("CREATE INDEX IF NOT EXISTS idx_ue_ts   ON user_events(created_at)"))
+                conn.execute(db.text("CREATE INDEX IF NOT EXISTS idx_ue_sess ON user_events(session_id)"))
+                conn.commit()
+                print("[analytics] user_events table OK")
+        except Exception as e:
+            print(f"[analytics] table init warning: {e}")
+
     return app
+
 
 if __name__ == "__main__":
     app = create_app()
