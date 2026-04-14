@@ -260,11 +260,32 @@
 .ssr-add:hover,.ssr-add:active{background:var(--blue);color:#fff}
 .ssr-loading{padding:14px;text-align:center;font-size:12px;color:var(--h)}
 /* ── Sortowanie ── */
-.wcard.priority-hot{border-color:#f97316;box-shadow:0 0 0 1px #f97316}
-.wcard.priority-new{border-color:#3b82f6;box-shadow:0 0 0 1px rgba(59,130,246,.3)}
-.wcard.priority-done{opacity:.6;filter:saturate(.55)}
-.wbadge-hot{position:absolute;bottom:6px;left:6px;background:#f97316;color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;z-index:2}
-.wbadge-new{position:absolute;bottom:6px;left:6px;background:#3b82f6;color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;z-index:2}
+.wcard.priority-hot{border-color:#f97316;border-width:2.5px}
+.wcard.priority-new{border-color:#f97316;border-width:2.5px}
+.wcard.priority-done{opacity:.55;filter:saturate(.45)}
+/* FIX: X zawsze klikalny nawet na wyszarzonych kartach */
+.wcard.priority-done .wdel,
+.wcard.priority-done > div:last-child{
+  opacity:1 !important;filter:none !important;pointer-events:auto !important
+}
+/* Pasek odcinka pod okładką */
+.wep-bar{
+  background:#f97316;padding:7px 10px;
+  display:flex;align-items:center;gap:7px;
+  margin:0;
+}
+.wep-bar-ico{font-size:15px;line-height:1;flex-shrink:0}
+.wep-bar-info{flex:1;min-width:0}
+.wep-bar-when{font-size:10px;font-weight:700;color:#fff;white-space:nowrap;letter-spacing:.2px}
+.wep-bar-ep{font-size:9px;color:rgba(255,255,255,.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+.wep-bar-neutral{
+  background:var(--color-background-secondary,var(--bg));
+  border-top:0.5px solid var(--border);
+  padding:7px 10px;display:flex;align-items:center;gap:7px
+}
+.wep-bar-neutral .wep-bar-ico{opacity:.4}
+.wep-bar-neutral .wep-bar-when{font-size:10px;font-weight:500;color:var(--m);white-space:nowrap}
+.wep-bar-neutral .wep-bar-ep{font-size:9px;color:var(--h);margin-top:1px}
 .wbadge-done{position:absolute;bottom:6px;left:6px;background:rgba(0,0,0,.4);color:#ccc;font-size:9px;padding:2px 7px;border-radius:20px;z-index:2}
 .wgrid-sep{display:flex;align-items:center;gap:8px;grid-column:1/-1;margin:4px 0 2px}
 .wgrid-sep-line{flex:1;height:1px;background:var(--border)}
@@ -313,16 +334,31 @@
       {% for w in ogladam %}
       {% set s = w.serial %}
       {% if '🔥' in (w.date_label or '') %}{% set priority = 'hot' %}{% elif w.is_new_today %}{% set priority = 'new' %}{% else %}{% set priority = 'neutral' %}{% endif %}
-      <div class="wcard {% if priority == 'hot' %}priority-hot{% elif priority == 'new' %}priority-new{% endif %}"
+      <div class="wcard {% if priority == 'hot' or priority == 'new' %}priority-hot{% endif %}"
            data-platform="{{ w.platforma }}" data-id="{{ s.id }}"
            data-priority="{{ priority }}" data-date="{{ w.last_date or '' }}"
            data-nazwa="{{ s.nazwa|e }}">
         <div class="wimg">
           {% if s.cover %}<img src="{{ s.cover }}" alt="{{ s.nazwa }}" onerror="this.parentElement.innerHTML='🎬'">{% else %}🎬{% endif %}
           {% if w.platforma %}<span class="wplat" style="background:{{ pcolors.get(w.platforma,'#888') }}">{{ pnames.get(w.platforma,'') }}</span>{% endif %}
-          {% if '🔥' in (w.date_label or '') %}<span class="wbadge-hot">🔥 DZIŚ</span>
-          {% elif w.is_new_today %}<span class="wbadge-new">🆕 NOWY</span>{% endif %}
         </div>
+        {% if w.last_title %}
+        <div class="wep-bar">
+          <span class="wep-bar-ico">🎉</span>
+          <div class="wep-bar-info">
+            <div class="wep-bar-when">{{ w.date_label if w.date_label else 'Nowy odcinek' }}</div>
+            <div class="wep-bar-ep"><a href="{{ w.last_link }}" target="_blank" style="color:rgba(255,255,255,.85);text-decoration:none">{{ w.last_title[:40] }}</a></div>
+          </div>
+        </div>
+        {% else %}
+        <div class="wep-bar-neutral">
+          <span class="wep-bar-ico">🕐</span>
+          <div class="wep-bar-info">
+            <div class="wep-bar-when">Czeka na odcinek</div>
+            <div class="wep-bar-ep">kliknij ⟳ odśwież</div>
+          </div>
+        </div>
+        {% endif %}
         <div class="wbody">
           <div class="wname">
             {% if s.imdb_url and s.imdb_url != '#' %}
@@ -331,14 +367,6 @@
               {{ s.nazwa }}
             {% endif %}
           </div>
-          {% if w.last_title %}
-          <div class="wep {{ 'orange' if w.is_new_today and '🔥' not in (w.date_label or '') else 'gray' if not w.is_new_today else '' }}">
-            <div class="wep-num"><a href="{{ w.last_link }}" target="_blank" style="color:var(--blue);text-decoration:none;font-size:10px">{{ w.last_title[:48] }}</a></div>
-            {% if w.date_label %}<div class="wep-date {{ 'today' if '🔥' in w.date_label else 'recent' if w.is_new_today else '' }}">{{ w.date_label }}</div>{% endif %}
-          </div>
-          {% else %}
-          <div class="wep gray"><div class="wep-num" style="color:var(--h);font-weight:400">Kliknij ⟳ odśwież</div></div>
-          {% endif %}
           {% if s.imdb_rating %}<div class="wimdb">⭐ {{ s.imdb_rating }} · {% if s.imdb_url and s.imdb_url != '#' %}<a href="https://www.imdb.com/find?q={{ s.nazwa|urlencode }}" target="_blank">IMDb</a>{% else %}IMDb{% endif %}</div>{% endif %}
         </div>
         <div class="wactions">
@@ -1166,8 +1194,12 @@ function markCardDone(card){
   card.dataset.priority='done';
   card.classList.add('priority-done');
   card.classList.remove('priority-hot','priority-new');
-  const badge=card.querySelector('.wbadge-hot,.wbadge-new');
-  if(badge){badge.className='wbadge-done';badge.textContent='✓ obejrzany';}
+  // zamień pomarańczowy pasek na neutralny z checkmarkiem
+  const bar=card.querySelector('.wep-bar');
+  if(bar){
+    bar.className='wep-bar-neutral';
+    bar.innerHTML='<span class="wep-bar-ico" style="font-size:13px">✓</span><div class="wep-bar-info"><div class="wep-bar-when">Zaliczony</div></div>';
+  }
   const epBtn=card.querySelector('.wbtn-ep');
   if(epBtn) epBtn.remove();
 }
@@ -1311,8 +1343,11 @@ async function promoteKandydat(id,btn){
       if(d.ok&&d.ep){
         const wcard=document.querySelector('#ogladamGrid .wcard[data-id="'+id+'"]');
         if(wcard){
-          const ep=wcard.querySelector('.wep');
-          if(ep) ep.innerHTML=`<div class="wep-num"><a href="${d.ep.link}" target="_blank" style="color:var(--blue);text-decoration:none;font-size:10px">${d.ep.title?.slice(0,48)||''}</a></div><div class="wep-date">${d.ep.date_label||''}</div>`;
+          const bar=wcard.querySelector('.wep-bar-neutral,.wep-bar');
+          if(bar){
+            bar.className='wep-bar';
+            bar.innerHTML=`<span class="wep-bar-ico">🎉</span><div class="wep-bar-info"><div class="wep-bar-when">${d.ep.date_label||'Nowy odcinek'}</div><div class="wep-bar-ep"><a href="${d.ep.link}" target="_blank" style="color:rgba(255,255,255,.85);text-decoration:none">${(d.ep.title||'').slice(0,40)}</a></div></div>`;
+          }
           const actions=wcard.querySelector('.wactions');
           if(actions&&d.ep.title){
             const epBtn=document.createElement('button');
@@ -1322,10 +1357,9 @@ async function promoteKandydat(id,btn){
             epBtn.onclick=function(){markOdcinek(id,this);};
             actions.insertBefore(epBtn,actions.firstChild);
           }
-          // Aktualizuj datę i priorytet po odświeżeniu
           if(d.ep.date_label){
-            if(d.ep.date_label.includes('🔥')){wcard.dataset.priority='hot';wcard.classList.add('priority-hot');}
-            else if(d.ep.is_new){wcard.dataset.priority='new';wcard.classList.add('priority-new');}
+            wcard.dataset.priority=d.ep.date_label.includes('🔥')?'hot':'new';
+            wcard.classList.add('priority-hot');
             wcard.dataset.date=d.ep.date_raw||'';
           }
           sortWatchingCards();
@@ -1560,9 +1594,15 @@ function addWatchingCard(s){
     <div class="wimg">
       ${s.cover?`<img src="${s.cover}" alt="${nazwa}" onerror="this.parentElement.innerHTML='🎬'">`:'🎬'}
     </div>
+    <div class="wep-bar-neutral">
+      <span class="wep-bar-ico">🕐</span>
+      <div class="wep-bar-info">
+        <div class="wep-bar-when">Czeka na odcinek</div>
+        <div class="wep-bar-ep">kliknij ⟳ odśwież</div>
+      </div>
+    </div>
     <div class="wbody">
       <div class="wname">${tmdbLink}</div>
-      <div class="wep gray"><div class="wep-num" style="color:var(--h);font-weight:400">Kliknij ⟳ odśwież</div></div>
       ${s.imdb_rating?`<div class="wimdb">⭐ ${s.imdb_rating}</div>`:''}
     </div>
     <div class="wactions"></div>
