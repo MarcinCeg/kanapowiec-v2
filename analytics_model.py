@@ -461,22 +461,21 @@ def get_analytics_summary(db, days=30):
                 'passive_sessions': 0, 'active_sessions': 0
             }
 
-            # 25. ŚCIEŻKI NAWIGACJI
+            # 25. ŚCIEŻKI NAWIGACJI (CTE zamiast nested window functions)
             result['navigation_paths'] = _q(conn, db, """
-                SELECT from_page, to_page, cnt
-                FROM (
+                WITH pairs AS (
                     SELECT
                         LAG(page) OVER (PARTITION BY session_id ORDER BY created_at) as from_page,
-                        page as to_page,
-                        COUNT(*) OVER (PARTITION BY
-                            LAG(page) OVER (PARTITION BY session_id ORDER BY created_at), page
-                        ) as cnt
+                        page as to_page
                     FROM user_events
                     WHERE event_type='pageview'
                       AND created_at >= NOW() - INTERVAL '1 day' * :days
-                ) sub
-                WHERE from_page IS NOT NULL AND cnt > 1
-                GROUP BY from_page, to_page, cnt
+                )
+                SELECT from_page, to_page, COUNT(*) as cnt
+                FROM pairs
+                WHERE from_page IS NOT NULL
+                GROUP BY from_page, to_page
+                HAVING COUNT(*) > 1
                 ORDER BY cnt DESC LIMIT 20
             """, p)
 
