@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Tracker — Kanapowy Leniwiec{% endblock %}
+{% block title %}Tracker — Seriale FUN {% endblock %}
 
 {% block content %}
 <main>
@@ -19,7 +19,6 @@
 .ps3-name{display:block;font-size:9px;color:var(--m);text-align:center;padding:3px 4px 5px;font-weight:500;background:var(--bg);border-top:1px solid var(--border)}
 .ps3.on3 .ps3-name{color:var(--t);font-weight:700;background:color-mix(in srgb,var(--pc) 8%,white)}
 
-/* ── POPRAWKA 2: Dwa przyciski akcji na karcie — jednakowa wysokość ── */
 .wactions{padding:4px 8px 8px;display:flex;flex-direction:column;gap:4px}
 .wbtn-ep{
   width:100%;padding:6px 8px;border-radius:6px;
@@ -47,7 +46,6 @@
 }
 .wbtn-serial:hover{background:#16a34a;color:#fff}
 
-/* ── Pro Pill Wrap + Popup ── */
 .nav-pill-pro-wrap{position:relative;flex:1;min-width:0;display:flex;flex-direction:column}
 .nav-pill-pro-wrap .nav-pill-pro{width:100%;box-sizing:border-box;flex:1}
 .pro-popup{
@@ -82,9 +80,7 @@
 .pro-cta-btn:hover{opacity:.85}
 .pro-footer{text-align:center;font-size:9px;color:var(--h);padding:6px 14px 10px;border-top:1px solid var(--border)}
 @media(max-width:600px){.pro-popup{display:none !important}}
-/* ══════════════════════════════════════
-   EKRAN GOŚCIA — blur overlay
-══════════════════════════════════════ */
+
 .guest-preview-wrap{position:relative}
 .guest-blur-left{filter:blur(5px);pointer-events:none;user-select:none;opacity:.7}
 .guest-stats-panel{background:var(--s);border:1px solid var(--border);border-radius:var(--r12);overflow:hidden;margin-bottom:14px}
@@ -119,7 +115,6 @@
 .guest-badge-locked{width:36px;height:36px;border-radius:50%;background:var(--bg);border:1.5px dashed var(--b2);display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--h);opacity:.5}
 .guest-badge-plus{font-size:10px;color:var(--purple);font-weight:700;background:#EEEDFE;padding:3px 8px;border-radius:20px}
 
-/* Overlay CTA */
 .guest-cta-overlay{background:var(--s);border:1px solid var(--border);border-radius:var(--r12);padding:20px 18px 24px;text-align:center;box-shadow:0 -2px 0 var(--border)}
 .guest-cta-logo{width:52px;height:52px;background:linear-gradient(135deg,var(--purple),var(--teal));border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 12px}
 .guest-cta-title{font-size:17px;font-weight:800;color:var(--t);margin-bottom:6px;line-height:1.2}
@@ -134,16 +129,12 @@
 .guest-btn-login{width:100%;padding:11px;border-radius:12px;border:1.5px solid var(--border);background:transparent;color:var(--t);font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;display:block;text-align:center}
 .guest-skip{font-size:11px;color:var(--h);margin-top:10px;cursor:pointer}
 
-/* Mobile layout guest */
 @media(max-width:600px){
   .guest-stat-num{font-size:17px}
   .guest-bars{height:44px}
   .guest-heat-grid{grid-template-columns:repeat(18,1fr)}
 }
 
-/* ══════════════════════════════════════
-   POPUP GAMIFIKACJI — po odcinku
-══════════════════════════════════════ */
 #gamPopup{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9500;align-items:center;justify-content:center;padding:20px}
 #gamPopup.show{display:flex}
 .gam-box{background:var(--s);border-radius:16px;padding:0 0 24px;width:100%;max-width:440px;max-height:90vh;overflow-y:auto;box-shadow:0 8px 40px rgba(0,0,0,.25);animation:gamFadeIn .25s ease}
@@ -151,7 +142,6 @@
 .gam-step{display:none}
 .gam-step.active{display:block}
 
-/* Krok 1: odcinek zaliczony */
 .gam-header-bar{padding:16px 20px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
 .gam-header-bar h3{font-size:14px;font-weight:700;color:var(--t)}
 .gam-close{background:none;border:none;font-size:20px;color:var(--h);cursor:pointer;line-height:1}
@@ -169,7 +159,6 @@
 .gam-prog-fill{height:100%;border-radius:3px;transition:width .6s cubic-bezier(.34,1.56,.64,1)}
 .gam-btn-ok{display:block;width:calc(100% - 40px);margin:0 20px;padding:12px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--purple),var(--teal));color:#fff;font-size:14px;font-weight:700;cursor:pointer}
 
-/* Krok 2: nowa odznaka */
 .gam-badge-reveal{padding:24px 20px 20px;text-align:center}
 .gam-badge-circle{width:88px;height:88px;border-radius:50%;margin:0 auto 14px;display:flex;align-items:center;justify-content:center;font-size:40px;position:relative;animation:badgePop .5s cubic-bezier(.34,1.56,.64,1)}
 @keyframes badgePop{from{transform:scale(0) rotate(-20deg)}to{transform:scale(1) rotate(0)}}
@@ -185,7 +174,6 @@
 .gam-share-btn{display:block;width:calc(100% - 40px);margin:0 20px 8px;padding:11px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--purple),var(--teal));color:#fff;font-size:13px;font-weight:700;cursor:pointer}
 .gam-all-btn{display:block;width:calc(100% - 40px);margin:0 20px;padding:10px;border-radius:12px;border:1.5px solid var(--border);background:transparent;color:var(--t);font-size:12px;font-weight:600;cursor:pointer;text-decoration:none;text-align:center}
 
-/* Krok 3: premium nudge po 3 odznakach */
 .gam-premium-wrap{padding:20px 20px 0}
 .gam-premium-badges{display:flex;gap:10px;justify-content:center;margin-bottom:16px}
 .gam-prem-badge{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;position:relative}
@@ -203,23 +191,31 @@
 .gam-prem-btn{display:block;width:100%;padding:13px;border-radius:12px;border:none;background:linear-gradient(135deg,#534AB7,#1D9E75);color:#fff;font-size:14px;font-weight:700;cursor:pointer;text-decoration:none;text-align:center;margin-bottom:8px}
 .gam-prem-skip{display:block;text-align:center;font-size:11px;color:var(--h);cursor:pointer;padding-bottom:4px}
 
-
 /* ── MOBILE FIXES ── */
 @media(max-width:600px){
-  /* Popup TMDB (hover info) - ukryj całkowicie na mobile bo touch tap go otwiera i zasłania */
   #cardPopup{display:none !important}
   #actorPopup{display:none !important}
-  /* Wyszukiwarka - wyniki zawsze pełna szerokość */
   .serial-search-results{left:0;right:0}
   .ssr-item{padding:10px 12px}
   .ssr-add{padding:5px 12px;font-size:11px}
-  /* Popup gamifikacji - padding żeby nie był do brzegu */
   #gamPopup{padding:12px}
   .gam-box{border-radius:14px}
-  /* Nawigacja pills - mniejsze na małych ekranach */
   .np-val{font-size:14px}
   .np-ico{font-size:18px}
 }
+
+/* ── FIX: Przycisk Odśwież widoczny na mobile ── */
+@media(max-width:480px){
+  /* NIE ukrywaj — zmniejsz */
+  .sec-ogladam-right .btn.btn-sm{
+    font-size:10px;
+    padding:5px 9px;
+    white-space:nowrap;
+  }
+  .sec-ogladam-right{flex-wrap:wrap;gap:4px}
+  .btn-add-serial{padding:8px 14px;font-size:13px}
+}
+
 /* ── Nagłówek sekcji Oglądam ── */
 .sec-ogladam-header{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid var(--border);background:var(--bg);border-radius:8px 8px 0 0;flex-wrap:wrap;gap:6px}
 .sec-ogladam-left{display:flex;align-items:center;gap:8px}
@@ -227,10 +223,26 @@
 .btn-add-serial{display:flex;align-items:center;gap:5px;background:var(--t);color:#fff;border:none;border-radius:20px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;transition:opacity .15s;white-space:nowrap;-webkit-tap-highlight-color:transparent}
 .btn-add-serial:hover{opacity:.85}
 .btn-add-serial:active{opacity:.7}
-@media(max-width:480px){
-  .sec-ogladam-right .btn.btn-sm{display:none}
-  .btn-add-serial{padding:8px 16px;font-size:13px}
+
+/* ── FIX: Popupy na mobile ── */
+#finishedPopup > div,
+#watchedConfirmPopup > div {
+  box-sizing: border-box;
+  width: min(340px, calc(100vw - 32px));
+  margin: auto;
 }
+#finishedPopup,
+#watchedConfirmPopup {
+  padding: 16px;
+}
+@media(max-width:480px){
+  #finishedPopup > div,
+  #watchedConfirmPopup > div {
+    padding: 20px 16px;
+    border-radius: 12px;
+  }
+}
+
 /* ── Wyszukiwarka inline ── */
 .serial-search-bar{border-bottom:1px solid var(--border);background:var(--s);display:none}
 .serial-search-bar.open{display:block}
@@ -285,7 +297,7 @@
     </div>
   </div>
 
-  {# ── Wyszukiwarka Wariant C ── #}
+  {# ── Wyszukiwarka ── #}
   <div class="serial-search-bar" id="serialSearchBar">
     <div class="serial-search-input">
       <span style="font-size:14px;color:var(--h)">🔍</span>
@@ -300,7 +312,6 @@
     <div class="wgrid" id="ogladamGrid">
       {% for w in ogladam %}
       {% set s = w.serial %}
-      {# POPRAWKA 3: brak hover popupu na wcard — nazwa serialu to link do TMDB #}
       {% if '🔥' in (w.date_label or '') %}{% set priority = 'hot' %}{% elif w.is_new_today %}{% set priority = 'new' %}{% else %}{% set priority = 'neutral' %}{% endif %}
       <div class="wcard {% if priority == 'hot' %}priority-hot{% elif priority == 'new' %}priority-new{% endif %}"
            data-platform="{{ w.platforma }}" data-id="{{ s.id }}"
@@ -313,7 +324,6 @@
           {% elif w.is_new_today %}<span class="wbadge-new">🆕 NOWY</span>{% endif %}
         </div>
         <div class="wbody">
-          {# POPRAWKA 3: nazwa = link do TMDB zamiast hover popup #}
           <div class="wname">
             {% if s.imdb_url and s.imdb_url != '#' %}
               <a href="https://www.imdb.com/find?q={{ s.nazwa|urlencode }}" target="_blank" style="color:var(--t);text-decoration:none">{{ s.nazwa }}</a>
@@ -350,15 +360,12 @@
       {% else %}
       <div id="ogladamEmpty" style="grid-column:1/-1">
         <div style="padding:18px 16px 22px">
-
           <div style="text-align:center;margin-bottom:16px">
             <div style="font-size:36px;margin-bottom:8px">🛋️</div>
             <div style="font-size:15px;font-weight:800;color:var(--t);margin-bottom:5px">Zaplanuj swój wieczór z serialami</div>
             <div style="font-size:12px;color:var(--m);line-height:1.6;max-width:400px;margin:0 auto">Tutaj trafiają seriale które oglądasz. Kliknij kartę żeby dowiedzieć się więcej 👇</div>
           </div>
-
           <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
-
             <a href="#sec-ogladam" style="display:flex;align-items:flex-start;gap:12px;background:var(--bg);border-radius:12px;padding:12px 14px;border:1.5px solid transparent;cursor:pointer;transition:all .18s;text-decoration:none;position:relative" onmouseover="this.style.borderColor='#16a34a';this.style.background='#f0fdf4';this.style.transform='translateY(-1px)';this.style.boxShadow='0 3px 12px rgba(0,0,0,.08)'" onmouseout="this.style.borderColor='transparent';this.style.background='var(--bg)';this.style.transform='';this.style.boxShadow=''">
               <div style="width:38px;height:38px;border-radius:11px;background:#E1F5EE;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">📅</div>
               <div style="flex:1;padding-right:8px">
@@ -367,7 +374,6 @@
                 <span style="display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;margin-top:5px;background:#E1F5EE;color:#085041">↑ Sekcja Oglądam</span>
               </div>
             </a>
-
             <a href="#sec-kandydaci" style="display:flex;align-items:flex-start;gap:12px;background:var(--bg);border-radius:12px;padding:12px 14px;border:1.5px solid transparent;cursor:pointer;transition:all .18s;text-decoration:none;position:relative" onmouseover="this.style.borderColor='#534AB7';this.style.background='#EEEDFE';this.style.transform='translateY(-1px)';this.style.boxShadow='0 3px 12px rgba(0,0,0,.08)'" onmouseout="this.style.borderColor='transparent';this.style.background='var(--bg)';this.style.transform='';this.style.boxShadow=''">
               <div style="width:38px;height:38px;border-radius:11px;background:#EEEDFE;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🚩</div>
               <div style="flex:1;padding-right:8px">
@@ -376,7 +382,6 @@
                 <span style="display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;margin-top:5px;background:#EEEDFE;color:#3C3489">↓ Sekcja Kandydaci</span>
               </div>
             </a>
-
             <a href="#sec-odkryj" style="display:flex;align-items:flex-start;gap:12px;background:var(--bg);border-radius:12px;padding:12px 14px;border:1.5px solid transparent;cursor:pointer;transition:all .18s;text-decoration:none;position:relative" onmouseover="this.style.borderColor='#d97706';this.style.background='#fffbeb';this.style.transform='translateY(-1px)';this.style.boxShadow='0 3px 12px rgba(0,0,0,.08)'" onmouseout="this.style.borderColor='transparent';this.style.background='var(--bg)';this.style.transform='';this.style.boxShadow=''">
               <div style="width:38px;height:38px;border-radius:11px;background:#fff7ed;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">✨</div>
               <div style="flex:1;padding-right:8px">
@@ -385,7 +390,6 @@
                 <span style="display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;margin-top:5px;background:#fff7ed;color:#92400e">↓ Sekcja Odkryj</span>
               </div>
             </a>
-
             <a href="/ai" style="display:flex;align-items:flex-start;gap:12px;background:linear-gradient(135deg,#1a1a2e,#16213e);border-radius:12px;padding:12px 14px;border:1.5px solid #534AB7;cursor:pointer;transition:all .18s;text-decoration:none" onmouseover="this.style.borderColor='#7F77DD';this.style.transform='translateY(-2px)';this.style.boxShadow='0 4px 16px rgba(83,74,183,.3)'" onmouseout="this.style.borderColor='#534AB7';this.style.transform='';this.style.boxShadow=''">
               <div style="width:38px;height:38px;border-radius:11px;background:rgba(83,74,183,.3);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🤖</div>
               <div style="flex:1">
@@ -394,11 +398,8 @@
                 <span style="display:inline-block;font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px;margin-top:5px;background:linear-gradient(135deg,#534AB7,#1D9E75);color:#fff">✨ Zapytaj AI Sommeliera →</span>
               </div>
             </a>
-
           </div>
-
           <div style="text-align:center;font-size:11px;color:var(--m);margin-bottom:8px">👇 Albo zacznij od razu — wpisz tytuł <strong style="color:var(--purple)">ulubionego serialu</strong></div>
-
         </div>
       </div>
       {% endfor %}
@@ -454,10 +455,7 @@
     </div>
   </div>
   <div class="section-body">
-
-    {# ── FILTRY — akordeony ── #}
     <div style="margin-bottom:12px">
-
       <div class="filter-accordion">
         <div class="filter-acc-header" onclick="toggleAcc('acc1')">
           <div class="filter-acc-left">
@@ -499,7 +497,6 @@
         <div class="filter-acc-body open" id="body-acc2">
           <div style="font-size:11px;color:var(--m);margin-bottom:10px;font-weight:500">Zaznacz platformy które masz:</div>
           <div class="pgrid3">
-            {# POPRAWKA 1: player.pl zamiast player #}
             {% set pdata = {
               'netflix':     {'logo':'NETFLIX',     'color':'#E50914'},
               'hbo':         {'logo':'HBO',          'color':'#8B5CF6'},
@@ -517,21 +514,15 @@
             <div class="ps3 {% if p in user_platforms %}on3{% endif %}"
                  style="--pc:{{ pd.color }}"
                  onclick="togglePlatform('{{ p }}')" id="psb-{{ p }}">
-              <div class="ps3-logo" style="background:#fff;color:{{ pd.color }}">
-                {{ pd.logo }}
-              </div>
+              <div class="ps3-logo" style="background:#fff;color:{{ pd.color }}">{{ pd.logo }}</div>
               <span class="ps3-name">{{ pnames[p] }}</span>
             </div>
             {% endfor %}
           </div>
         </div>
       </div>
-
     </div>
 
-
-
-    {# NOWOŚCI GRID #}
     {% if nowosci %}
     <div class="ogrid">
       {% for row in nowosci %}
@@ -564,7 +555,6 @@
       <p id="nowosc-empty-txt">Ładuję nowości...</p>
     </div>
     {% endif %}
-
   </div>
 </div>
 
@@ -602,9 +592,9 @@
 
 </main>
 
-{# ── POPUP: Serial obejrzany — potwierdzenie ── #}
+{# ── POPUP: Serial obejrzany ── #}
 <div id="watchedConfirmPopup" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9000;align-items:center;justify-content:center">
-  <div style="background:var(--card);border-radius:14px;padding:28px 24px;max-width:340px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.3)">
+  <div style="background:var(--card);border-radius:14px;padding:28px 24px;max-width:340px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.3);box-sizing:border-box">
     <div style="font-size:28px;text-align:center;margin-bottom:12px">🎉</div>
     <div style="font-weight:700;font-size:15px;text-align:center;margin-bottom:8px" id="watchedPopupTitle">Gratulacje!</div>
     <div style="font-size:12px;color:var(--m);text-align:center;margin-bottom:18px;line-height:1.6">
@@ -618,10 +608,9 @@
   </div>
 </div>
 
-
-{# ── POPUP potwierdzenia ukończenia serialu ── #}
+{# ── POPUP ukończenia serialu ── #}
 <div id="finishedPopup" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9000;align-items:center;justify-content:center">
-  <div style="background:var(--card);border-radius:14px;padding:24px 20px;max-width:320px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.3)">
+  <div style="background:var(--card);border-radius:14px;padding:24px 20px;max-width:320px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.3);box-sizing:border-box">
     <div style="font-size:28px;text-align:center;margin-bottom:10px">🎉</div>
     <div style="font-weight:700;font-size:14px;text-align:center;margin-bottom:6px" id="finishedPopupTitle">Ukończono serial!</div>
     <div style="font-size:11px;color:var(--m);text-align:center;margin-bottom:16px;line-height:1.6">Serial trafi do <strong>Obejrzanych</strong> i zostanie wliczony do Twoich statystyk.</div>
@@ -632,14 +621,9 @@
   </div>
 </div>
 
-
-{# ══════════════════════════════════════════
-   POPUP GAMIFIKACJI — po odcinku/odznace
-══════════════════════════════════════════ #}
+{# ── POPUP GAMIFIKACJI ── #}
 <div id="gamPopup">
   <div class="gam-box" id="gamBox">
-
-    {# KROK 1: Odcinek zaliczony + progress #}
     <div class="gam-step active" id="gamStep1">
       <div class="gam-header-bar">
         <h3>Odcinek zaliczony!</h3>
@@ -653,8 +637,6 @@
       <div class="gam-progress-list" id="gamProgressList"></div>
       <button class="gam-btn-ok" onclick="gamNextStep()">Super, co dalej! →</button>
     </div>
-
-    {# KROK 2: Nowa odznaka (jeśli odblokowana) #}
     <div class="gam-step" id="gamStep2">
       <div class="gam-header-bar">
         <h3>Nowa odznaka!</h3>
@@ -677,8 +659,6 @@
       <button class="gam-share-btn" onclick="closeGamPopup()">🎉 Super, wróć do śledzenia</button>
       <a href="/stats" class="gam-all-btn">Zobacz wszystkie odznaki →</a>
     </div>
-
-    {# KROK 3: Po 3 odznakach — premium nudge #}
     <div class="gam-step" id="gamStep3">
       <div class="gam-header-bar">
         <h3>Masz smykałkę do oglądania!</h3>
@@ -710,7 +690,6 @@
         <span class="gam-prem-skip" onclick="closeGamPopup()">może później, wróć do trackera</span>
       </div>
     </div>
-
   </div>
 </div>
 
@@ -727,76 +706,52 @@ let curRating = 6;
 let activeGenres = new Set();
 let activeCountries = new Set();
 
-
-// ══════════════════════════════════════════
-// EKRAN GOŚCIA
-// ══════════════════════════════════════════
-function dismissGuestScreen(){
-  sessionStorage.setItem('guestDismissed','1');
-  document.getElementById('guestScreen')?.remove();
-  const hint = document.getElementById('guestTrackerHint');
-  if(hint) hint.style.display='block';
+// ── GUEST localStorage ──
+const GUEST_KEY = 'kanapowiec_guest';
+function guestLoad(){
+  try { return JSON.parse(localStorage.getItem(GUEST_KEY)) || {ogladam:[],kandydaci:[]}; }
+  catch(e){ return {ogladam:[],kandydaci:[]}; }
 }
-// initGuestScreen removed - tracker visible for all
-
-// Generuj heatmapę gościa
-function buildGuestHeatmap(){
-  const hg = document.getElementById('guestHeatGrid');
-  if(!hg) return;
-  const blues = ['#E6F1FB','#B5D4F4','#85B7EB','#378ADD','#185FA5','#0C447C'];
-  const cells = window.innerWidth < 500 ? 72 : 104;
-  for(let i=0;i<cells;i++){
-    const d = document.createElement('div');
-    d.className='guest-heat-cell';
-    const w = Math.random();
-    const idx = w<0.42?0:w<0.62?1:w<0.76?2:w<0.87?3:w<0.95?4:5;
-    d.style.background = blues[idx];
-    hg.appendChild(d);
-  }
+function guestSave(data){ localStorage.setItem(GUEST_KEY, JSON.stringify(data)); }
+function guestAddOgladam(serial){
+  const d=guestLoad();
+  if(!d.ogladam.find(s=>s.nazwa===serial.nazwa)){d.ogladam.push(serial);guestSave(d);}
 }
+function guestAddKandydat(serial,platform){
+  const d=guestLoad();
+  if(!d.kandydaci.find(s=>s.nazwa===serial.nazwa)){d.kandydaci.push({...serial,platform});guestSave(d);}
+}
+function guestDelOgladam(nazwa){const d=guestLoad();d.ogladam=d.ogladam.filter(s=>s.nazwa!==nazwa);guestSave(d);}
+function guestDelKandydat(nazwa){const d=guestLoad();d.kandydaci=d.kandydaci.filter(s=>s.nazwa!==nazwa);guestSave(d);}
 
-// ══════════════════════════════════════════
-// GAMIFIKACJA — popup po odcinku
-// ══════════════════════════════════════════
-
-// Definicje odznak
+// ── GAMIFIKACJA ──
 const BADGES = [
-  {id:'binge',   ico:'⚡', name:'Binge Sprinter',  desc:'5 odcinków w 24h — jesteś maszyną do oglądania!',      color:'linear-gradient(135deg,#534AB7,#1D9E75)', threshold:5,  unit:'odcinki dziś'},
-  {id:'night',   ico:'🌙', name:'Nocna Zmiana',    desc:'Oglądasz po 23:00 — sowy wiedzą lepiej.',              color:'linear-gradient(135deg,#0C447C,#185FA5)', threshold:3,  unit:'wieczory po 23'},
-  {id:'film',    ico:'🎬', name:'Kinoman',         desc:'100 obejrzanych odcinków — prawdziwy maratończyk!',    color:'linear-gradient(135deg,#993C1D,#D85A30)', threshold:100,unit:'obejrzanych'},
-  {id:'champ',   ico:'🏆', name:'Mistrz Kanapy',   desc:'500 godzin na kanapie — Twój fotel Cię zna.',          color:'linear-gradient(135deg,#412402,#BA7517)', threshold:500,unit:'godzin'},
-  {id:'variety', ico:'🎭', name:'Kolekcjoner',     desc:'Seriale z 5 różnych platform — znawca streamingu.',   color:'linear-gradient(135deg,#534AB7,#D4537E)', threshold:5,  unit:'platform'},
-  {id:'fast',    ico:'🚀', name:'Maraton Tygodnia', desc:'7 odcinków w 7 dni — regularność mistrza.',           color:'linear-gradient(135deg,#1D9E75,#0F6E56)', threshold:7,  unit:'dni z rzędu'},
+  {id:'binge',   ico:'⚡', name:'Binge Sprinter',   desc:'5 odcinków w 24h — jesteś maszyną do oglądania!',   color:'linear-gradient(135deg,#534AB7,#1D9E75)', threshold:5,   unit:'odcinki dziś'},
+  {id:'night',   ico:'🌙', name:'Nocna Zmiana',     desc:'Oglądasz po 23:00 — sowy wiedzą lepiej.',           color:'linear-gradient(135deg,#0C447C,#185FA5)', threshold:3,   unit:'wieczory po 23'},
+  {id:'film',    ico:'🎬', name:'Kinoman',          desc:'100 obejrzanych odcinków — prawdziwy maratończyk!', color:'linear-gradient(135deg,#993C1D,#D85A30)', threshold:100, unit:'obejrzanych'},
+  {id:'champ',   ico:'🏆', name:'Mistrz Kanapy',    desc:'500 godzin na kanapie — Twój fotel Cię zna.',       color:'linear-gradient(135deg,#412402,#BA7517)', threshold:500, unit:'godzin'},
+  {id:'variety', ico:'🎭', name:'Kolekcjoner',      desc:'Seriale z 5 różnych platform — znawca streamingu.',color:'linear-gradient(135deg,#534AB7,#D4537E)', threshold:5,   unit:'platform'},
+  {id:'fast',    ico:'🚀', name:'Maraton Tygodnia', desc:'7 odcinków w 7 dni — regularność mistrza.',         color:'linear-gradient(135deg,#1D9E75,#0F6E56)', threshold:7,   unit:'dni z rzędu'},
 ];
-
-// Stan gamifikacji w localStorage
 function getGamState(){
-  try { return JSON.parse(localStorage.getItem('kgam')||'{"badges":[],"ep_today":0,"ep_total":0,"nights":0,"streak":0,"platforms":[],"hours":0}'); }
-  catch(e){ return {badges:[],ep_today:0,ep_total:0,nights:0,streak:0,platforms:[],hours:0}; }
+  try{return JSON.parse(localStorage.getItem('kgam')||'{"badges":[],"ep_today":0,"ep_total":0,"nights":0,"streak":0,"platforms":[],"hours":0}');}
+  catch(e){return{badges:[],ep_today:0,ep_total:0,nights:0,streak:0,platforms:[],hours:0};}
 }
-function saveGamState(s){ localStorage.setItem('kgam',JSON.stringify(s)); }
-
-// Sprawdź czy nowa odznaka
+function saveGamState(s){localStorage.setItem('kgam',JSON.stringify(s));}
 function checkNewBadge(state){
   for(const b of BADGES){
     if(state.badges.includes(b.id)) continue;
-    if(b.id==='binge'   && state.ep_today >= b.threshold) return b;
-    if(b.id==='film'    && state.ep_total >= b.threshold) return b;
-    if(b.id==='champ'   && state.hours    >= b.threshold) return b;
-    if(b.id==='variety' && (state.platforms||[]).length >= b.threshold) return b;
-    if(b.id==='fast'    && state.streak   >= b.threshold) return b;
-    if(b.id==='night'){
-      const h = new Date().getHours();
-      if(h >= 23 || h < 3) state.nights = (state.nights||0)+1;
-      if(state.nights >= b.threshold) return b;
-    }
+    if(b.id==='binge'   && state.ep_today>=b.threshold) return b;
+    if(b.id==='film'    && state.ep_total>=b.threshold) return b;
+    if(b.id==='champ'   && state.hours   >=b.threshold) return b;
+    if(b.id==='variety' && (state.platforms||[]).length>=b.threshold) return b;
+    if(b.id==='fast'    && state.streak  >=b.threshold) return b;
+    if(b.id==='night'){const h=new Date().getHours();if(h>=23||h<3)state.nights=(state.nights||0)+1;if(state.nights>=b.threshold)return b;}
   }
   return null;
 }
-
-// Progress do kolejnych odznak
 function getBadgeProgress(state){
-  const items = [];
+  const items=[];
   for(const b of BADGES){
     if(state.badges.includes(b.id)) continue;
     let current=0;
@@ -806,173 +761,83 @@ function getBadgeProgress(state){
     if(b.id==='champ')   current=state.hours||0;
     if(b.id==='variety') current=(state.platforms||[]).length;
     if(b.id==='fast')    current=state.streak||0;
-    const pct = Math.min(100, Math.round(current/b.threshold*100));
-    if(pct > 0 && pct < 100) items.push({...b, current, pct});
+    const pct=Math.min(100,Math.round(current/b.threshold*100));
+    if(pct>0&&pct<100) items.push({...b,current,pct});
   }
   return items.slice(0,2);
 }
-
-function showGamPopup(serialName, badgeUnlocked){
-  const state = getGamState();
-  const progress = getBadgeProgress(state);
-
-  // Wypełnij krok 1
-  document.getElementById('gamEpTitle').textContent = serialName ? `✓ Odcinek z "${serialName}"` : '✓ Odcinek zaliczony!';
-  document.getElementById('gamEpSub').textContent = `Ogółem obejrzanych: ${state.ep_total} odcinków`;
-
-  const pList = document.getElementById('gamProgressList');
-  pList.innerHTML = '';
-  if(progress.length === 0){
-    pList.innerHTML = '<div style="text-align:center;font-size:11px;color:var(--m);padding:8px 0">Świetnie — odcinki się zbierają!</div>';
+function showGamPopup(serialName,badgeUnlocked){
+  const state=getGamState();
+  const progress=getBadgeProgress(state);
+  document.getElementById('gamEpTitle').textContent=serialName?`✓ Odcinek z "${serialName}"`:'✓ Odcinek zaliczony!';
+  document.getElementById('gamEpSub').textContent=`Ogółem obejrzanych: ${state.ep_total} odcinków`;
+  const pList=document.getElementById('gamProgressList');
+  pList.innerHTML='';
+  if(!progress.length){
+    pList.innerHTML='<div style="text-align:center;font-size:11px;color:var(--m);padding:8px 0">Świetnie — odcinki się zbierają!</div>';
   } else {
     progress.forEach(p=>{
-      pList.innerHTML += `
-        <div class="gam-prog-item">
-          <div class="gam-prog-head">
-            <div class="gam-prog-name"><span class="gam-prog-ico">${p.ico}</span>${p.name}</div>
-            <div class="gam-prog-cnt">${p.current}/${p.threshold} ${p.unit}</div>
-          </div>
-          <div class="gam-prog-bar">
-            <div class="gam-prog-fill" style="width:${p.pct}%;background:${p.color.includes('534AB7')?'#534AB7':'#1D9E75'}"></div>
-          </div>
-        </div>`;
+      pList.innerHTML+=`<div class="gam-prog-item"><div class="gam-prog-head"><div class="gam-prog-name"><span class="gam-prog-ico">${p.ico}</span>${p.name}</div><div class="gam-prog-cnt">${p.current}/${p.threshold} ${p.unit}</div></div><div class="gam-prog-bar"><div class="gam-prog-fill" style="width:${p.pct}%;background:${p.color.includes('534AB7')?'#534AB7':'#1D9E75'}"></div></div></div>`;
     });
   }
-
-  // Krok 2 jeśli odznaka
-  const step2 = document.getElementById('gamStep2');
   if(badgeUnlocked){
-    document.getElementById('gamBadgeCircle').style.background = badgeUnlocked.color;
-    document.getElementById('gamBadgeIco').textContent = badgeUnlocked.ico;
-    document.getElementById('gamBadgeName').textContent = badgeUnlocked.name;
-    document.getElementById('gamBadgeDesc').textContent = badgeUnlocked.desc;
-    // Następna odznaka
-    const nextBadges = BADGES.filter(b=>!state.badges.includes(b.id) && b.id!==badgeUnlocked.id);
+    document.getElementById('gamBadgeCircle').style.background=badgeUnlocked.color;
+    document.getElementById('gamBadgeIco').textContent=badgeUnlocked.ico;
+    document.getElementById('gamBadgeName').textContent=badgeUnlocked.name;
+    document.getElementById('gamBadgeDesc').textContent=badgeUnlocked.desc;
+    const nextBadges=BADGES.filter(b=>!state.badges.includes(b.id)&&b.id!==badgeUnlocked.id);
     if(nextBadges.length){
-      const nb = nextBadges[0];
-      document.getElementById('gamNextName').textContent = `${nb.ico} ${nb.name}`;
+      const nb=nextBadges[0];
+      document.getElementById('gamNextName').textContent=`${nb.ico} ${nb.name}`;
       let cur=0;
-      if(nb.id==='binge')  cur=state.ep_today||0;
-      if(nb.id==='film')   cur=state.ep_total||0;
-      document.getElementById('gamNextFill').style.width = Math.min(90,Math.round(cur/nb.threshold*100))+'%';
+      if(nb.id==='binge') cur=state.ep_today||0;
+      if(nb.id==='film')  cur=state.ep_total||0;
+      document.getElementById('gamNextFill').style.width=Math.min(90,Math.round(cur/nb.threshold*100))+'%';
     } else {
       document.getElementById('gamNextHint').style.display='none';
     }
   } else {
-    step2.style.display = 'none'; // Schowaj krok 2 jeśli nie ma odznaki
+    document.getElementById('gamStep2').style.display='none';
   }
-
-  // Krok 3 po >= 3 odznakach (raz na sesję)
-  const showPremium = state.badges.length >= 3 && !sessionStorage.getItem('premiumNudgeShown');
-  if(showPremium){
-    sessionStorage.setItem('premiumNudgeShown','1');
-    document.getElementById('gamStep3').style.style; // zostaw
-  } else {
-    document.getElementById('gamStep3').style.display='none';
-  }
-
-  // Reset do kroku 1
-  document.querySelectorAll('.gam-step').forEach(s=>{
-    if(s.id==='gamStep2' && !badgeUnlocked) return;
-    if(s.id==='gamStep3' && !showPremium) return;
-    s.classList.remove('active');
-  });
+  const showPremium=state.badges.length>=3&&!sessionStorage.getItem('premiumNudgeShown');
+  if(showPremium) sessionStorage.setItem('premiumNudgeShown','1');
+  else document.getElementById('gamStep3').style.display='none';
+  document.querySelectorAll('.gam-step').forEach(s=>s.classList.remove('active'));
   document.getElementById('gamStep1').classList.add('active');
   document.getElementById('gamPopup').classList.add('show');
 }
-
-let gamCurrentStep = 1;
+let gamCurrentStep=1;
 function gamNextStep(){
   gamCurrentStep++;
   document.querySelectorAll('.gam-step').forEach(s=>s.classList.remove('active'));
-  const next = document.getElementById('gamStep'+gamCurrentStep);
-  if(next && next.style.display!=='none'){
-    next.classList.add('active');
-  } else {
-    // Szukaj następnego widocznego
+  const next=document.getElementById('gamStep'+gamCurrentStep);
+  if(next&&next.style.display!=='none'){next.classList.add('active');}
+  else{
     for(let i=gamCurrentStep+1;i<=3;i++){
-      const s = document.getElementById('gamStep'+i);
-      if(s && s.style.display!=='none'){
-        s.classList.add('active');
-        gamCurrentStep = i;
-        return;
-      }
+      const s=document.getElementById('gamStep'+i);
+      if(s&&s.style.display!=='none'){s.classList.add('active');gamCurrentStep=i;return;}
     }
     closeGamPopup();
   }
 }
-function closeGamPopup(){
-  document.getElementById('gamPopup').classList.remove('show');
-  gamCurrentStep=1;
-}
-document.getElementById('gamPopup')?.addEventListener('click',e=>{
-  if(e.target===e.currentTarget) closeGamPopup();
-});
+function closeGamPopup(){document.getElementById('gamPopup').classList.remove('show');gamCurrentStep=1;}
+document.getElementById('gamPopup')?.addEventListener('click',e=>{if(e.target===e.currentTarget)closeGamPopup();});
 
-// Podpięcie do markOdcinek — owijamy oryginalną funkcję
-// ── GUEST localStorage system ──
-const GUEST_KEY = 'kanapowiec_guest';
-function guestLoad(){
-  try { return JSON.parse(localStorage.getItem(GUEST_KEY)) || {ogladam:[],kandydaci:[]}; }
-  catch(e){ return {ogladam:[],kandydaci:[]}; }
-}
-function guestSave(data){ localStorage.setItem(GUEST_KEY, JSON.stringify(data)); }
-function guestAddOgladam(serial){
-  const d = guestLoad();
-  if(!d.ogladam.find(s=>s.nazwa===serial.nazwa)){
-    d.ogladam.push(serial);
-    guestSave(d);
-  }
-}
-function guestAddKandydat(serial, platform){
-  const d = guestLoad();
-  if(!d.kandydaci.find(s=>s.nazwa===serial.nazwa)){
-    d.kandydaci.push({...serial, platform});
-    guestSave(d);
-  }
-}
-function guestDelOgladam(nazwa){
-  const d = guestLoad();
-  d.ogladam = d.ogladam.filter(s=>s.nazwa!==nazwa);
-  guestSave(d);
-}
-function guestDelKandydat(nazwa){
-  const d = guestLoad();
-  d.kandydaci = d.kandydaci.filter(s=>s.nazwa!==nazwa);
-  guestSave(d);
-}
-
-// Login prompt co 3 minuty dla gościa
-if(IS_GUEST){
-  const lastShown = parseInt(sessionStorage.getItem('lastLoginPrompt')||'0');
-  const now = Date.now();
-  const INTERVAL = 3 * 60 * 1000;
-  if(!sessionStorage.getItem('loginPromptDismissed')){
-    setTimeout(function showPromptLoop(){
-      showLoginPrompt();
-      sessionStorage.setItem('lastLoginPrompt', Date.now().toString());
-      setTimeout(showPromptLoop, INTERVAL);
-    }, INTERVAL);
-  }
-}
-
-// ── Akordeony filtrów ──
+// ── Akordeony ──
 function toggleAcc(id){
-  const body = document.getElementById('body-'+id);
-  const chev = document.getElementById('chevron-'+id);
-  const isOpen = body.classList.contains('open');
-  body.classList.toggle('open', !isOpen);
-  chev.classList.toggle('open', !isOpen);
+  const body=document.getElementById('body-'+id);
+  const chev=document.getElementById('chevron-'+id);
+  const isOpen=body.classList.contains('open');
+  body.classList.toggle('open',!isOpen);
+  chev.classList.toggle('open',!isOpen);
 }
 
 // ── Platformy ──
 function togglePlatform(p){
-  const el = document.getElementById('psb-'+p);
-  if(selPlat.includes(p)){ selPlat = selPlat.filter(x=>x!==p); el.classList.remove('on3'); }
-  else { selPlat.push(p); el.classList.add('on3'); }
-  if(!IS_GUEST){
-    fetch('/api/platformy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({platformy:selPlat})});
-  }
+  const el=document.getElementById('psb-'+p);
+  if(selPlat.includes(p)){selPlat=selPlat.filter(x=>x!==p);el.classList.remove('on3');}
+  else{selPlat.push(p);el.classList.add('on3');}
+  if(!IS_GUEST) fetch('/api/platformy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({platformy:selPlat})});
   updatePlatSummary();
   applyFilter();
 }
@@ -980,24 +845,24 @@ function togglePlatform(p){
 // ── Filtry ──
 function applyFilter(){
   document.querySelectorAll('.ocard').forEach(card=>{
-    const ratingOk = parseFloat(card.dataset.rating||0) >= curRating;
-    const cg = (card.dataset.genres||'').split(',').filter(Boolean);
-    const genreOk = activeGenres.size===0 || cg.some(g=>activeGenres.has(g));
-    const cc = (card.dataset.countries||'').split(',').filter(Boolean);
-    const countryOk = activeCountries.size===0 || cc.some(c=>{
+    const ratingOk=parseFloat(card.dataset.rating||0)>=curRating;
+    const cg=(card.dataset.genres||'').split(',').filter(Boolean);
+    const genreOk=activeGenres.size===0||cg.some(g=>activeGenres.has(g));
+    const cc=(card.dataset.countries||'').split(',').filter(Boolean);
+    const countryOk=activeCountries.size===0||cc.some(c=>{
       if(activeCountries.has(c)) return true;
-      for(const [group, codes] of Object.entries(COUNTRY_GROUPS)){
-        if(activeCountries.has(group) && codes.includes(c)) return true;
+      for(const [group,codes] of Object.entries(COUNTRY_GROUPS)){
+        if(activeCountries.has(group)&&codes.includes(c)) return true;
       }
       return false;
     });
-    const cardPlat = card.dataset.platform || '';
-    const platOk = selPlat.length===0 || selPlat.includes(cardPlat);
-    card.style.display = (ratingOk && genreOk && countryOk && platOk) ? '' : 'none';
+    const cardPlat=card.dataset.platform||'';
+    const platOk=selPlat.length===0||selPlat.includes(cardPlat);
+    card.style.display=(ratingOk&&genreOk&&countryOk&&platOk)?'':'none';
   });
-  const visible = document.querySelectorAll('.ocard:not([style*="none"])').length;
-  const countEl = document.getElementById('nowosciCount');
-  if(countEl) countEl.textContent = visible;
+  const visible=document.querySelectorAll('.ocard:not([style*="none"])').length;
+  const countEl=document.getElementById('nowosciCount');
+  if(countEl) countEl.textContent=visible;
   updateFilterSummary();
 }
 function filterRating(min,btn){
@@ -1016,31 +881,23 @@ function toggleCountry(c,btn){
   btn.className='fpill'+(activeCountries.has(c)?' fpill-country-on':'');
   applyFilter();
 }
-function toggleCountryGroup(group, btn){
-  const codes = COUNTRY_GROUPS[group] || [group];
-  const isActive = btn.classList.contains('fpill-country-on');
-  if(isActive){
-    codes.forEach(c=>activeCountries.delete(c));
-    btn.className='fpill';
-  } else {
-    codes.forEach(c=>activeCountries.add(c));
-    btn.className='fpill fpill-country-on';
-  }
+function toggleCountryGroup(group,btn){
+  const codes=COUNTRY_GROUPS[group]||[group];
+  const isActive=btn.classList.contains('fpill-country-on');
+  if(isActive){codes.forEach(c=>activeCountries.delete(c));btn.className='fpill';}
+  else{codes.forEach(c=>activeCountries.add(c));btn.className='fpill fpill-country-on';}
   applyFilter();
 }
-const COUNTRY_GROUPS = {
-  'USA':           ['USA','US'],
-  'Europa':        ['Wielka Brytania','GB','Francja','FR','Niemcy','DE','Włochy','IT','Hiszpania','ES','Belgia','BE','Holandia','NL','Szwajcaria','CH','Austria','AT','Polska','PL','Czechy','CZ','Węgry','HU','Rumunia','RO','Portugalia','PT','Grecja','GR','Turcja','TR'],
-  'Polskie':       ['Polska','PL'],
-  'Skandynawskie': ['Norwegia','NO','Szwecja','SE','Dania','DK','Finlandia','FI','Islandia','IS'],
-  'Japonia/Korea': ['Japonia','JP','Korea','KR'],
+const COUNTRY_GROUPS={
+  'USA':['USA','US'],
+  'Europa':['Wielka Brytania','GB','Francja','FR','Niemcy','DE','Włochy','IT','Hiszpania','ES','Belgia','BE','Holandia','NL','Szwajcaria','CH','Austria','AT','Polska','PL','Czechy','CZ','Węgry','HU','Rumunia','RO','Portugalia','PT','Grecja','GR','Turcja','TR'],
+  'Polskie':['Polska','PL'],
+  'Skandynawskie':['Norwegia','NO','Szwecja','SE','Dania','DK','Finlandia','FI','Islandia','IS'],
+  'Japonia/Korea':['Japonia','JP','Korea','KR'],
 };
-
 function buildFilterPills(){
   const gs=new Set();
-  document.querySelectorAll('.ocard').forEach(card=>{
-    (card.dataset.genres||'').split(',').filter(Boolean).forEach(g=>gs.add(g));
-  });
+  document.querySelectorAll('.ocard').forEach(card=>{(card.dataset.genres||'').split(',').filter(Boolean).forEach(g=>gs.add(g));});
   const gBox=document.getElementById('genreFilters');
   const cBox=document.getElementById('countryFilters');
   if(gBox) gBox.innerHTML=[...gs].sort().map(g=>`<button class="fpill" onclick="toggleGenre('${g}',this)">${g}</button>`).join('');
@@ -1048,84 +905,90 @@ function buildFilterPills(){
   updatePlatSummary();
 }
 function updateFilterSummary(){
-  const s = document.getElementById('filterSummary');
+  const s=document.getElementById('filterSummary');
   if(!s) return;
-  const ratingBtn = document.querySelector('#f6.fpill-on,#f7.fpill-on,#f8.fpill-on');
-  const genres = [...document.querySelectorAll('#genreFilters .fpill-genre-on')].map(b=>b.textContent);
-  const countries = [...document.querySelectorAll('#countryFilters .fpill-country-on')].map(b=>b.textContent);
-  let html = '';
-  if(ratingBtn) html += `<span class="filter-tag rating">${ratingBtn.textContent}</span>`;
+  const ratingBtn=document.querySelector('#f6.fpill-on,#f7.fpill-on,#f8.fpill-on');
+  const genres=[...document.querySelectorAll('#genreFilters .fpill-genre-on')].map(b=>b.textContent);
+  const countries=[...document.querySelectorAll('#countryFilters .fpill-country-on')].map(b=>b.textContent);
+  let html='';
+  if(ratingBtn) html+=`<span class="filter-tag rating">${ratingBtn.textContent}</span>`;
   genres.forEach(g=>html+=`<span class="filter-tag genre">${g}</span>`);
   countries.forEach(c=>html+=`<span class="filter-tag country">${c}</span>`);
-  s.innerHTML = html;
+  s.innerHTML=html;
 }
 function updatePlatSummary(){
-  const s = document.getElementById('platSummary');
+  const s=document.getElementById('platSummary');
   if(!s) return;
-  const platColors={'netflix':'#E50914','hbo':'#8B5CF6','disney':'#113CCF','prime':'#00A8E1','appletv':'#555','player':'#E4002B','canalplus':'#003366','polsat':'#E31E24','tvpvod':'#003F87','skyshowtime':'#0070C9'};
-  s.innerHTML = selPlat.map(p=>`<span class="filter-tag plat" style="background:${platColors[p]||'#888'}">${pnames[p]||p}</span>`).join('');
+  const platColors={netflix:'#E50914',hbo:'#8B5CF6',disney:'#113CCF',prime:'#00A8E1',appletv:'#555',player:'#E4002B',canalplus:'#003366',polsat:'#E31E24',tvpvod:'#003F87',skyshowtime:'#0070C9'};
+  s.innerHTML=selPlat.map(p=>`<span class="filter-tag plat" style="background:${platColors[p]||'#888'}">${pnames[p]||p}</span>`).join('');
 }
 
-// ── Autocomplete ──
-const POPULAR = ['The Last of Us','The White Lotus','Severance','The Boys','Andor','Reacher','Stranger Things','Yellowstone','Succession','Peaky Blinders','True Detective','The Bear','Wednesday','Cobra Kai','Bridgerton','Squid Game','Better Call Saul','Ozark','Dark','House of the Dragon','Grey\'s Anatomy','NCIS','Chicago Med','Chicago Fire','Chicago PD','FBI','9-1-1','The Witcher','Skazana','Pułapka','Ojciec Mateusz','Barwy Szczęścia','Żmijowisko','Wataha','Belfer','1670','Wielka Woda'];
+// ── FIX: Autocomplete z guard clause (był TypeError: serialAC null) ──
+const POPULAR=['The Last of Us','The White Lotus','Severance','The Boys','Andor','Reacher','Stranger Things','Yellowstone','Succession','Peaky Blinders','True Detective','The Bear','Wednesday','Cobra Kai','Bridgerton','Squid Game','Better Call Saul','Ozark','Dark','House of the Dragon','Grey\'s Anatomy','NCIS','Chicago Med','Chicago Fire','Chicago PD','FBI','9-1-1','The Witcher','Skazana','Pułapka','Ojciec Mateusz','Barwy Szczęścia','Żmijowisko','Wataha','Belfer','1670','Wielka Woda'];
 function showAC(){
-  const v=document.getElementById('serialInput').value.toLowerCase();
+  const inputEl=document.getElementById('serialInput');
   const ac=document.getElementById('serialAC');
+  if(!inputEl||!ac) return; // guard — elementy mogą nie istnieć
+  const v=inputEl.value.toLowerCase();
   if(v.length<2){ac.classList.remove('show');return;}
   const m=POPULAR.filter(s=>s.toLowerCase().includes(v)).slice(0,8);
   if(!m.length){ac.classList.remove('show');return;}
   ac.innerHTML=m.map(s=>`<div class="ac-item" onclick="addSerial('${s.replace(/'/g,"\\'")}')">${s}</div>`).join('');
   ac.classList.add('show');
 }
-document.addEventListener('click',e=>{if(!e.target.closest('.add-row'))document.getElementById('serialAC').classList.remove('show');});
-function addFromInput(){const v=document.getElementById('serialInput').value.trim();if(v)addSerial(v);document.getElementById('serialInput').value='';document.getElementById('serialAC').classList.remove('show');}
+document.addEventListener('click',e=>{
+  const ac=document.getElementById('serialAC');
+  if(ac&&!e.target.closest('.add-row')) ac.classList.remove('show');
+});
+function addFromInput(){
+  const inputEl=document.getElementById('serialInput');
+  if(!inputEl) return;
+  const v=inputEl.value.trim();
+  if(v) addSerial(v);
+  inputEl.value='';
+  const ac=document.getElementById('serialAC');
+  if(ac) ac.classList.remove('show');
+}
 
 // ── Dodaj serial ──
 async function addSerial(nazwa){
-  document.getElementById('serialAC').classList.remove('show');
+  const ac=document.getElementById('serialAC');
+  if(ac) ac.classList.remove('show');
   if(IS_GUEST){
-    try {
-      const r = await fetch(`https://api.themoviedb.org/3/search/tv?api_key=${TMDB_KEY}&query=${encodeURIComponent(nazwa)}&language=pl-PL`);
-      const d = await r.json();
-      const item = d.results?.[0];
-      const s = {id:'g_'+Date.now(), nazwa:item?.name||nazwa, cover:item?.poster_path?`https://image.tmdb.org/t/p/w342${item.poster_path}`:'', imdb_rating:item?.vote_average?Math.round(item.vote_average*10)/10:null, imdb_url:'#'};
-      guestAddOgladam(s);
-      addWatchingCard(s);
-    } catch(e) {
-      const s = {id:'g_'+Date.now(), nazwa, cover:'', imdb_rating:null, imdb_url:'#'};
-      guestAddOgladam(s);
-      addWatchingCard(s);
+    try{
+      const r=await fetch(`https://api.themoviedb.org/3/search/tv?api_key=${TMDB_KEY}&query=${encodeURIComponent(nazwa)}&language=pl-PL`);
+      const d=await r.json();
+      const item=d.results?.[0];
+      const s={id:'g_'+Date.now(),nazwa:item?.name||nazwa,cover:item?.poster_path?`https://image.tmdb.org/t/p/w342${item.poster_path}`:'',imdb_rating:item?.vote_average?Math.round(item.vote_average*10)/10:null,imdb_url:'#'};
+      guestAddOgladam(s);addWatchingCard(s);
+    }catch(e){
+      const s={id:'g_'+Date.now(),nazwa,cover:'',imdb_rating:null,imdb_url:'#'};
+      guestAddOgladam(s);addWatchingCard(s);
     }
     return;
   }
   const r=await fetch('/api/ogladam',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nazwa})});
   const d=await r.json();
-  if(d.ok){ addWatchingCard(d.serial); }
+  if(d.ok){addWatchingCard(d.serial);sortWatchingCards();}
   else if(d.error==='limit') alert(d.msg);
 }
 
-
-// ── Wyszukiwarka Wariant C ──
-let currentSearchResults = [];
-let searchTimer = null;
+// ── Wyszukiwarka live ──
+let currentSearchResults=[];
+let searchTimer=null;
 function toggleSearchBar(){
-  const bar = document.getElementById('serialSearchBar');
-  if(bar.classList.contains('open')){
-    closeSearchBar();
-  } else {
+  const bar=document.getElementById('serialSearchBar');
+  if(bar.classList.contains('open')){closeSearchBar();}
+  else{
     bar.classList.add('open');
-    // Scroll do search bara na mobile
-    setTimeout(() => {
-      const input = document.getElementById('serialSearchInput');
-      if(input) {
+    setTimeout(()=>{
+      const input=document.getElementById('serialSearchInput');
+      if(input){
         input.focus();
-        // Na mobile przewiń żeby search bar był widoczny nad klawiaturą
-        const rect = bar.getBoundingClientRect();
-        if(rect.top > window.innerHeight * 0.5){
-          bar.scrollIntoView({behavior:'smooth', block:'center'});
-        }
+        const rect=bar.getBoundingClientRect();
+        if(rect.top>window.innerHeight*0.5) bar.scrollIntoView({behavior:'smooth',block:'center'});
       }
-    }, 100);
+    },100);
   }
 }
 function closeSearchBar(){
@@ -1159,7 +1022,7 @@ async function searchSerialLive(q){
   },350);
 }
 async function addSerialFromSearch(item){
-  if(!item)return;
+  if(!item) return;
   closeSearchBar();
   const nazwa=item.name||item.original_name||'';
   if(IS_GUEST){
@@ -1169,12 +1032,12 @@ async function addSerialFromSearch(item){
   const r=await fetch('/api/ogladam',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nazwa})});
   const d=await r.json();
   if(d.ok){addWatchingCard(d.serial);sortWatchingCards();}
-  else if(d.error==='limit')alert(d.msg);
+  else if(d.error==='limit') alert(d.msg);
 }
 document.addEventListener('click',e=>{
   const bar=document.getElementById('serialSearchBar');
   const btn=document.getElementById('btnAddSerial');
-  if(bar&&bar.classList.contains('open')&&!bar.contains(e.target)&&e.target!==btn)closeSearchBar();
+  if(bar&&bar.classList.contains('open')&&!bar.contains(e.target)&&e.target!==btn) closeSearchBar();
 });
 
 // ── Mini popup × ──
@@ -1182,18 +1045,16 @@ let activeDelPopup=null;
 function toggleDelPopup(e,id,ref){
   e.stopPropagation();
   const popup=document.getElementById('delpopup-'+id);
-  if(!popup)return;
-  if(activeDelPopup&&activeDelPopup!==popup){activeDelPopup.classList.remove('open');}
+  if(!popup) return;
+  if(activeDelPopup&&activeDelPopup!==popup) activeDelPopup.classList.remove('open');
   if(popup.classList.contains('open')){popup.classList.remove('open');activeDelPopup=null;}
   else{
-    // Pozycjonuj popup relative do przycisku × (fixed)
-    const btn = e.currentTarget || e.target;
-    const r = btn.getBoundingClientRect();
-    popup.style.top = (r.bottom + 4) + 'px';
-    // Upewnij się że nie wychodzi poza prawą krawędź
-    const left = Math.min(r.right - 175, window.innerWidth - 185);
-    popup.style.left = Math.max(8, left) + 'px';
-    popup.style.right = 'auto';
+    const btn=e.currentTarget||e.target;
+    const r=btn.getBoundingClientRect();
+    popup.style.top=(r.bottom+4)+'px';
+    const left=Math.min(r.right-175,window.innerWidth-185);
+    popup.style.left=Math.max(8,left)+'px';
+    popup.style.right='auto';
     popup.classList.add('open');
     activeDelPopup=popup;
   }
@@ -1204,7 +1065,7 @@ document.addEventListener('click',e=>{
   }
 });
 
-// ── Ukończono serial (zastępuje markSerialObejrzany) ──
+// ── Ukończono serial ──
 let pendingFinishedId=null;
 function confirmFinished(id,ref){
   if(activeDelPopup){activeDelPopup.classList.remove('open');activeDelPopup=null;}
@@ -1220,7 +1081,7 @@ function confirmFinished(id,ref){
     if(d.ok){
       document.querySelector('#ogladamGrid .wcard[data-id="'+pendingFinishedId+'"]')?.remove();
       const cnt=document.getElementById('ogladamCount');
-      if(cnt)cnt.textContent=document.querySelectorAll('#ogladamGrid .wcard').length;
+      if(cnt) cnt.textContent=document.querySelectorAll('#ogladamGrid .wcard').length;
       location.reload();
     }
   };
@@ -1228,196 +1089,155 @@ function confirmFinished(id,ref){
 function closeFinishedPopup(){document.getElementById('finishedPopup').style.display='none';pendingFinishedId=null;}
 document.getElementById('finishedPopup')?.addEventListener('click',e=>{if(e.target===e.currentTarget)closeFinishedPopup();});
 
-// ── Usuń z listy (zastępuje delOgladam) ──
+// ── Usuń z listy ──
 async function confirmRemove(id){
   if(activeDelPopup){activeDelPopup.classList.remove('open');activeDelPopup=null;}
-  if(!confirm('Usunąć serial z Oglądam?'))return;
+  if(!confirm('Usunąć serial z Oglądam?')) return;
   if(IS_GUEST){
     const card=document.querySelector('#ogladamGrid .wcard[data-id="'+id+'"]');
     const nazwa=card?.querySelector('.wname')?.textContent?.trim()||'';
     guestDelOgladam(nazwa);card?.remove();
-    const cnt=document.getElementById('ogladamCount');if(cnt)cnt.textContent=document.querySelectorAll('#ogladamGrid .wcard').length;
+    const cnt=document.getElementById('ogladamCount');
+    if(cnt) cnt.textContent=document.querySelectorAll('#ogladamGrid .wcard').length;
     return;
   }
   const r=await fetch('/api/ogladam/'+id,{method:'DELETE'});
   const d=await r.json();
   if(d.ok){
     document.querySelector('#ogladamGrid .wcard[data-id="'+id+'"]')?.remove();
-    const cnt=document.getElementById('ogladamCount');if(cnt)cnt.textContent=document.querySelectorAll('#ogladamGrid .wcard').length;
+    const cnt=document.getElementById('ogladamCount');
+    if(cnt) cnt.textContent=document.querySelectorAll('#ogladamGrid .wcard').length;
   }
 }
 
-// ── Sortowanie kart ──
+// ── FIX: Sortowanie kart (najnowsze po lewej) ──
 function sortWatchingCards(){
-  const grid = document.getElementById('ogladamGrid');
+  const grid=document.getElementById('ogladamGrid');
   if(!grid) return;
-  const cards = [...grid.querySelectorAll('.wcard')];
-
-  // Priorytet wyświetlania:
-  // 0 = hot (nowy odcinek DZIŚ 🔥)
-  // 1 = new (nowy odcinek w tym tygodniu)
-  // 2 = has_ep (ma odcinek, przycisk aktywny)
-  // 3 = neutral (brak odcinka — czeka na odświeżenie)
-  // 4 = done (odcinek już zaliczony)
+  const cards=[...grid.querySelectorAll('.wcard')];
   function getPriority(card){
-    const p = card.dataset.priority || 'neutral';
-    if(p === 'hot') return 0;
-    if(p === 'new') return 1;
-    if(p === 'done') return 4;
-    // neutral — sprawdź czy ma aktywny przycisk odcinek
-    const epBtn = card.querySelector('.wbtn-ep:not(.done)');
-    return epBtn ? 2 : 3;
+    const p=card.dataset.priority||'neutral';
+    if(p==='hot')  return 0;
+    if(p==='new')  return 1;
+    if(p==='done') return 4;
+    const epBtn=card.querySelector('.wbtn-ep:not(.done)');
+    return epBtn?2:3;
   }
-
-  cards.sort((a, b) => {
-    const pa = getPriority(a);
-    const pb = getPriority(b);
-    if(pa !== pb) return pa - pb;
-    return (b.dataset.date || '').localeCompare(a.dataset.date || '');
+  cards.sort((a,b)=>{
+    const pa=getPriority(a),pb=getPriority(b);
+    if(pa!==pb) return pa-pb;
+    return (b.dataset.date||'').localeCompare(a.dataset.date||'');
   });
-
-  // Usuń stare separatory
-  grid.querySelectorAll('.wgrid-sep').forEach(s => s.remove());
-
-  // Wstaw separatory między grupami
-  let lastPriGroup = null;
-  const groupLabels = {
-    0: '🔥 nowy odcinek dziś',
-    1: '✨ nowy w tym tygodniu',
-    2: 'do obejrzenia',
-    3: 'odśwież żeby sprawdzić',
-    4: '✓ odcinek zaliczony'
-  };
-
-  cards.forEach(card => {
-    const pg = getPriority(card);
-    if(lastPriGroup !== null && pg !== lastPriGroup){
-      const sep = document.createElement('div');
-      sep.className = 'wgrid-sep';
-      sep.innerHTML = '<div class="wgrid-sep-line"></div><div class="wgrid-sep-label">' + (groupLabels[pg] || '') + '</div><div class="wgrid-sep-line"></div>';
+  grid.querySelectorAll('.wgrid-sep').forEach(s=>s.remove());
+  let lastPriGroup=null;
+  const groupLabels={0:'🔥 nowy odcinek dziś',1:'✨ nowy w tym tygodniu',2:'do obejrzenia',3:'odśwież żeby sprawdzić',4:'✓ odcinek zaliczony'};
+  cards.forEach(card=>{
+    const pg=getPriority(card);
+    if(lastPriGroup!==null&&pg!==lastPriGroup){
+      const sep=document.createElement('div');
+      sep.className='wgrid-sep';
+      sep.innerHTML=`<div class="wgrid-sep-line"></div><div class="wgrid-sep-label">${groupLabels[pg]||''}</div><div class="wgrid-sep-line"></div>`;
       grid.appendChild(sep);
     }
     grid.appendChild(card);
-    lastPriGroup = pg;
+    lastPriGroup=pg;
   });
 }
 
-// ── Oznacz ODCINEK jako obejrzany ──
-async function markOdcinek(id, btn){
-  btn.disabled = true;
-  const r = await fetch(`/api/ogladam/${id}/odcinek`, {method:'POST'});
-  const d = await r.json();
+// ── Oznacz odcinek ──
+async function markOdcinek(id,btn){
+  btn.disabled=true;
+  const r=await fetch(`/api/ogladam/${id}/odcinek`,{method:'POST'});
+  const d=await r.json();
   if(d.ok){
-    // Oznacz jako done (nie usuwaj - potrzebne do sortowania)
     btn.classList.add('done');
-    btn.textContent = '✓ Zaliczony';
-    btn.disabled = true;
-    // Zapamiętaj w localStorage że ten odcinek był obejrzany
-    const doneKey = 'ep_done_'+id;
-    localStorage.setItem(doneKey, Date.now().toString());
-    // Przesuń kartę na done
-    const card = document.querySelector('#ogladamGrid .wcard[data-id="'+id+'"]');
-    if(card){
-      markCardDone(card);
-      sortWatchingCards();
-    }
-    // Gamifikacja
-    const serialName = card?.dataset?.nazwa || card?.querySelector('.wname')?.textContent?.trim() || '';
+    btn.textContent='✓ Zaliczony';
+    btn.disabled=true;
+    localStorage.setItem('ep_done_'+id,Date.now().toString());
+    const card=document.querySelector('#ogladamGrid .wcard[data-id="'+id+'"]');
+    if(card){markCardDone(card);sortWatchingCards();}
+    const serialName=card?.dataset?.nazwa||card?.querySelector('.wname')?.textContent?.trim()||'';
     triggerGamification(serialName);
   } else {
-    btn.disabled = false;
+    btn.disabled=false;
   }
 }
-
 function markCardDone(card){
   card.dataset.priority='done';
   card.classList.add('priority-done');
   card.classList.remove('priority-hot','priority-new');
-  const badge = card.querySelector('.wbadge-hot,.wbadge-new');
+  const badge=card.querySelector('.wbadge-hot,.wbadge-new');
   if(badge){badge.className='wbadge-done';badge.textContent='✓ obejrzany';}
-  // Usuń przycisk odcinek jeśli jeszcze jest
-  const epBtn = card.querySelector('.wbtn-ep');
+  const epBtn=card.querySelector('.wbtn-ep');
   if(epBtn) epBtn.remove();
 }
 
-// Przywróć stan 'done' po reloadzie ze localStorage
+// ── FIX: restoreDoneStates + sort po przywróceniu ──
 function restoreDoneStates(){
+  let anyRestored=false;
   document.querySelectorAll('#ogladamGrid .wcard').forEach(card=>{
-    const id = card.dataset.id;
+    const id=card.dataset.id;
     if(!id) return;
-    const doneTs = localStorage.getItem('ep_done_'+id);
+    const doneTs=localStorage.getItem('ep_done_'+id);
     if(!doneTs) return;
-    // Tylko jeśli obejrzano w ciągu ostatnich 24h
-    if(Date.now() - parseInt(doneTs) < 24*60*60*1000){
+    if(Date.now()-parseInt(doneTs)<24*60*60*1000){
       markCardDone(card);
+      anyRestored=true;
     } else {
-      // Starsze niż 24h - wyczyść
       localStorage.removeItem('ep_done_'+id);
     }
   });
+  // Po przywróceniu stanów — od razu sortuj
+  if(anyRestored) sortWatchingCards();
 }
 
-// Wywołaj gamifikację po odcinku
 function triggerGamification(serialName){
   try{
-    const state = getGamState();
-    state.ep_today = (state.ep_today||0)+1;
-    state.ep_total = (state.ep_total||0)+1;
-    state.hours    = parseFloat(((state.hours||0)+0.5).toFixed(1));
-    const h = new Date().getHours();
+    const state=getGamState();
+    state.ep_today=(state.ep_today||0)+1;
+    state.ep_total=(state.ep_total||0)+1;
+    state.hours=parseFloat(((state.hours||0)+0.5).toFixed(1));
+    const h=new Date().getHours();
     if(h>=23||h<3) state.nights=(state.nights||0)+1;
-    const newBadge = checkNewBadge(state);
-    if(newBadge && !state.badges.includes(newBadge.id)){
-      state.badges.push(newBadge.id);
-    }
+    const newBadge=checkNewBadge(state);
+    if(newBadge&&!state.badges.includes(newBadge.id)) state.badges.push(newBadge.id);
     saveGamState(state);
     if(IS_GUEST) return;
-    // Pokaż popup TYLKO gdy: nowa odznaka, LUB co 5 odcinków, LUB nie pokazywany >8h
-    const lastShown = parseInt(localStorage.getItem('gamLastShown')||'0');
-    const hoursSince = (Date.now() - lastShown) / 3600000;
-    const shouldShow = newBadge || (state.ep_total % 5 === 0) || hoursSince > 8;
-    if(shouldShow){
-      localStorage.setItem('gamLastShown', Date.now().toString());
-      showGamPopup(serialName, newBadge);
-    }
-  }catch(e){ console.log('gam error',e); }
+    const lastShown=parseInt(localStorage.getItem('gamLastShown')||'0');
+    const hoursSince=(Date.now()-lastShown)/3600000;
+    const shouldShow=newBadge||(state.ep_total%5===0)||hoursSince>8;
+    if(shouldShow){localStorage.setItem('gamLastShown',Date.now().toString());showGamPopup(serialName,newBadge);}
+  }catch(e){console.log('gam error',e);}
 }
 
-// ── Oznacz CAŁY SERIAL jako obejrzany ──
-let pendingWatchedId = null;
-function markSerialObejrzany(id, nazwa){
-  pendingWatchedId = id;
-  document.getElementById('watchedPopupTitle').textContent = `"${nazwa}" — serial obejrzany?`;
-  const popup = document.getElementById('watchedConfirmPopup');
-  popup.style.display = 'flex';
-  document.getElementById('watchedConfirmBtn').onclick = async () => {
+// ── Oznacz cały serial ──
+let pendingWatchedId=null;
+function markSerialObejrzany(id,nazwa){
+  pendingWatchedId=id;
+  document.getElementById('watchedPopupTitle').textContent=`"${nazwa}" — serial obejrzany?`;
+  document.getElementById('watchedConfirmPopup').style.display='flex';
+  document.getElementById('watchedConfirmBtn').onclick=async()=>{
     closeWatchedPopup();
-    const r = await fetch('/api/ogladam/'+pendingWatchedId, {method:'DELETE'});
-    const d = await r.json();
+    const r=await fetch('/api/ogladam/'+pendingWatchedId,{method:'DELETE'});
+    const d=await r.json();
     if(d.ok){
       document.querySelector('#ogladamGrid .wcard[data-id="'+pendingWatchedId+'"]')?.remove();
-      const cnt = document.getElementById('ogladamCount');
-      if(cnt) cnt.textContent = document.querySelectorAll('#ogladamGrid .wcard').length;
+      const cnt=document.getElementById('ogladamCount');
+      if(cnt) cnt.textContent=document.querySelectorAll('#ogladamGrid .wcard').length;
       location.reload();
     }
   };
 }
-function closeWatchedPopup(){
-  document.getElementById('watchedConfirmPopup').style.display='none';
-  pendingWatchedId=null;
-}
-document.getElementById('watchedConfirmPopup')?.addEventListener('click',e=>{
-  if(e.target===e.currentTarget) closeWatchedPopup();
-});
+function closeWatchedPopup(){document.getElementById('watchedConfirmPopup').style.display='none';pendingWatchedId=null;}
+document.getElementById('watchedConfirmPopup')?.addEventListener('click',e=>{if(e.target===e.currentTarget)closeWatchedPopup();});
 
 // ── Del/Restore ──
 async function delOgladam(id){
   if(!confirm('Usunąć serial z Oglądam?')) return;
   if(IS_GUEST){
-    const card = document.querySelector('#ogladamGrid .wcard[data-id="'+id+'"]');
-    const nazwa = card?.querySelector('.wname')?.textContent?.trim()||'';
-    guestDelOgladam(nazwa);
-    card?.remove();
+    const card=document.querySelector('#ogladamGrid .wcard[data-id="'+id+'"]');
+    const nazwa=card?.querySelector('.wname')?.textContent?.trim()||'';
+    guestDelOgladam(nazwa);card?.remove();
     const cnt=document.getElementById('ogladamCount');
     if(cnt) cnt.textContent=document.querySelectorAll('#ogladamGrid .wcard').length;
     return;
@@ -1431,32 +1251,26 @@ async function delKandydat(id){
   const cnt=document.getElementById('kandydaciCount');
   if(cnt) cnt.textContent=document.querySelectorAll('#kandydaciGrid .kcard').length;
 }
-
-// ── Promote kandydat → oglądam ──
-async function promoteKandydat(id, btn){
-  btn.disabled=true; btn.textContent='⏳...';
-
+async function promoteKandydat(id,btn){
+  btn.disabled=true;btn.textContent='⏳...';
   if(IS_GUEST){
-    const kcard = [...document.querySelectorAll('#kandydaciGrid .kcard')].find(c=>c.dataset.id==id);
-    if(!kcard){ btn.disabled=false; btn.textContent='▶ Oglądam'; return; }
-    const nazwa = kcard.querySelector('.kname')?.textContent?.trim()||'';
-    const imgEl = kcard.querySelector('img');
-    const cover = (imgEl && imgEl.src && !imgEl.src.endsWith('/')) ? imgEl.src : '';
-    const ratingTxt = kcard.querySelector('.krating')?.textContent||'';
-    const rating = ratingTxt.match(/[\d.]+/)?.[0]||'';
-    const gd = guestLoad();
-    gd.kandydaci = gd.kandydaci.filter(s => String(s.id) !== String(id) && s.nazwa !== nazwa);
-    if(!gd.ogladam.find(s=>s.nazwa===nazwa)){
-      gd.ogladam.push({id:String(id), nazwa, cover, imdb_rating:rating?parseFloat(rating):null, imdb_url:'#'});
-    }
+    const kcard=[...document.querySelectorAll('#kandydaciGrid .kcard')].find(c=>c.dataset.id==id);
+    if(!kcard){btn.disabled=false;btn.textContent='▶ Oglądam';return;}
+    const nazwa=kcard.querySelector('.kname')?.textContent?.trim()||'';
+    const imgEl=kcard.querySelector('img');
+    const cover=(imgEl&&imgEl.src&&!imgEl.src.endsWith('/'))?imgEl.src:'';
+    const ratingTxt=kcard.querySelector('.krating')?.textContent||'';
+    const rating=ratingTxt.match(/[\d.]+/)?.[0]||'';
+    const gd=guestLoad();
+    gd.kandydaci=gd.kandydaci.filter(s=>String(s.id)!==String(id)&&s.nazwa!==nazwa);
+    if(!gd.ogladam.find(s=>s.nazwa===nazwa)) gd.ogladam.push({id:String(id),nazwa,cover,imdb_rating:rating?parseFloat(rating):null,imdb_url:'#'});
     guestSave(gd);
     kcard.remove();
-    const kcnt = document.getElementById('kandydaciCount');
-    if(kcnt) kcnt.textContent = document.querySelectorAll('#kandydaciGrid .kcard').length;
-    addWatchingCard({id:String(id), nazwa, cover, imdb_rating:rating?parseFloat(rating):null, imdb_url:'#'});
+    const kcnt=document.getElementById('kandydaciCount');
+    if(kcnt) kcnt.textContent=document.querySelectorAll('#kandydaciGrid .kcard').length;
+    addWatchingCard({id:String(id),nazwa,cover,imdb_rating:rating?parseFloat(rating):null,imdb_url:'#'});
     return;
   }
-
   const r=await fetch('/api/kandydaci/'+id+'/promote',{method:'POST'});
   const d=await r.json();
   if(d.ok){
@@ -1474,9 +1288,7 @@ async function promoteKandydat(id, btn){
     card.dataset.priority='neutral';
     card.dataset.nazwa=nazwa;
     card.innerHTML=`
-      <div class="wimg">
-        ${cover?`<img src="${cover}" alt="${nazwa}" onerror="this.parentElement.innerHTML='🎬'">`:'🎬'}
-      </div>
+      <div class="wimg">${cover?`<img src="${cover}" alt="${nazwa}" onerror="this.parentElement.innerHTML='🎬'">`:'🎬'}</div>
       <div class="wbody">
         <div class="wname">${nazwa}</div>
         <div class="wep gray"><div class="wep-num" style="color:var(--h);font-weight:400">Kliknij ⟳ odśwież</div></div>
@@ -1494,30 +1306,37 @@ async function promoteKandydat(id, btn){
     document.getElementById('ogladamGrid').appendChild(card);
     const wcnt=document.getElementById('ogladamCount');
     if(wcnt) wcnt.textContent=document.querySelectorAll('#ogladamGrid .wcard').length;
+    sortWatchingCards();
     fetch('/api/ogladam/'+id+'/refresh',{method:'POST'}).then(r=>r.json()).then(d=>{
       if(d.ok&&d.ep){
         const wcard=document.querySelector('#ogladamGrid .wcard[data-id="'+id+'"]');
         if(wcard){
           const ep=wcard.querySelector('.wep');
           if(ep) ep.innerHTML=`<div class="wep-num"><a href="${d.ep.link}" target="_blank" style="color:var(--blue);text-decoration:none;font-size:10px">${d.ep.title?.slice(0,48)||''}</a></div><div class="wep-date">${d.ep.date_label||''}</div>`;
-          const actions = wcard.querySelector('.wactions');
-          if(actions && d.ep.title){
-            const epBtn = document.createElement('button');
-            epBtn.className = 'wbtn-ep';
-            epBtn.id = `ep-btn-${id}`;
-            epBtn.innerHTML = '✓ Odcinek obejrzany';
-            epBtn.onclick = function(){ markOdcinek(id, this); };
-            actions.insertBefore(epBtn, actions.firstChild);
+          const actions=wcard.querySelector('.wactions');
+          if(actions&&d.ep.title){
+            const epBtn=document.createElement('button');
+            epBtn.className='wbtn-ep';
+            epBtn.id=`ep-btn-${id}`;
+            epBtn.innerHTML='✓ Odcinek obejrzany';
+            epBtn.onclick=function(){markOdcinek(id,this);};
+            actions.insertBefore(epBtn,actions.firstChild);
           }
+          // Aktualizuj datę i priorytet po odświeżeniu
+          if(d.ep.date_label){
+            if(d.ep.date_label.includes('🔥')){wcard.dataset.priority='hot';wcard.classList.add('priority-hot');}
+            else if(d.ep.is_new){wcard.dataset.priority='new';wcard.classList.add('priority-new');}
+            wcard.dataset.date=d.ep.date_raw||'';
+          }
+          sortWatchingCards();
         }
       }
     });
   } else {
-    btn.disabled=false; btn.textContent='▶ Oglądam';
+    btn.disabled=false;btn.textContent='▶ Oglądam';
     alert('Limit Oglądam osiągnięty');
   }
 }
-
 async function delObejrzane(id){await fetch('/api/obejrzane/'+id,{method:'DELETE'});location.reload();}
 async function restoreObejrzane(id){
   const r=await fetch('/api/obejrzane/'+id+'/restore',{method:'POST'});
@@ -1528,20 +1347,17 @@ async function restoreObejrzane(id){
 // ── Flag (kandydat) ──
 async function flagSerial(btn,serial_id,nazwa,platform){
   if(btn.classList.contains('flagged')) return;
-
   if(IS_GUEST){
-    const s = {id:'g_'+Date.now(), nazwa, cover: btn.closest('.ocard')?.querySelector('img')?.src||'', imdb_rating:null};
-    guestAddKandydat(s, platform);
-    btn.classList.add('flagged'); btn.textContent='✓ Dodano';
-    addKandydatCard(s, platform);
+    const s={id:'g_'+Date.now(),nazwa,cover:btn.closest('.ocard')?.querySelector('img')?.src||'',imdb_rating:null};
+    guestAddKandydat(s,platform);
+    btn.classList.add('flagged');btn.textContent='✓ Dodano';
+    addKandydatCard(s,platform);
     return;
   }
-
   const r=await fetch('/api/kandydaci',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nazwa,platform})});
   const d=await r.json();
   if(d.ok){
-    btn.classList.add('flagged'); btn.textContent='✓ Dodano';
-    // FIX: zamknij popup TMDB po dodaniu kandydata
+    btn.classList.add('flagged');btn.textContent='✓ Dodano';
     hidePopup();
     document.getElementById('kandydaciEmpty')?.remove();
     const s=d.serial;
@@ -1568,44 +1384,30 @@ async function flagSerial(btn,serial_id,nazwa,platform){
   } else alert(d.msg||'Limit kandydatów osiągnięty');
 }
 
-// ── Odśwież ──
+// ── Odśwież odcinki ──
 async function refreshOdcinki(){
   const btn=document.getElementById('refreshOdcinkiBtn');
-  if(IS_GUEST){ alert('Zaloguj się żeby odświeżać odcinki!'); return; }
+  if(IS_GUEST){alert('Zaloguj się żeby odświeżać odcinki!');return;}
   btn.disabled=true;
   let dots=0;
-  const tick=setInterval(()=>{dots=(dots+1)%4; btn.textContent='⏳ Odświeżam'+'...'.slice(0,dots+1);},600);
-  try {
-    const r = await fetch('/api/refresh/odcinki',{method:'POST'});
-    const d = await r.json();
-    if(d.error==='guest'){ clearInterval(tick); btn.disabled=false; btn.textContent='⟳ Odśwież odcinki'; return; }
-  } catch(e){}
-  let waited = 0;
-  const poll = setInterval(()=>{
-    waited += 3000;
-    if(waited >= 20000){
-      clearInterval(poll); clearInterval(tick);
-      btn.disabled=false; btn.textContent='⟳ Odśwież odcinki';
-      location.reload();
-    }
-  }, 3000);
-  setTimeout(()=>{ clearInterval(poll); clearInterval(tick); btn.disabled=false; btn.textContent='⟳ Odśwież odcinki'; location.reload(); }, 20000);
+  const tick=setInterval(()=>{dots=(dots+1)%4;btn.textContent='⏳ Odświeżam'+'...'.slice(0,dots+1);},600);
+  try{
+    const r=await fetch('/api/refresh/odcinki',{method:'POST'});
+    const d=await r.json();
+    if(d.error==='guest'){clearInterval(tick);btn.disabled=false;btn.textContent='⟳ Odśwież odcinki';return;}
+  }catch(e){}
+  setTimeout(()=>{clearInterval(tick);btn.disabled=false;btn.textContent='⟳ Odśwież odcinki';location.reload();},20000);
 }
-
 async function refreshNowosci(){
   const btn=document.getElementById('refreshNowosciBtn');
   btn.disabled=true;
   let dots=0;
-  const tick=setInterval(()=>{dots=(dots+1)%4; btn.textContent='⏳ Pobieram'+'...'.slice(0,dots+1);},600);
-  try { await fetch('/api/refresh/nowosci',{method:'POST'}); } catch(e){}
-  setTimeout(()=>{
-    clearInterval(tick);
-    btn.disabled=false; btn.textContent='⟳ Odśwież nowości';
-    location.reload();
-  }, 20000);
+  const tick=setInterval(()=>{dots=(dots+1)%4;btn.textContent='⏳ Pobieram'+'...'.slice(0,dots+1);},600);
+  try{await fetch('/api/refresh/nowosci',{method:'POST'});}catch(e){}
+  setTimeout(()=>{clearInterval(tick);btn.disabled=false;btn.textContent='⟳ Odśwież nowości';location.reload();},20000);
 }
 
-// ── Popup hover (tylko ocard i kcard, NIE wcard) ──
+// ── Popup hover (tylko ocard i kcard) ──
 const popup=document.getElementById('cardPopup');
 const popupInner=document.getElementById('popupInner');
 const actorPopup=document.getElementById('actorPopup');
@@ -1619,7 +1421,7 @@ function positionPopup(card){
   if(left<10) left=10;
   if(top+420>window.innerHeight-10) top=window.innerHeight-430;
   if(top<10) top=10;
-  popup.style.left=left+'px';popup.style.top=top+'px';
+  if(popup){popup.style.left=left+'px';popup.style.top=top+'px';}
 }
 async function fetchTmdb(title){
   if(tmdbCache[title]) return tmdbCache[title];
@@ -1629,7 +1431,7 @@ async function fetchTmdb(title){
     if(!d.results?.length){r=await fetch(`https://api.themoviedb.org/3/search/tv?api_key=${TMDB_KEY}&query=${encodeURIComponent(title)}&language=en-US`);d=await r.json();}
     if(!d.results?.length) return null;
     const item=d.results[0];
-    const [det,cred]=await Promise.all([
+    const[det,cred]=await Promise.all([
       fetch(`https://api.themoviedb.org/3/tv/${item.id}?api_key=${TMDB_KEY}&language=pl-PL`).then(r=>r.json()),
       fetch(`https://api.themoviedb.org/3/tv/${item.id}/credits?api_key=${TMDB_KEY}&language=pl-PL`).then(r=>r.json())
     ]);
@@ -1638,11 +1440,12 @@ async function fetchTmdb(title){
       rating:det.vote_average?Math.round(det.vote_average*10)/10:null,
       year:(det.first_air_date||'').slice(0,4),
       genres:(det.genres||[]).slice(0,3).map(g=>g.name),
-      cast:(cred.cast||[]).slice(0,6).map(a=>({name:a.name,character:a.character||'',photo:a.profile_path?`https://image.tmdb.org/t/p/w185${a.profile_path}`:'',id:a.id?String(a.id):''}))};
+      cast:(cred.cast||[]).slice(0,6).map(a=>({name:a.name,character:a.character||'',photo:a.profile_path?`https://image.tmdb.org/t/p/w185${a.profile_path}`:'',id:a.id?String(a.id):''}))}; 
     tmdbCache[title]=result;return result;
   }catch(e){return null;}
 }
 function renderPopup(d,tmdb){
+  if(!popupInner) return;
   const color=pcolors[d.platform]||'#888',pname=pnames[d.platform]||'';
   const poster=tmdb?.poster||d.img||'',overview=tmdb?.overview||d.desc||'';
   const rating=tmdb?.rating||d.rating||'',year=tmdb?.year||'';
@@ -1668,52 +1471,41 @@ function renderPopup(d,tmdb){
     </div></div>`:''}`;
 }
 async function showPopup(card){
-  // POPRAWKA 3: wcard nie dostaje popupu
   const isO=card.classList.contains('ocard'),isK=card.classList.contains('kcard');
-  if(!isO && !isK) return;
+  if(!isO&&!isK) return;
   let title='',rating='',desc='',img='',platform='';
   if(isO){title=card.querySelector('.oname')?.textContent||'';rating=card.dataset.rating||'';desc=card.querySelector('.odesc')?.textContent||'';img=card.querySelector('img')?.src||'';platform=card.dataset.platform||'';}
   else if(isK){title=card.querySelector('.kname')?.textContent||'';rating=card.querySelector('.krating')?.textContent?.replace(/[^\d.]/g,'')||'';desc=card.querySelector('.kdesc')?.textContent||'';img=card.querySelector('img')?.src||'';platform=card.dataset.platform||'';}
   if(!title) return;
   const d={title,rating,desc,img,platform};
   positionPopup(card);
-  popupInner.innerHTML=`<div class="popup-loading">⏳ Ładuję...</div>`;
-  popup.classList.add('visible');
+  if(popupInner) popupInner.innerHTML='<div class="popup-loading">⏳ Ładuję...</div>';
+  if(popup) popup.classList.add('visible');
   const tmdb=await fetchTmdb(title);
-  if(popup.classList.contains('visible')){renderPopup(d,tmdb);positionPopup(card);}
+  if(popup?.classList.contains('visible')){renderPopup(d,tmdb);positionPopup(card);}
 }
 function hidePopup(){
-  popup.classList.remove('visible');
+  if(popup) popup.classList.remove('visible');
   clearTimeout(popupTimer);
 }
-document.addEventListener('mousemove', e=>{
-  if(!popup.classList.contains('visible')) return;
-  const onCard = e.target.closest('.ocard,.kcard');
-  const onPopup = e.target.closest('#cardPopup');
-  if(!onCard && !onPopup){
-    clearTimeout(hideTimer);
-    hideTimer = setTimeout(hidePopup, 300);
-  }
+document.addEventListener('mousemove',e=>{
+  if(!popup?.classList.contains('visible')) return;
+  const onCard=e.target.closest('.ocard,.kcard');
+  const onPopup=e.target.closest('#cardPopup');
+  if(!onCard&&!onPopup){clearTimeout(hideTimer);hideTimer=setTimeout(hidePopup,300);}
 });
-
-// u2500u2500 Zamknij popup po tapniu0119ciu poza nim (mobile) u2500u2500
-document.addEventListener('touchstart', e=>{
-  if(!popup) return;
-  const onPopup = e.target.closest('#cardPopup');
-  const onCard = e.target.closest('.ocard,.kcard');
-  if(!onPopup && !onCard && popup.classList.contains('visible')){
-    hidePopup();
+document.addEventListener('touchstart',e=>{
+  if(popup?.classList.contains('visible')){
+    if(!e.target.closest('#cardPopup')&&!e.target.closest('.ocard,.kcard')) hidePopup();
   }
-  // FIX: zamknij actor popup na mobile
-  if(actorPopup && actorPopup.classList.contains('visible')){
-    if(!e.target.closest('#actorPopup') && !e.target.closest('.popup-actor')){
-      closeActorPopup();
-    }
+  if(actorPopup?.classList.contains('visible')){
+    if(!e.target.closest('#actorPopup')&&!e.target.closest('.popup-actor')) closeActorPopup();
   }
-}, {passive: true});
+},{passive:true});
 
 async function showActorPopup(e,name,character,photo,personId){
   e.stopPropagation();
+  if(!actorPopup) return;
   const x=e.clientX,y=e.clientY;
   let left=x+12;if(left+240>window.innerWidth-10) left=x-252;
   let top=y-20;if(top+300>window.innerHeight-10) top=window.innerHeight-320;if(top<10) top=10;
@@ -1733,24 +1525,19 @@ async function showActorPopup(e,name,character,photo,personId){
     }
   }
 }
-function closeActorPopup(){actorPopup.classList.remove('visible');}
+function closeActorPopup(){if(actorPopup) actorPopup.classList.remove('visible');}
 document.addEventListener('click',e=>{if(!e.target.closest('#actorPopup')&&!e.target.closest('.popup-actor'))closeActorPopup();});
 
-// POPRAWKA 3: attachPopupEvents — tylko ocard i kcard, bez wcard
 function attachPopupEvents(){
-  const isMobile = window.matchMedia('(hover: none)').matches;
+  const isMobile=window.matchMedia('(hover: none)').matches;
   document.querySelectorAll('.ocard,.kcard').forEach(card=>{
-    if(card._popupAttached) return; card._popupAttached=true;
-    if(isMobile){
-      // Na mobile: wyłącz popup TMDB całkowicie (zasłania ekran)
-      // Użytkownik może kliknąć na link IMDb bezpośrednio
-    } else {
-      // Na desktop: hover
+    if(card._popupAttached) return;card._popupAttached=true;
+    if(!isMobile){
       card.addEventListener('mouseenter',()=>{clearTimeout(hideTimer);popupTimer=setTimeout(()=>showPopup(card),900);});
       card.addEventListener('mouseleave',()=>{clearTimeout(popupTimer);hideTimer=setTimeout(hidePopup,200);});
     }
   });
-  if(popup && !isMobile){
+  if(popup&&!isMobile){
     popup.addEventListener('mouseenter',()=>clearTimeout(hideTimer));
     popup.addEventListener('mouseleave',()=>{hideTimer=setTimeout(hidePopup,200);});
   }
@@ -1765,10 +1552,10 @@ function addWatchingCard(s){
   card.dataset.priority='neutral';
   card.dataset.nazwa=s.nazwa||'';
   const id=String(s.id);
-  const nazwa = s.nazwa||'';
-  const tmdbLink = s.imdb_url && s.imdb_url !== '#'
-    ? `<a href="${s.imdb_url}" target="_blank" style="color:var(--t);text-decoration:none">${nazwa}</a>`
-    : nazwa;
+  const nazwa=s.nazwa||'';
+  const tmdbLink=s.imdb_url&&s.imdb_url!=='#'
+    ?`<a href="${s.imdb_url}" target="_blank" style="color:var(--t);text-decoration:none">${nazwa}</a>`
+    :nazwa;
   card.innerHTML=`
     <div class="wimg">
       ${s.cover?`<img src="${s.cover}" alt="${nazwa}" onerror="this.parentElement.innerHTML='🎬'">`:'🎬'}
@@ -1787,14 +1574,13 @@ function addWatchingCard(s){
         <button class="wdel-popup-btn danger" onclick="confirmRemove('${id}')">🗑 Usuń z listy</button>
       </div>
     </div>`;
-  const grid = document.getElementById('ogladamGrid');
+  const grid=document.getElementById('ogladamGrid');
   if(grid) grid.appendChild(card);
-  // Bez attachPopupEvents — wcard celowo nie dostaje popupu
   const cnt=document.getElementById('ogladamCount');
   if(cnt) cnt.textContent=document.querySelectorAll('#ogladamGrid .wcard').length;
 }
 
-function addKandydatCard(s, platform){
+function addKandydatCard(s,platform){
   document.getElementById('kandydaciEmpty')?.remove();
   const card=document.createElement('div');
   card.className='kcard';
@@ -1818,62 +1604,68 @@ function addKandydatCard(s, platform){
 }
 
 function showLoginPrompt(msg){
-  const overlay = document.getElementById('loginPrompt');
+  const overlay=document.getElementById('loginPrompt');
   if(overlay){
-    if(msg){
-      const sub = overlay.querySelector('.login-prompt-sub');
-      if(sub) sub.innerHTML = msg + '<br><br>Zarejestruj się <strong>za darmo</strong> żeby nie stracić listy!';
-    }
+    if(msg){const sub=overlay.querySelector('.login-prompt-sub');if(sub) sub.innerHTML=msg+'<br><br>Zarejestruj się <strong>za darmo</strong> żeby nie stracić listy!';}
     overlay.classList.add('show');
   }
 }
 
+// ── FIX: DOMContentLoaded — poprawna kolejność ──
 document.addEventListener('DOMContentLoaded',()=>{
   attachPopupEvents();
   buildFilterPills();
   applyFilter();
-  sortWatchingCards();
-  restoreDoneStates();
+  restoreDoneStates(); // najpierw przywróć stany (ma wewnętrzny sort)
+  sortWatchingCards(); // sort globalny po renderze
   if(IS_GUEST){
-    const gd = guestLoad();
-    gd.ogladam.forEach(s => addWatchingCard(s));
-    gd.kandydaci.forEach(s => addKandydatCard(s, s.platform||''));
-    if(gd.ogladam.length > 0) document.getElementById('ogladamEmpty')?.remove();
-    if(gd.kandydaci.length > 0) document.getElementById('kandydaciEmpty')?.remove();
+    const gd=guestLoad();
+    gd.ogladam.forEach(s=>addWatchingCard(s));
+    gd.kandydaci.forEach(s=>addKandydatCard(s,s.platform||''));
+    if(gd.ogladam.length>0) document.getElementById('ogladamEmpty')?.remove();
+    if(gd.kandydaci.length>0) document.getElementById('kandydaciEmpty')?.remove();
+    sortWatchingCards(); // sort też dla gościa
   }
-  const grid = document.querySelector('.ogrid');
-  const empty = document.getElementById('nowosc-empty');
-  if(empty && !grid){
-    autoLoadNowosci();
+  const grid=document.querySelector('.ogrid');
+  const empty=document.getElementById('nowosc-empty');
+  if(empty&&!grid) autoLoadNowosci();
+  if(IS_GUEST&&!sessionStorage.getItem('loginPromptDismissed')){
+    setTimeout(function showPromptLoop(){
+      showLoginPrompt();
+      setTimeout(showPromptLoop,3*60*1000);
+    },3*60*1000);
   }
 });
 
-// ── Pro popup hover ──
-let proPopupHideTimer = null;
-function showProPopup(){
-  clearTimeout(proPopupHideTimer);
-  const p = document.getElementById('proPopup');
-  if(p) p.classList.add('visible');
-}
-function scheduleHideProPopup(){
-  proPopupHideTimer = setTimeout(()=>{
-    const p = document.getElementById('proPopup');
-    if(p) p.classList.remove('visible');
-  }, 250);
-}
-function cancelHideProPopup(){
-  clearTimeout(proPopupHideTimer);
-}
+// ── Pro popup ──
+let proPopupHideTimer=null;
+function showProPopup(){clearTimeout(proPopupHideTimer);const p=document.getElementById('proPopup');if(p) p.classList.add('visible');}
+function scheduleHideProPopup(){proPopupHideTimer=setTimeout(()=>{const p=document.getElementById('proPopup');if(p) p.classList.remove('visible');},250);}
+function cancelHideProPopup(){clearTimeout(proPopupHideTimer);}
 
 async function autoLoadNowosci(){
-  const emptyTxt = document.getElementById('nowosc-empty-txt');
-  const platformsToLoad = selPlat.length > 0 ? selPlat : ['netflix','player','disney'];
-  try {
-    await fetch('/api/refresh/nowosci', {method:'POST'});
-    if(emptyTxt) emptyTxt.textContent = 'Pobieram nowości... (~15 sek)';
-    setTimeout(()=>{ location.reload(); }, 12000);
-  } catch(e) {
-    if(emptyTxt) emptyTxt.textContent = 'Zaznacz platformy i kliknij ⟳ Odśwież nowości';
+  const emptyTxt=document.getElementById('nowosc-empty-txt');
+  try{
+    await fetch('/api/refresh/nowosci',{method:'POST'});
+    if(emptyTxt) emptyTxt.textContent='Pobieram nowości... (~15 sek)';
+    setTimeout(()=>{location.reload();},12000);
+  }catch(e){
+    if(emptyTxt) emptyTxt.textContent='Zaznacz platformy i kliknij ⟳ Odśwież nowości';
+  }
+}
+
+function buildGuestHeatmap(){
+  const hg=document.getElementById('guestHeatGrid');
+  if(!hg) return;
+  const blues=['#E6F1FB','#B5D4F4','#85B7EB','#378ADD','#185FA5','#0C447C'];
+  const cells=window.innerWidth<500?72:104;
+  for(let i=0;i<cells;i++){
+    const d=document.createElement('div');
+    d.className='guest-heat-cell';
+    const w=Math.random();
+    const idx=w<0.42?0:w<0.62?1:w<0.76?2:w<0.87?3:w<0.95?4:5;
+    d.style.background=blues[idx];
+    hg.appendChild(d);
   }
 }
 </script>
