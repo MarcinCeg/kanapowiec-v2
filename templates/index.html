@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Tracker — Seriale FUN {% endblock %}
+{% block title %}Tracker — Kanapowy Leniwiec{% endblock %}
 
 {% block content %}
 <main>
@@ -337,7 +337,7 @@
       <div class="wcard {% if priority == 'hot' or priority == 'new' %}priority-hot{% endif %}"
            data-platform="{{ w.platforma }}" data-id="{{ s.id }}"
            data-priority="{{ priority }}" data-date="{{ w.last_date or '' }}"
-           data-nazwa="{{ s.nazwa|e }}">
+           data-nazwa="{{ s.nazwa|replace('"', '&quot;')|e }}">
         <div class="wimg">
           {% if s.cover %}<img src="{{ s.cover }}" alt="{{ s.nazwa }}" onerror="this.parentElement.innerHTML='🎬'">{% else %}🎬{% endif %}
           {% if w.platforma %}<span class="wplat" style="background:{{ pcolors.get(w.platforma,'#888') }}">{{ pnames.get(w.platforma,'') }}</span>{% endif %}
@@ -1099,7 +1099,8 @@ function confirmFinished(id,ref){
   if(activeDelPopup){activeDelPopup.classList.remove('open');activeDelPopup=null;}
   pendingFinishedId=id;
   const card=document.querySelector('#ogladamGrid .wcard[data-id="'+id+'"]');
-  const nazwa=card?.dataset?.nazwa||card?.querySelector('.wname')?.textContent?.trim()||'Ten serial';
+  // Read from .wname text (safe, no HTML injection) — dataset.nazwa may have encoding issues
+  const nazwa=(card?.querySelector('.wname a')?.textContent||card?.querySelector('.wname')?.textContent||'Ten serial').trim();
   document.getElementById('finishedPopupTitle').textContent=`"${nazwa}" — ukończony?`;
   document.getElementById('finishedPopup').style.display='flex';
   document.getElementById('finishedConfirmBtn').onclick=async()=>{
@@ -1123,7 +1124,7 @@ async function confirmRemove(id){
   if(!confirm('Usunąć serial z Oglądam?')) return;
   if(IS_GUEST){
     const card=document.querySelector('#ogladamGrid .wcard[data-id="'+id+'"]');
-    const nazwa=card?.querySelector('.wname')?.textContent?.trim()||'';
+    const nazwa=(card?.querySelector('.wname a')?.textContent||card?.querySelector('.wname')?.textContent||'').trim();
     guestDelOgladam(nazwa);card?.remove();
     const cnt=document.getElementById('ogladamCount');
     if(cnt) cnt.textContent=document.querySelectorAll('#ogladamGrid .wcard').length;
@@ -1320,22 +1321,33 @@ async function promoteKandydat(id,btn){
     card.dataset.priority='neutral';
     card.dataset.nazwa=nazwa;
     card.innerHTML=`
-      <div class="wimg">${cover?`<img src="${cover}" alt="${nazwa}" onerror="this.parentElement.innerHTML='🎬'">`:'🎬'}</div>
+      <div class="wimg">${cover?`<img src="${cover}" alt="" onerror="this.parentElement.innerHTML='🎬'">`:'🎬'}</div>
       <div class="wbody">
-        <div class="wname">${nazwa}</div>
-        <div class="wep gray"><div class="wep-num" style="color:var(--h);font-weight:400">Kliknij ⟳ odśwież</div></div>
+        <div class="wname"></div>
+        <div class="wep-bar-neutral">
+          <span class="wep-bar-ico">🕐</span>
+          <div class="wep-bar-info">
+            <div class="wep-bar-when">Czeka na odcinek</div>
+            <div class="wep-bar-ep">kliknij ⟳ odśwież</div>
+          </div>
+        </div>
         ${rating?`<div class="wimdb">⭐ ${rating} · IMDb</div>`:''}
       </div>
       <div class="wactions"></div>
       <div style="position:absolute;top:6px;right:6px;z-index:10">
         <button class="wdel" onclick="toggleDelPopup(event,${id},this)">×</button>
         <div class="wdel-popup" id="delpopup-${id}">
-          <div class="wdel-popup-title">${nazwa.slice(0,22)}${nazwa.length>22?'…':''}</div>
+          <div class="wdel-popup-title"></div>
           <button class="wdel-popup-btn success" onclick="confirmFinished(${id},this)">🎉 Ukończono serial</button>
           <button class="wdel-popup-btn danger" onclick="confirmRemove(${id})">🗑 Usuń z listy</button>
         </div>
       </div>`;
     document.getElementById('ogladamGrid').appendChild(card);
+    // textContent po wstawieniu — bezpieczne dla tytułów z apostrofami i cudzysłowami
+    const _wn=card.querySelector('.wname');
+    if(_wn) _wn.textContent=nazwa;
+    const _pt=card.querySelector('.wdel-popup-title');
+    if(_pt) _pt.textContent=(nazwa.slice(0,22))+(nazwa.length>22?'…':'');
     const wcnt=document.getElementById('ogladamCount');
     if(wcnt) wcnt.textContent=document.querySelectorAll('#ogladamGrid .wcard').length;
     sortWatchingCards();
@@ -1587,12 +1599,10 @@ function addWatchingCard(s){
   card.dataset.nazwa=s.nazwa||'';
   const id=String(s.id);
   const nazwa=s.nazwa||'';
-  const tmdbLink=s.imdb_url&&s.imdb_url!=='#'
-    ?`<a href="${s.imdb_url}" target="_blank" style="color:var(--t);text-decoration:none">${nazwa}</a>`
-    :nazwa;
+  // innerHTML bez nazwy — ustawiamy textContent po wstawieniu (bezpieczne dla apostrofów i cudzysłowów)
   card.innerHTML=`
     <div class="wimg">
-      ${s.cover?`<img src="${s.cover}" alt="${nazwa}" onerror="this.parentElement.innerHTML='🎬'">`:'🎬'}
+      ${s.cover?`<img src="${s.cover}" alt="" onerror="this.parentElement.innerHTML='🎬'">`:'🎬'}
     </div>
     <div class="wep-bar-neutral">
       <span class="wep-bar-ico">🕐</span>
@@ -1602,20 +1612,32 @@ function addWatchingCard(s){
       </div>
     </div>
     <div class="wbody">
-      <div class="wname">${tmdbLink}</div>
+      <div class="wname"></div>
       ${s.imdb_rating?`<div class="wimdb">⭐ ${s.imdb_rating}</div>`:''}
     </div>
     <div class="wactions"></div>
     <div style="position:absolute;top:6px;right:6px;z-index:10">
       <button class="wdel" onclick="toggleDelPopup(event,'${id}',this)">×</button>
       <div class="wdel-popup" id="delpopup-${id}">
-        <div class="wdel-popup-title">${nazwa.slice(0,22)}${nazwa.length>22?'…':''}</div>
+        <div class="wdel-popup-title"></div>
         <button class="wdel-popup-btn success" onclick="confirmFinished('${id}',this)">🎉 Ukończono serial</button>
         <button class="wdel-popup-btn danger" onclick="confirmRemove('${id}')">🗑 Usuń z listy</button>
       </div>
     </div>`;
   const grid=document.getElementById('ogladamGrid');
   if(grid) grid.appendChild(card);
+  // textContent po wstawieniu — bezpieczne dla tytułów z ' i "
+  const _wn=card.querySelector('.wname');
+  if(_wn){
+    if(s.imdb_url&&s.imdb_url!=='#'){
+      const a=document.createElement('a');
+      a.href=`https://www.imdb.com/find?q=${encodeURIComponent(nazwa)}`;
+      a.target='_blank'; a.style.cssText='color:var(--t);text-decoration:none';
+      a.textContent=nazwa; _wn.appendChild(a);
+    } else { _wn.textContent=nazwa; }
+  }
+  const _pt=card.querySelector('.wdel-popup-title');
+  if(_pt) _pt.textContent=(nazwa.slice(0,22))+(nazwa.length>22?'…':'');
   const cnt=document.getElementById('ogladamCount');
   if(cnt) cnt.textContent=document.querySelectorAll('#ogladamGrid .wcard').length;
 }
@@ -1629,15 +1651,17 @@ function addKandydatCard(s,platform){
   const platColor=pcolors[platform]||'#888';
   const platName=pnames[platform]||'';
   card.innerHTML=`
-    <div class="kimg">${s.cover?`<img src="${s.cover}" alt="${s.nazwa}" onerror="this.parentElement.innerHTML='🎬'">`:'🎬'}</div>
+    <div class="kimg">${s.cover?`<img src="${s.cover}" alt="" onerror="this.parentElement.innerHTML='🎬'">`:'🎬'}</div>
     ${platform?`<span class="kplat" style="background:${platColor}">${platName}</span>`:''}
     <button class="kdel" onclick="delKandydat('${s.id}')">×</button>
     <div class="kbody">
-      <div class="kname">${s.nazwa}</div>
+      <div class="kname"></div>
       ${s.imdb_rating?`<div class="krating">⭐ ${s.imdb_rating}</div>`:''}
     </div>
     <button class="kpromote" onclick="promoteKandydat('${s.id}', this)">▶ Oglądam</button>`;
   document.getElementById('kandydaciGrid').appendChild(card);
+  const _kn=card.querySelector('.kname');
+  if(_kn) _kn.textContent=s.nazwa||'';
   attachPopupEvents();
   const cnt=document.getElementById('kandydaciCount');
   if(cnt) cnt.textContent=document.querySelectorAll('#kandydaciGrid .kcard').length;
