@@ -128,11 +128,24 @@ main{max-width:1100px;margin:0 auto;padding:16px 20px}
 .wdel:hover{color:var(--red);background:#fff}
 
 /* Sortowanie i paski odcinka */
-.wcard.priority-hot{border-color:#f97316;border-width:2.5px}
-.wcard.priority-new{border-color:#f97316;border-width:2.5px}
-.wcard.priority-done{opacity:.55;filter:saturate(.45)}
+.wcard.priority-hot{border-color:#534AB7;border-width:2.5px}
+.wcard.priority-new{border-color:#534AB7;border-width:2.5px}
+/* priority-done — NIE opacity na karcie (blokuje eventy w Safari) */
+/* wyszarzamy tylko dzieci, kontener X zawsze klikalny */
+.wcard.priority-done .wimg img{filter:saturate(.15) brightness(.75)}
+.wcard.priority-done .wimg{opacity:.6}
+.wcard.priority-done .wep-bar,
+.wcard.priority-done .wep-bar-neutral,
+.wcard.priority-done .wbody,
+.wcard.priority-done .wactions{opacity:.4}
 .wcard.priority-done .wdel,
-.wcard.priority-done > div:last-child{opacity:1 !important;filter:none !important;pointer-events:auto !important}
+.wcard.priority-done > div:last-child{
+  opacity:1 !important;
+  filter:none !important;
+  pointer-events:auto !important;
+  z-index:25 !important
+}
+.wcard .wdel{pointer-events:auto !important;z-index:25 !important;cursor:pointer !important}
 .wep-bar{background:#f97316;padding:7px 10px;display:flex;align-items:center;gap:7px;margin:0}
 .wep-bar-ico{font-size:15px;line-height:1;flex-shrink:0}
 .wep-bar-info{flex:1;min-width:0}
@@ -419,6 +432,17 @@ main{max-width:1100px;margin:0 auto;padding:16px 20px}
 function toggleDrawer(){}
 function closeDrawer(){}
 </script>
+
+<footer style="margin-top:32px;padding:16px 20px 24px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;max-width:1100px;margin-left:auto;margin-right:auto">
+  <div style="font-size:11px;color:var(--h)">
+    &copy; 2026 <strong style="color:var(--m)">seriale.fun</strong> · Dane seriali: TMDB / IMDb
+  </div>
+  <div style="display:flex;gap:16px;align-items:center">
+    <a href="/regulamin" style="font-size:11px;color:var(--h);text-decoration:none;transition:color .15s" onmouseover="this.style.color='var(--purple)'" onmouseout="this.style.color='var(--h)'">Regulamin</a>
+    <a href="/kontakt"   style="font-size:11px;color:var(--h);text-decoration:none;transition:color .15s" onmouseover="this.style.color='var(--purple)'" onmouseout="this.style.color='var(--h)'">Kontakt</a>
+    <a href="/auth/login" style="font-size:11px;color:var(--h);text-decoration:none;transition:color .15s" onmouseover="this.style.color='var(--purple)'" onmouseout="this.style.color='var(--h)'">Zaloguj się</a>
+  </div>
+</footer>
 
 {% block scripts %}{% endblock %}
 </body>
