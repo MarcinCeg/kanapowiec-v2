@@ -573,7 +573,7 @@
           {% if s.imdb_desc %}<div class="odesc">{{ s.imdb_desc[:120] }}</div>{% endif %}
           {% if row.date_label %}<div class="odate-label">📅 {{ row.date_label }}</div>{% endif %}
         </div>
-        <button class="flag-btn" onclick="flagSerial(this,{{ s.id }},'{{ s.nazwa|replace("'","\\'") }}','{{ row.platform }}')">🚩 Kandydat</button>
+        <button class="flag-btn" data-serial-id="{{ s.id }}" data-platform="{{ row.platform }}" onclick="flagSerialBtn(this)">🚩 Kandydat</button>
       </div>
       {% endfor %}
     </div>
@@ -1072,6 +1072,7 @@ document.addEventListener('click',e=>{
 let activeDelPopup=null;
 function toggleDelPopup(e,id,ref){
   e.stopPropagation();
+  if(!id||String(id)==='null'){console.error('toggleDelPopup: brak id!');return;}
   const popup=document.getElementById('delpopup-'+id);
   if(!popup) return;
   if(activeDelPopup&&activeDelPopup!==popup) activeDelPopup.classList.remove('open');
@@ -1096,6 +1097,7 @@ document.addEventListener('click',e=>{
 // ── Ukończono serial ──
 let pendingFinishedId=null;
 function confirmFinished(id,ref){
+  if(!id||String(id)==='null'||String(id)==='undefined'){console.error('confirmFinished: brak id!',id);return;}
   if(activeDelPopup){activeDelPopup.classList.remove('open');activeDelPopup=null;}
   pendingFinishedId=id;
   const card=document.querySelector('#ogladamGrid .wcard[data-id="'+id+'"]');
@@ -1105,10 +1107,11 @@ function confirmFinished(id,ref){
   document.getElementById('finishedPopup').style.display='flex';
   document.getElementById('finishedConfirmBtn').onclick=async()=>{
     closeFinishedPopup();
-    const r=await fetch('/api/ogladam/'+pendingFinishedId,{method:'DELETE'});
+    const _fid=String(pendingFinishedId);
+    const r=await fetch('/api/ogladam/'+_fid,{method:'DELETE'});
     const d=await r.json();
     if(d.ok){
-      document.querySelector('#ogladamGrid .wcard[data-id="'+pendingFinishedId+'"]')?.remove();
+      document.querySelector('#ogladamGrid .wcard[data-id="'+_fid+'"]')?.remove();
       const cnt=document.getElementById('ogladamCount');
       if(cnt) cnt.textContent=document.querySelectorAll('#ogladamGrid .wcard').length;
       location.reload();
@@ -1122,18 +1125,19 @@ document.getElementById('finishedPopup')?.addEventListener('click',e=>{if(e.targ
 async function confirmRemove(id){
   if(activeDelPopup){activeDelPopup.classList.remove('open');activeDelPopup=null;}
   if(!confirm('Usunąć serial z Oglądam?')) return;
+  const _rid=String(id);
   if(IS_GUEST){
-    const card=document.querySelector('#ogladamGrid .wcard[data-id="'+id+'"]');
+    const card=document.querySelector('#ogladamGrid .wcard[data-id="'+_rid+'"]');
     const nazwa=(card?.querySelector('.wname a')?.textContent||card?.querySelector('.wname')?.textContent||'').trim();
     guestDelOgladam(nazwa);card?.remove();
     const cnt=document.getElementById('ogladamCount');
     if(cnt) cnt.textContent=document.querySelectorAll('#ogladamGrid .wcard').length;
     return;
   }
-  const r=await fetch('/api/ogladam/'+id,{method:'DELETE'});
+  const r=await fetch('/api/ogladam/'+_rid,{method:'DELETE'});
   const d=await r.json();
   if(d.ok){
-    document.querySelector('#ogladamGrid .wcard[data-id="'+id+'"]')?.remove();
+    document.querySelector('#ogladamGrid .wcard[data-id="'+_rid+'"]')?.remove();
     const cnt=document.getElementById('ogladamCount');
     if(cnt) cnt.textContent=document.querySelectorAll('#ogladamGrid .wcard').length;
   }
@@ -1175,17 +1179,20 @@ function sortWatchingCards(){
 
 // ── Oznacz odcinek ──
 async function markOdcinek(id,btn){
+  // Zabezpieczenie: id może być numerem lub stringiem
+  const safeId=String(id);
+  if(!safeId||safeId==='null'||safeId==='undefined'){console.error('markOdcinek: brak id!',id);return;}
   btn.disabled=true;
-  const r=await fetch(`/api/ogladam/${id}/odcinek`,{method:'POST'});
+  const r=await fetch(`/api/ogladam/${safeId}/odcinek`,{method:'POST'});
   const d=await r.json();
   if(d.ok){
     btn.classList.add('done');
     btn.textContent='✓ Zaliczony';
     btn.disabled=true;
-    localStorage.setItem('ep_done_'+id,Date.now().toString());
-    const card=document.querySelector('#ogladamGrid .wcard[data-id="'+id+'"]');
+    localStorage.setItem('ep_done_'+safeId,Date.now().toString());
+    const card=document.querySelector('#ogladamGrid .wcard[data-id="'+safeId+'"]');
     if(card){markCardDone(card);sortWatchingCards();}
-    const serialName=card?.dataset?.nazwa||card?.querySelector('.wname')?.textContent?.trim()||'';
+    const serialName=(card?.querySelector('.wname a')?.textContent||card?.querySelector('.wname')?.textContent||'').trim();
     triggerGamification(serialName);
   } else {
     btn.disabled=false;
@@ -1195,11 +1202,11 @@ function markCardDone(card){
   card.dataset.priority='done';
   card.classList.add('priority-done');
   card.classList.remove('priority-hot','priority-new');
-  // zamień pomarańczowy pasek na neutralny z checkmarkiem
-  const bar=card.querySelector('.wep-bar');
+  // Obsłuż oba typy paska: .wep-bar (pomarańczowy) i .wep-bar-neutral (szary)
+  const bar=card.querySelector('.wep-bar,.wep-bar-neutral');
   if(bar){
     bar.className='wep-bar-neutral';
-    bar.innerHTML='<span class="wep-bar-ico" style="font-size:13px">✓</span><div class="wep-bar-info"><div class="wep-bar-when">Zaliczony</div></div>';
+    bar.innerHTML='<span class="wep-bar-ico" style="font-size:13px;opacity:.5">✓</span><div class="wep-bar-info"><div class="wep-bar-when">Zaliczony</div></div>';
   }
   const epBtn=card.querySelector('.wbtn-ep');
   if(epBtn) epBtn.remove();
@@ -1267,20 +1274,22 @@ document.getElementById('watchedConfirmPopup')?.addEventListener('click',e=>{if(
 // ── Del/Restore ──
 async function delOgladam(id){
   if(!confirm('Usunąć serial z Oglądam?')) return;
+  const _doid=String(id);
   if(IS_GUEST){
-    const card=document.querySelector('#ogladamGrid .wcard[data-id="'+id+'"]');
+    const card=document.querySelector('#ogladamGrid .wcard[data-id="'+_doid+'"]');
     const nazwa=card?.querySelector('.wname')?.textContent?.trim()||'';
     guestDelOgladam(nazwa);card?.remove();
     const cnt=document.getElementById('ogladamCount');
     if(cnt) cnt.textContent=document.querySelectorAll('#ogladamGrid .wcard').length;
     return;
   }
-  await fetch('/api/ogladam/'+id,{method:'DELETE'});
+  await fetch('/api/ogladam/'+_doid,{method:'DELETE'});
   location.reload();
 }
 async function delKandydat(id){
-  await fetch('/api/kandydaci/'+id,{method:'DELETE'});
-  document.querySelector('#kandydaciGrid .kcard[data-id="'+id+'"]')?.remove();
+  const _did=String(id);
+  await fetch('/api/kandydaci/'+_did,{method:'DELETE'});
+  document.querySelector('#kandydaciGrid .kcard[data-id="'+_did+'"]')?.remove();
   const cnt=document.getElementById('kandydaciCount');
   if(cnt) cnt.textContent=document.querySelectorAll('#kandydaciGrid .kcard').length;
 }
@@ -1317,7 +1326,7 @@ async function promoteKandydat(id,btn){
     document.getElementById('ogladamEmpty')?.remove();
     const card=document.createElement('div');
     card.className='wcard';
-    card.dataset.id=id;
+    card.dataset.id=String(id);
     card.dataset.priority='neutral';
     card.dataset.nazwa=nazwa;
     card.innerHTML=`
@@ -1391,6 +1400,15 @@ async function restoreObejrzane(id){
 }
 
 // ── Flag (kandydat) ──
+// Wrapper — czyta nazwę z DOM zamiast z onclick (bezpieczne dla ' i ")
+async function flagSerialBtn(btn){
+  const serial_id = btn.dataset.serialId;
+  const platform  = btn.dataset.platform||'';
+  const card = btn.closest('.ocard');
+  const nazwa = card?.querySelector('.oname')?.textContent?.trim()||'';
+  await flagSerial(btn, serial_id, nazwa, platform);
+}
+
 async function flagSerial(btn,serial_id,nazwa,platform){
   if(btn.classList.contains('flagged')) return;
   if(IS_GUEST){
@@ -1414,15 +1432,16 @@ async function flagSerial(btn,serial_id,nazwa,platform){
     const platColor=pcolors[platform]||'#888';
     const platName=pnames[platform]||'';
     card.innerHTML=`
-      <div class="kimg">${s.cover?`<img src="${s.cover}" alt="${s.nazwa}" onerror="this.parentElement.innerHTML='🎬'">`:'🎬'}</div>
+      <div class="kimg">${s.cover?`<img src="${s.cover}" alt="" onerror="this.parentElement.innerHTML='🎬'">`:'🎬'}</div>
       ${platform?`<span class="kplat" style="background:${platColor}">${platName}</span>`:''}
       <button class="kdel" onclick="delKandydat(${s.id})">×</button>
       <div class="kbody">
-        <div class="kname">${s.nazwa}</div>
+        <div class="kname"></div>
         ${s.imdb_rating?`<div class="krating">⭐ ${s.imdb_rating}</div>`:''}
       </div>
       <button class="kpromote" onclick="promoteKandydat(${s.id}, this)">▶ Oglądam</button>`;
     document.getElementById('kandydaciGrid').appendChild(card);
+    const _kname=card.querySelector('.kname');if(_kname) _kname.textContent=s.nazwa||'';
     attachPopupEvents();
     const cnt=document.getElementById('kandydaciCount');
     if(cnt) cnt.textContent=document.querySelectorAll('#kandydaciGrid .kcard').length;
