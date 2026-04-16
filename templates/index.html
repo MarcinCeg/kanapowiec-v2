@@ -262,21 +262,37 @@
 /* ── Sortowanie ── */
 .wcard.priority-hot{border-color:#534AB7;border-width:2.5px}
 .wcard.priority-new{border-color:#534AB7;border-width:2.5px}
-.wcard.priority-done{filter:saturate(.4)}
-/* Wyszarz tylko zawartość — NIE przycisk × (opacity na rodzicu blokuje dzieci) */
-.wcard.priority-done .wimg,
+.wcard.priority-done{
+  /* NIE używamy opacity ani filter na całej karcie — blokuje eventy w Safari/iOS */
+}
+/* Wyszarz tylko obrazek — bez dotykania kontenera przycisku × */
+.wcard.priority-done .wimg img{
+  filter:saturate(.2) brightness(.8);
+}
+.wcard.priority-done .wimg{
+  opacity:.65;
+}
 .wcard.priority-done .wep-bar,
 .wcard.priority-done .wep-bar-neutral,
 .wcard.priority-done .wbody,
-.wcard.priority-done .wactions{opacity:.45}
-/* Przycisk × zawsze klikalny i widoczny */
+.wcard.priority-done .wactions{
+  opacity:.45;
+}
+/* Przycisk × — zawsze w pełni klikalny */
 .wcard.priority-done .wdel{
-  opacity:1 !important;filter:none !important;
-  pointer-events:auto !important;z-index:20
+  opacity:1 !important;
+  filter:none !important;
+  pointer-events:auto !important;
+  z-index:20 !important;
 }
 .wcard.priority-done > div:last-child{
-  opacity:1 !important;filter:none !important;pointer-events:auto !important
+  opacity:1 !important;
+  filter:none !important;
+  pointer-events:auto !important;
+  z-index:20 !important;
 }
+/* Globalny override — przycisk × zawsze klikalny */
+.wcard .wdel{pointer-events:auto !important;z-index:25 !important;cursor:pointer !important}
 /* Pasek odcinka pod okładką */
 .wep-bar{
   background:linear-gradient(135deg,#534AB7,#1D9E75);padding:7px 10px;
@@ -1358,7 +1374,7 @@ async function promoteKandydat(id,btn){
       </div>
       <div class="wactions"></div>
       <div style="position:absolute;top:6px;right:6px;z-index:10">
-        <button class="wdel" onclick="toggleDelPopup(event,${id},this)">×</button>
+        <button class="wdel" onclick="toggleDelPopup(event,${id},this)" style="position:relative;z-index:20">×</button>
         <div class="wdel-popup" id="delpopup-${id}">
           <div class="wdel-popup-title"></div>
           <button class="wdel-popup-btn success" onclick="confirmFinished(${id},this)">🎉 Ukończono serial</button>
@@ -1651,7 +1667,7 @@ function addWatchingCard(s){
     </div>
     <div class="wactions"></div>
     <div style="position:absolute;top:6px;right:6px;z-index:10">
-      <button class="wdel" onclick="toggleDelPopup(event,'${id}',this)">×</button>
+      <button class="wdel" onclick="toggleDelPopup(event,'${id}',this)" style="position:relative;z-index:20">×</button>
       <div class="wdel-popup" id="delpopup-${id}">
         <div class="wdel-popup-title"></div>
         <button class="wdel-popup-btn success" onclick="confirmFinished('${id}',this)">🎉 Ukończono serial</button>
