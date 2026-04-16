@@ -333,9 +333,10 @@
     <div class="wgrid" id="ogladamGrid">
       {% for w in ogladam %}
       {% set s = w.serial %}
+      {% if s and s.id %}
       {% if '🔥' in (w.date_label or '') %}{% set priority = 'hot' %}{% elif w.is_new_today %}{% set priority = 'new' %}{% else %}{% set priority = 'neutral' %}{% endif %}
       <div class="wcard {% if priority == 'hot' or priority == 'new' %}priority-hot{% endif %}"
-           data-platform="{{ w.platforma }}" data-id="{{ s.id }}"
+           data-platform="{{ w.platforma }}" data-id="{{ s.id or 0 }}"
            data-priority="{{ priority }}" data-date="{{ w.last_date or '' }}"
            data-nazwa="{{ s.nazwa|replace('"', '&quot;')|e }}">
         <div class="wimg">
@@ -371,20 +372,21 @@
         </div>
         <div class="wactions">
           {% if w.last_title %}
-          <button class="wbtn-ep" id="ep-btn-{{ s.id }}" onclick="markOdcinek({{ s.id }}, this)">
+          <button class="wbtn-ep" id="ep-btn-{{ s.id or 0 }}" onclick="markOdcinek({{ s.id or 0 }}, this)">
             ✓ Obejrzany
           </button>
           {% endif %}
         </div>
         <div style="position:absolute;top:6px;right:6px;z-index:10">
-          <button class="wdel" onclick="toggleDelPopup(event,{{ s.id }},this)">×</button>
-          <div class="wdel-popup" id="delpopup-{{ s.id }}">
+          <button class="wdel" onclick="toggleDelPopup(event,{{ s.id or 0 }},this)">×</button>
+          <div class="wdel-popup" id="delpopup-{{ s.id or 0 }}">
             <div class="wdel-popup-title">{{ s.nazwa[:22] }}{% if s.nazwa|length > 22 %}…{% endif %}</div>
-            <button class="wdel-popup-btn success" onclick="confirmFinished({{ s.id }},this)">🎉 Ukończono serial</button>
-            <button class="wdel-popup-btn danger" onclick="confirmRemove({{ s.id }})">🗑 Usuń z listy</button>
+            <button class="wdel-popup-btn success" onclick="confirmFinished({{ s.id or 0 }},this)">🎉 Ukończono serial</button>
+            <button class="wdel-popup-btn danger" onclick="confirmRemove({{ s.id or 0 }})">🗑 Usuń z listy</button>
           </div>
         </div>
       </div>
+      {% endif %}
       {% else %}
       <div id="ogladamEmpty" style="grid-column:1/-1">
         <div style="padding:18px 16px 22px">
@@ -449,7 +451,7 @@
     <div class="kgrid" id="kandydaciGrid">
       {% for c in kandydaci %}
       {% set s = c.serial %}
-      <div class="kcard" data-platform="{{ c.platform }}" data-id="{{ s.id }}">
+      <div class="kcard" data-platform="{{ c.platform }}" data-id="{{ s.id or 0 }}">
         <div class="kimg">{% if s.cover %}<img src="{{ s.cover }}" alt="{{ s.nazwa }}" onerror="this.parentElement.innerHTML='🎬'">{% else %}🎬{% endif %}</div>
         {% if c.platform %}<span class="kplat" style="background:{{ pcolors.get(c.platform,'#888') }}">{{ pnames.get(c.platform,'') }}</span>{% endif %}
         <button class="kdel" onclick="delKandydat({{ s.id }})">×</button>
@@ -1106,8 +1108,9 @@ function confirmFinished(id,ref){
   document.getElementById('finishedPopupTitle').textContent=`"${nazwa}" — ukończony?`;
   document.getElementById('finishedPopup').style.display='flex';
   document.getElementById('finishedConfirmBtn').onclick=async()=>{
+    const _fid=String(pendingFinishedId); // capture BEFORE close nulls it
     closeFinishedPopup();
-    const _fid=String(pendingFinishedId);
+    if(!_fid||_fid==='null'||_fid==='0'){return;}
     const r=await fetch('/api/ogladam/'+_fid,{method:'DELETE'});
     const d=await r.json();
     if(d.ok){
@@ -1257,8 +1260,10 @@ function markSerialObejrzany(id,nazwa){
   document.getElementById('watchedPopupTitle').textContent=`"${nazwa}" — serial obejrzany?`;
   document.getElementById('watchedConfirmPopup').style.display='flex';
   document.getElementById('watchedConfirmBtn').onclick=async()=>{
+    const _wid=String(pendingWatchedId); // capture BEFORE close nulls it
     closeWatchedPopup();
-    const r=await fetch('/api/ogladam/'+pendingWatchedId,{method:'DELETE'});
+    if(!_wid||_wid==='null'||_wid==='0'){return;}
+    const r=await fetch('/api/ogladam/'+_wid,{method:'DELETE'});
     const d=await r.json();
     if(d.ok){
       document.querySelector('#ogladamGrid .wcard[data-id="'+pendingWatchedId+'"]')?.remove();
