@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Tracker — Kanapowy Leniwiec{% endblock %}
+{% block title %}Tracker — Seriale.fun{% endblock %}
 
 {% block content %}
 <main>
@@ -22,15 +22,15 @@
 .wactions{padding:4px 8px 8px;display:flex;flex-direction:column;gap:4px}
 .wbtn-ep{
   width:100%;padding:6px 8px;border-radius:6px;
-  border:1.5px solid #2563eb;background:transparent;
-  color:#2563eb;font-size:11px;font-weight:700;
+  border:none;background:linear-gradient(135deg,#534AB7,#1D9E75);
+  color:#fff;font-size:11px;font-weight:700;
   cursor:pointer;transition:background .15s,color .15s;
   display:flex;align-items:center;justify-content:center;gap:4px;
   min-height:32px;box-sizing:border-box;line-height:1.3;white-space:nowrap;
   -webkit-tap-highlight-color:transparent
 }
-.wbtn-ep:hover{background:#2563eb;color:#fff}
-.wbtn-ep:active{background:#1d4ed8;color:#fff}
+.wbtn-ep:hover{opacity:.88}
+.wbtn-ep:active{opacity:.75}
 .wbtn-ep.done{
   border-color:var(--b2);background:var(--bg);
   color:var(--h);cursor:default;pointer-events:none;
@@ -260,8 +260,8 @@
 .ssr-add:hover,.ssr-add:active{background:var(--blue);color:#fff}
 .ssr-loading{padding:14px;text-align:center;font-size:12px;color:var(--h)}
 /* ── Sortowanie ── */
-.wcard.priority-hot{border-color:#f97316;border-width:2.5px}
-.wcard.priority-new{border-color:#f97316;border-width:2.5px}
+.wcard.priority-hot{border-color:#534AB7;border-width:2.5px}
+.wcard.priority-new{border-color:#534AB7;border-width:2.5px}
 .wcard.priority-done{opacity:.55;filter:saturate(.45)}
 /* FIX: X zawsze klikalny nawet na wyszarzonych kartach */
 .wcard.priority-done .wdel,
@@ -270,7 +270,7 @@
 }
 /* Pasek odcinka pod okładką */
 .wep-bar{
-  background:#f97316;padding:7px 10px;
+  background:linear-gradient(135deg,#534AB7,#1D9E75);padding:7px 10px;
   display:flex;align-items:center;gap:7px;
   margin:0;
 }
@@ -372,7 +372,7 @@
         <div class="wactions">
           {% if w.last_title %}
           <button class="wbtn-ep" id="ep-btn-{{ s.id }}" onclick="markOdcinek({{ s.id }}, this)">
-            ✓ Odcinek obejrzany
+            ✓ Obejrzany
           </button>
           {% endif %}
         </div>
@@ -735,7 +735,7 @@ let activeGenres = new Set();
 let activeCountries = new Set();
 
 // ── GUEST localStorage ──
-const GUEST_KEY = 'kanapowiec_guest';
+const GUEST_KEY = 'serialefun_guest';
 function guestLoad(){
   try { return JSON.parse(localStorage.getItem(GUEST_KEY)) || {ogladam:[],kandydaci:[]}; }
   catch(e){ return {ogladam:[],kandydaci:[]}; }
@@ -762,10 +762,10 @@ const BADGES = [
   {id:'fast',    ico:'🚀', name:'Maraton Tygodnia', desc:'7 odcinków w 7 dni — regularność mistrza.',         color:'linear-gradient(135deg,#1D9E75,#0F6E56)', threshold:7,   unit:'dni z rzędu'},
 ];
 function getGamState(){
-  try{return JSON.parse(localStorage.getItem('kgam')||'{"badges":[],"ep_today":0,"ep_total":0,"nights":0,"streak":0,"platforms":[],"hours":0}');}
+  try{return JSON.parse(localStorage.getItem('sf_gam')||'{"badges":[],"ep_today":0,"ep_total":0,"nights":0,"streak":0,"platforms":[],"hours":0}');}
   catch(e){return{badges:[],ep_today:0,ep_total:0,nights:0,streak:0,platforms:[],hours:0};}
 }
-function saveGamState(s){localStorage.setItem('kgam',JSON.stringify(s));}
+function saveGamState(s){localStorage.setItem('sf_gam',JSON.stringify(s));}
 function checkNewBadge(state){
   for(const b of BADGES){
     if(state.badges.includes(b.id)) continue;
@@ -1206,7 +1206,7 @@ function markCardDone(card){
   const bar=card.querySelector('.wep-bar,.wep-bar-neutral');
   if(bar){
     bar.className='wep-bar-neutral';
-    bar.innerHTML='<span class="wep-bar-ico" style="font-size:13px;opacity:.5">✓</span><div class="wep-bar-info"><div class="wep-bar-when">Zaliczony</div></div>';
+    bar.innerHTML='<span class="wep-bar-ico" style="font-size:13px;opacity:.7">✓</span><div class="wep-bar-info"><div class="wep-bar-when">Zaliczony</div></div>';
   }
   const epBtn=card.querySelector('.wbtn-ep');
   if(epBtn) epBtn.remove();
@@ -1367,6 +1367,7 @@ async function promoteKandydat(id,btn){
           const bar=wcard.querySelector('.wep-bar-neutral,.wep-bar');
           if(bar){
             bar.className='wep-bar';
+            bar.style.background='linear-gradient(135deg,#534AB7,#1D9E75)';
             bar.innerHTML=`<span class="wep-bar-ico">🎉</span><div class="wep-bar-info"><div class="wep-bar-when">${d.ep.date_label||'Nowy odcinek'}</div><div class="wep-bar-ep"><a href="${d.ep.link}" target="_blank" style="color:rgba(255,255,255,.85);text-decoration:none">${(d.ep.title||'').slice(0,40)}</a></div></div>`;
           }
           const actions=wcard.querySelector('.wactions');
@@ -1374,7 +1375,7 @@ async function promoteKandydat(id,btn){
             const epBtn=document.createElement('button');
             epBtn.className='wbtn-ep';
             epBtn.id=`ep-btn-${id}`;
-            epBtn.innerHTML='✓ Odcinek obejrzany';
+            epBtn.innerHTML='✓ Obejrzany';
             epBtn.onclick=function(){markOdcinek(id,this);};
             actions.insertBefore(epBtn,actions.firstChild);
           }
