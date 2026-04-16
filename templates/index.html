@@ -262,9 +262,18 @@
 /* ── Sortowanie ── */
 .wcard.priority-hot{border-color:#534AB7;border-width:2.5px}
 .wcard.priority-new{border-color:#534AB7;border-width:2.5px}
-.wcard.priority-done{opacity:.55;filter:saturate(.45)}
-/* FIX: X zawsze klikalny nawet na wyszarzonych kartach */
-.wcard.priority-done .wdel,
+.wcard.priority-done{filter:saturate(.4)}
+/* Wyszarz tylko zawartość — NIE przycisk × (opacity na rodzicu blokuje dzieci) */
+.wcard.priority-done .wimg,
+.wcard.priority-done .wep-bar,
+.wcard.priority-done .wep-bar-neutral,
+.wcard.priority-done .wbody,
+.wcard.priority-done .wactions{opacity:.45}
+/* Przycisk × zawsze klikalny i widoczny */
+.wcard.priority-done .wdel{
+  opacity:1 !important;filter:none !important;
+  pointer-events:auto !important;z-index:20
+}
 .wcard.priority-done > div:last-child{
   opacity:1 !important;filter:none !important;pointer-events:auto !important
 }
@@ -377,7 +386,7 @@
           </button>
           {% endif %}
         </div>
-        <div style="position:absolute;top:6px;right:6px;z-index:10">
+        <div style="position:absolute;top:6px;right:6px;z-index:20;isolation:isolate">
           <button class="wdel" onclick="toggleDelPopup(event,{{ s.id or 0 }},this)">×</button>
           <div class="wdel-popup" id="delpopup-{{ s.id or 0 }}">
             <div class="wdel-popup-title">{{ s.nazwa[:22] }}{% if s.nazwa|length > 22 %}…{% endif %}</div>
