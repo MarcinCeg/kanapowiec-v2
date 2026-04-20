@@ -1511,6 +1511,21 @@ const actorPopupInner=document.getElementById('actorPopupInner');
 let popupTimer=null,hideTimer=null,tmdbCache={},actorCache={};
 
 function positionPopup(card){
+  const isMobile=window.matchMedia('(hover: none)').matches;
+  if(isMobile){
+    // Na mobile — wyśrodkuj popup na ekranie
+    if(popup){
+      popup.style.left='50%';
+      popup.style.top='50%';
+      popup.style.transform='translate(-50%,-50%)';
+      popup.style.width='min(320px, 92vw)';
+      popup.style.maxHeight='80vh';
+      popup.style.overflowY='auto';
+    }
+    return;
+  }
+  // Desktop — obok karty
+  if(popup) popup.style.transform='';
   const r=card.getBoundingClientRect();
   let left=r.right+10,top=r.top;
   if(left+300>window.innerWidth-10) left=r.left-310;
@@ -1577,11 +1592,14 @@ async function showPopup(card){
   positionPopup(card);
   if(popupInner) popupInner.innerHTML='<div class="popup-loading">⏳ Ładuję...</div>';
   if(popup) popup.classList.add('visible');
+  if(window.matchMedia('(hover: none)').matches)
+    document.getElementById('cardPopupOverlay')?.classList.add('visible');
   const tmdb=await fetchTmdb(title);
   if(popup?.classList.contains('visible')){renderPopup(d,tmdb);positionPopup(card);}
 }
 function hidePopup(){
   if(popup) popup.classList.remove('visible');
+  document.getElementById('cardPopupOverlay')?.classList.remove('visible');
   clearTimeout(popupTimer);
 }
 document.addEventListener('mousemove',e=>{
@@ -1591,8 +1609,12 @@ document.addEventListener('mousemove',e=>{
   if(!onCard&&!onPopup){clearTimeout(hideTimer);hideTimer=setTimeout(hidePopup,300);}
 });
 document.addEventListener('touchstart',e=>{
+  // Nie zamykaj gdy tap na karcie (long press ją otwiera)
   if(popup?.classList.contains('visible')){
-    if(!e.target.closest('#cardPopup')&&!e.target.closest('.ocard,.kcard')) hidePopup();
+    if(!e.target.closest('#cardPopup')&&!e.target.closest('.ocard,.kcard')){
+      hidePopup();
+    }
+    return;
   }
   if(actorPopup?.classList.contains('visible')){
     if(!e.target.closest('#actorPopup')&&!e.target.closest('.popup-actor')) closeActorPopup();
@@ -1628,14 +1650,43 @@ function attachPopupEvents(){
   const isMobile=window.matchMedia('(hover: none)').matches;
   document.querySelectorAll('.ocard,.kcard').forEach(card=>{
     if(card._popupAttached) return;card._popupAttached=true;
+
     if(!isMobile){
+      // Desktop — hover
       card.addEventListener('mouseenter',()=>{clearTimeout(hideTimer);popupTimer=setTimeout(()=>showPopup(card),900);});
       card.addEventListener('mouseleave',()=>{clearTimeout(popupTimer);hideTimer=setTimeout(hidePopup,200);});
+    } else {
+      // Mobile — long press (600ms)
+      let _lt=null,_startX=0,_startY=0;
+      card.addEventListener('touchstart',e=>{
+        const t=e.touches[0];
+        _startX=t.clientX;_startY=t.clientY;
+        clearTimeout(_lt);
+        _lt=setTimeout(()=>{
+          _lt=null;
+          showPopup(card);
+        },600);
+      },{passive:true});
+      card.addEventListener('touchmove',e=>{
+        const t=e.touches[0];
+        const dx=Math.abs(t.clientX-_startX),dy=Math.abs(t.clientY-_startY);
+        if(dx>10||dy>10){clearTimeout(_lt);_lt=null;}
+      },{passive:true});
+      card.addEventListener('touchend',()=>{clearTimeout(_lt);_lt=null;},{passive:true});
+      card.addEventListener('touchcancel',()=>{clearTimeout(_lt);_lt=null;},{passive:true});
     }
   });
-  if(popup&&!isMobile){
-    popup.addEventListener('mouseenter',()=>clearTimeout(hideTimer));
-    popup.addEventListener('mouseleave',()=>{hideTimer=setTimeout(hidePopup,200);});
+
+  if(popup){
+    if(!isMobile){
+      popup.addEventListener('mouseenter',()=>clearTimeout(hideTimer));
+      popup.addEventListener('mouseleave',()=>{hideTimer=setTimeout(hidePopup,200);});
+    } else {
+      // Mobile — tap poza popupem zamyka
+      popup.addEventListener('touchstart',e=>{
+        e.stopPropagation();
+      },{passive:true});
+    }
   }
 }
 
