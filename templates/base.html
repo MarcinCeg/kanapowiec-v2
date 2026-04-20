@@ -241,7 +241,22 @@ main{max-width:1100px;margin:0 auto;padding:16px 20px}
 .filter-acc-body.open{display:block}
 
 .card-popup{position:fixed;z-index:9999;width:300px;background:#fff;border-radius:16px;box-shadow:0 8px 40px rgba(0,0,0,.18);border:1px solid var(--b);pointer-events:none;opacity:0;transform:translateY(6px) scale(.98);transition:opacity .18s,transform .18s;overflow:hidden}
+@media(hover:none){
+  .card-popup.visible{position:fixed;z-index:10000}
+  .card-popup-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9998;backdrop-filter:blur(2px)}
+  .card-popup-overlay.visible{display:block}
+}
 .card-popup.visible{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}
+@media(hover:none){
+  .ocard::after,.kcard::after{
+    content:'przytrzymaj';
+    position:absolute;bottom:4px;left:50%;transform:translateX(-50%);
+    font-size:8px;font-weight:700;color:rgba(255,255,255,.7);
+    background:rgba(0,0,0,.35);padding:2px 6px;border-radius:20px;
+    pointer-events:none;opacity:0;transition:opacity .2s;white-space:nowrap;
+  }
+  .ocard:active::after,.kcard:active::after{opacity:1;}
+}
 .popup-header{display:flex;gap:12px;padding:14px 14px 10px}
 .popup-poster{width:72px;height:108px;border-radius:8px;object-fit:cover;flex-shrink:0;background:var(--bg)}
 .popup-poster-placeholder{width:72px;height:108px;border-radius:8px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0}
@@ -391,6 +406,7 @@ main{max-width:1100px;margin:0 auto;padding:16px 20px}
 
 {% block content %}{% endblock %}
 
+<div class="card-popup-overlay" id="cardPopupOverlay"></div>
 <div class="card-popup" id="cardPopup"><div id="popupInner"></div></div>
 <div class="actor-popup" id="actorPopup">
   <button class="actor-popup-close" onclick="closeActorPopup()">×</button>
